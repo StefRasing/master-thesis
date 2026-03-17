@@ -1,0 +1,1061 @@
+[
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_11440431",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "Mining US",
+                            "_arg_out": "MiningUS"
+                        },
+                        "out": "Mining"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Soybean Farming CAN",
+                            "_arg_out": "Soybean Farming CAN"
+                        },
+                        "out": "Soybean Farming"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Soybean Farming",
+                            "_arg_out": "Soybean Farming"
+                        },
+                        "out": "Soybean Farming"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Oil Extraction US",
+                            "_arg_out": "Oil ExtractionUS"
+                        },
+                        "out": "Oil Extraction"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Fishing",
+                            "_arg_out": "Fishing"
+                        },
+                        "out": "Fishing"
+                    }
+                ]
+            },
+            "training_examples": 5,
+            "total_examples": 5,
+            "timestamp": "2026-03-17 at 15:20:06"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": {
+            "rulenode": "8{8{2,6,5},7{4,5},3}",
+            "expression": "replace_cvc(replace_cvc(_arg_1, \"CAN\", \"US\"), concat_cvc(\" \", \"US\"), \"\")",
+            "depth": 3,
+            "size": 9,
+            "solved_examples": 5,
+            "path_to_solution": [
+                {
+                    "rulenode": "2",
+                    "expression": "_arg_1",
+                    "cost": 4,
+                    "index_in_pool": 1
+                },
+                {
+                    "rulenode": "8{2,5,3}",
+                    "expression": "replace_cvc(_arg_1, \"US\", \"\")",
+                    "cost": 2,
+                    "index_in_pool": 2
+                },
+                {
+                    "rulenode": "8{2,7{4,5},3}",
+                    "expression": "replace_cvc(_arg_1, concat_cvc(\" \", \"US\"), \"\")",
+                    "cost": 0,
+                    "index_in_pool": 1
+                },
+                {
+                    "rulenode": "8{8{2,6,5},7{4,5},3}",
+                    "expression": "replace_cvc(replace_cvc(_arg_1, \"CAN\", \"US\"), concat_cvc(\" \", \"US\"), \"\")",
+                    "cost": -1,
+                    "index_in_pool": 1
+                }
+            ]
+        },
+        "statistics": {
+            "programs_evaluated": 6690,
+            "execution_time_seconds": 2.762073833,
+            "memory_bytes": 1033356224
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 19149,
+            "selected_properties": 2,
+            "properties": [
+                {
+                    "rulenode": "24{15,21{39,4,31}}",
+                    "expression": "-1 == indexof_cvc(_arg_out, \" \", 5)",
+                    "target_values": "Bool[1, 0, 0, 1, 1]",
+                    "iteration_added": 1
+                },
+                {
+                    "rulenode": "25{39,8{2,5,2}}",
+                    "expression": "prefixof_cvc(_arg_out, replace_cvc(_arg_1, \"US\", _arg_1))",
+                    "target_values": "Bool[1, 1, 1, 1, 1]",
+                    "iteration_added": 2
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_11604909",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "AIX 5.1",
+                            "_arg_out": "1.1"
+                        },
+                        "out": "5.1"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "VMware ESX Server 3.5.0 build-110268",
+                            "_arg_out": "1.1"
+                        },
+                        "out": "3.5"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Linux Linux 2.6 Linux",
+                            "_arg_out": "1.1"
+                        },
+                        "out": "2.6"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Red Hat Enterprise AS 4 <2.6-78.0.13.ELl_arg_esmp>",
+                            "_arg_out": "1.1"
+                        },
+                        "out": "2.6"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Microsoft <R> Windows <R> 2000 Advanced Server 1.0",
+                            "_arg_out": "1.1"
+                        },
+                        "out": "1.0"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Microsoft Windows XP Win2008R2 6.1.7601",
+                            "_arg_out": "1.1"
+                        },
+                        "out": "6.1"
+                    }
+                ]
+            },
+            "training_examples": 6,
+            "total_examples": 6,
+            "timestamp": "2026-03-17 at 15:20:10"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": null,
+        "statistics": {
+            "programs_evaluated": 41100,
+            "execution_time_seconds": 3.910320917,
+            "memory_bytes": 1376223200
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 13019,
+            "selected_properties": 15,
+            "properties": [
+                {
+                    "rulenode": "23{17{38},28}",
+                    "expression": "len_cvc(_arg_out) == 3",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 1
+                },
+                {
+                    "rulenode": "26{2,38}",
+                    "expression": "contains_cvc(_arg_1, _arg_out)",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 2
+                },
+                {
+                    "rulenode": "23{17{38},28}",
+                    "expression": "len_cvc(_arg_out) == 3",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 3
+                },
+                {
+                    "rulenode": "24{8{38,28},38}",
+                    "expression": "prefixof_cvc(at_cvc(_arg_out, 3), _arg_out)",
+                    "target_values": "Bool[0, 0, 0, 0, 0, 0]",
+                    "iteration_added": 4
+                },
+                {
+                    "rulenode": "36{18{8{38,12}},13}",
+                    "expression": "str_to_int_cvc(at_cvc(_arg_out, 1)) <= 0",
+                    "target_values": "Bool[0, 0, 0, 0, 0, 0]",
+                    "iteration_added": 5
+                },
+                {
+                    "rulenode": "26{2,38}",
+                    "expression": "contains_cvc(_arg_1, _arg_out)",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 6
+                },
+                {
+                    "rulenode": "23{14,20{2,38,27}}",
+                    "expression": "-1 == indexof_cvc(_arg_1, _arg_out, 2)",
+                    "target_values": "Bool[0, 0, 0, 0, 0, 0]",
+                    "iteration_added": 7
+                },
+                {
+                    "rulenode": "23{17{38},28}",
+                    "expression": "len_cvc(_arg_out) == 3",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 8
+                },
+                {
+                    "rulenode": "26{2,38}",
+                    "expression": "contains_cvc(_arg_1, _arg_out)",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 9
+                },
+                {
+                    "rulenode": "23{17{38},28}",
+                    "expression": "len_cvc(_arg_out) == 3",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 10
+                },
+                {
+                    "rulenode": "26{2,38}",
+                    "expression": "contains_cvc(_arg_1, _arg_out)",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 11
+                },
+                {
+                    "rulenode": "23{17{38},28}",
+                    "expression": "len_cvc(_arg_out) == 3",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 12
+                },
+                {
+                    "rulenode": "26{2,38}",
+                    "expression": "contains_cvc(_arg_1, _arg_out)",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 13
+                },
+                {
+                    "rulenode": "23{17{38},28}",
+                    "expression": "len_cvc(_arg_out) == 3",
+                    "target_values": "Bool[1, 1, 1, 1, 1, 1]",
+                    "iteration_added": 14
+                },
+                {
+                    "rulenode": "24{8{38,28},38}",
+                    "expression": "prefixof_cvc(at_cvc(_arg_out, 3), _arg_out)",
+                    "target_values": "Bool[0, 0, 0, 0, 0, 0]",
+                    "iteration_added": 15
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_12948338",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "An example string with _username in it RT _AwesomeUser says _username is awesome",
+                            "_arg_2": "username",
+                            "_arg_out": 2
+                        },
+                        "out": 2
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "An example string with _username in it RT _AwesomeUser says _username is awesome",
+                            "_arg_2": "AwesomeUser",
+                            "_arg_out": 2
+                        },
+                        "out": 1
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "An _example string with _example in it is awesome _example",
+                            "_arg_2": "example",
+                            "_arg_out": 2
+                        },
+                        "out": 3
+                    }
+                ]
+            },
+            "training_examples": 3,
+            "total_examples": 3,
+            "timestamp": "2026-03-17 at 15:20:16"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": null,
+        "statistics": {
+            "programs_evaluated": 13399,
+            "execution_time_seconds": 6.026472875,
+            "memory_bytes": 2124213024
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 10873,
+            "selected_properties": 15,
+            "properties": [
+                {
+                    "rulenode": "27{5,9{2,39}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_1, _arg_out))",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 1
+                },
+                {
+                    "rulenode": "27{12{3,39,17},3}",
+                    "expression": "prefixof_cvc(substr_cvc(_arg_2, _arg_out, 3), _arg_2)",
+                    "target_values": "Bool[0, 1, 0]",
+                    "iteration_added": 2
+                },
+                {
+                    "rulenode": "37{17,39}",
+                    "expression": "3 <= _arg_out",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 3
+                },
+                {
+                    "rulenode": "37{17,39}",
+                    "expression": "3 <= _arg_out",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 4
+                },
+                {
+                    "rulenode": "37{17,39}",
+                    "expression": "3 <= _arg_out",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 5
+                },
+                {
+                    "rulenode": "27{5,9{2,39}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_1, _arg_out))",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 6
+                },
+                {
+                    "rulenode": "37{30,39}",
+                    "expression": "4 <= _arg_out",
+                    "target_values": "Bool[0, 0, 0]",
+                    "iteration_added": 7
+                },
+                {
+                    "rulenode": "27{5,9{2,39}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_1, _arg_out))",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 8
+                },
+                {
+                    "rulenode": "37{17,39}",
+                    "expression": "3 <= _arg_out",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 9
+                },
+                {
+                    "rulenode": "27{5,9{2,39}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_1, _arg_out))",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 10
+                },
+                {
+                    "rulenode": "37{17,39}",
+                    "expression": "3 <= _arg_out",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 11
+                },
+                {
+                    "rulenode": "37{17,39}",
+                    "expression": "3 <= _arg_out",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 12
+                },
+                {
+                    "rulenode": "27{5,9{2,39}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_1, _arg_out))",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 13
+                },
+                {
+                    "rulenode": "37{30,39}",
+                    "expression": "4 <= _arg_out",
+                    "target_values": "Bool[0, 0, 0]",
+                    "iteration_added": 14
+                },
+                {
+                    "rulenode": "27{5,9{2,39}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_1, _arg_out))",
+                    "target_values": "Bool[0, 0, 1]",
+                    "iteration_added": 15
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_17212077",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "01/15/2013",
+                            "_arg_out": "-1"
+                        },
+                        "out": "01/2013"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "03/07/2011",
+                            "_arg_out": "-1"
+                        },
+                        "out": "03/2011"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "05/09/2009",
+                            "_arg_out": "-1"
+                        },
+                        "out": "05/2009"
+                    }
+                ]
+            },
+            "training_examples": 3,
+            "total_examples": 3,
+            "timestamp": "2026-03-17 at 15:20:16"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": null,
+        "statistics": {
+            "programs_evaluated": 6186,
+            "execution_time_seconds": 0.515292792,
+            "memory_bytes": 214191696
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 16755,
+            "selected_properties": 15,
+            "properties": [
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 1
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 2
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 3
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 4
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 5
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 6
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 7
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 8
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 9
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 10
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 11
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 12
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 13
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 14
+                },
+                {
+                    "rulenode": "23{17{38},32}",
+                    "expression": "len_cvc(_arg_out) == 7",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 15
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_19274448",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "dhfjd9999999dfda",
+                            "_arg_out": true
+                        },
+                        "out": true
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "ddsss999dfdfsfd",
+                            "_arg_out": false
+                        },
+                        "out": false
+                    }
+                ]
+            },
+            "training_examples": 2,
+            "total_examples": 2,
+            "timestamp": "2026-03-17 at 15:20:16"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": null,
+        "statistics": {
+            "programs_evaluated": 0,
+            "execution_time_seconds": 0.174189917,
+            "memory_bytes": 32629056
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 6387,
+            "selected_properties": 15,
+            "properties": [
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 1
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 2
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 3
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 4
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 5
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 6
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 7
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 8
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 9
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 10
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 11
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 12
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 13
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 14
+                },
+                {
+                    "rulenode": "38",
+                    "expression": "_arg_out",
+                    "target_values": "Bool[1, 0]",
+                    "iteration_added": 15
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_19558979",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "spreadsheet",
+                            "_arg_2": 1,
+                            "_arg_out": "p"
+                        },
+                        "out": "s"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "spreadsheet",
+                            "_arg_2": 2,
+                            "_arg_out": "p"
+                        },
+                        "out": "p"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "spreadsheet",
+                            "_arg_2": 3,
+                            "_arg_out": "p"
+                        },
+                        "out": "r"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "spreadsheet",
+                            "_arg_2": 4,
+                            "_arg_out": "p"
+                        },
+                        "out": "e"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "spreadsheet",
+                            "_arg_2": 5,
+                            "_arg_out": "p"
+                        },
+                        "out": "a"
+                    }
+                ]
+            },
+            "training_examples": 5,
+            "total_examples": 5,
+            "timestamp": "2026-03-17 at 15:20:17"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": {
+            "rulenode": "7{2,11}",
+            "expression": "at_cvc(_arg_1, _arg_2)",
+            "depth": 2,
+            "size": 3,
+            "solved_examples": 5,
+            "path_to_solution": [
+                {
+                    "rulenode": "2",
+                    "expression": "_arg_1",
+                    "cost": 5,
+                    "index_in_pool": 1
+                },
+                {
+                    "rulenode": "7{2,11}",
+                    "expression": "at_cvc(_arg_1, _arg_2)",
+                    "cost": -1,
+                    "index_in_pool": 1
+                }
+            ]
+        },
+        "statistics": {
+            "programs_evaluated": 43,
+            "execution_time_seconds": 0.426096958,
+            "memory_bytes": 186027824
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 11040,
+            "selected_properties": 1,
+            "properties": [
+                {
+                    "rulenode": "29{7{2,11},38}",
+                    "expression": "suffixof_cvc(at_cvc(_arg_1, _arg_2), _arg_out)",
+                    "target_values": "Bool[1, 1, 1, 1, 1]",
+                    "iteration_added": 1
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_2171308",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "John Doe",
+                            "_arg_out": "John DoeJJohn Doe"
+                        },
+                        "out": "J Doe"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Mayur Naik",
+                            "_arg_out": "Mayur NaikMMayur Naik"
+                        },
+                        "out": "M Naik"
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "Nimit Singh",
+                            "_arg_out": "Nimit SinghNNimit Singh"
+                        },
+                        "out": "N Singh"
+                    }
+                ]
+            },
+            "training_examples": 3,
+            "total_examples": 3,
+            "timestamp": "2026-03-17 at 15:20:21"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": null,
+        "statistics": {
+            "programs_evaluated": 38303,
+            "execution_time_seconds": 4.1735715,
+            "memory_bytes": 1556655712
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 11758,
+            "selected_properties": 15,
+            "properties": [
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 1
+                },
+                {
+                    "rulenode": "24{4,37}",
+                    "expression": "suffixof_cvc(\" \", _arg_out)",
+                    "target_values": "Bool[0, 0, 0]",
+                    "iteration_added": 2
+                },
+                {
+                    "rulenode": "23{4,7{37,28}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 4))",
+                    "target_values": "Bool[0, 0, 0]",
+                    "iteration_added": 3
+                },
+                {
+                    "rulenode": "23{7{2,11},37}",
+                    "expression": "prefixof_cvc(at_cvc(_arg_1, 1), _arg_out)",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 4
+                },
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 5
+                },
+                {
+                    "rulenode": "25{2,10{37,26,27}}",
+                    "expression": "contains_cvc(_arg_1, substr_cvc(_arg_out, 2, 3))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 6
+                },
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 7
+                },
+                {
+                    "rulenode": "25{2,10{37,26,27}}",
+                    "expression": "contains_cvc(_arg_1, substr_cvc(_arg_out, 2, 3))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 8
+                },
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 9
+                },
+                {
+                    "rulenode": "25{2,10{37,26,27}}",
+                    "expression": "contains_cvc(_arg_1, substr_cvc(_arg_out, 2, 3))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 10
+                },
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 11
+                },
+                {
+                    "rulenode": "25{2,10{37,26,27}}",
+                    "expression": "contains_cvc(_arg_1, substr_cvc(_arg_out, 2, 3))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 12
+                },
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 13
+                },
+                {
+                    "rulenode": "25{2,10{37,26,27}}",
+                    "expression": "contains_cvc(_arg_1, substr_cvc(_arg_out, 2, 3))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 14
+                },
+                {
+                    "rulenode": "23{4,7{37,26}}",
+                    "expression": "prefixof_cvc(\" \", at_cvc(_arg_out, 2))",
+                    "target_values": "Bool[1, 1, 1]",
+                    "iteration_added": 15
+                }
+            ]
+        }
+    },
+    {
+        "specification": {
+            "benchmark_name": "SyGuS strings",
+            "problem": {
+                "name": "problem_23435880",
+                "spec": [
+                    {
+                        "in": {
+                            "_arg_1": "apple apples",
+                            "_arg_2": "apple",
+                            "_arg_out": 3
+                        },
+                        "out": 2
+                    },
+                    {
+                        "in": {
+                            "_arg_1": "an orange among the oranges is a spoiled orange",
+                            "_arg_2": "orange",
+                            "_arg_out": 3
+                        },
+                        "out": 3
+                    }
+                ]
+            },
+            "training_examples": 2,
+            "total_examples": 2,
+            "timestamp": "2026-03-17 at 15:20:21"
+        },
+        "hyperparameters": {
+            "pool_size": 5,
+            "max_extension_depth": 1,
+            "max_extension_size": 1,
+            "max_property_depth": 4,
+            "max_property_size": 6,
+            "max_number_of_properties": 15,
+            "max_iterations": 9223372036854775807,
+            "property_grammar_description": "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
+            "base_synthesizer_description": "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+        },
+        "solution": {
+            "rulenode": "20{7{2,3,9{12}},5,12}",
+            "expression": "indexof_cvc(replace_cvc(_arg_1, _arg_2, int_to_str_cvc(1)), \" \", 1)",
+            "depth": 4,
+            "size": 8,
+            "solved_examples": 2,
+            "path_to_solution": [
+                {
+                    "rulenode": "12",
+                    "expression": "1",
+                    "cost": 2,
+                    "index_in_pool": 1
+                },
+                {
+                    "rulenode": "20{2,5,12}",
+                    "expression": "indexof_cvc(_arg_1, \" \", 1)",
+                    "cost": 1,
+                    "index_in_pool": 2
+                },
+                {
+                    "rulenode": "20{7{2,3,4},5,12}",
+                    "expression": "indexof_cvc(replace_cvc(_arg_1, _arg_2, \"\"), \" \", 1)",
+                    "cost": 1,
+                    "index_in_pool": 5
+                },
+                {
+                    "rulenode": "20{7{2,3,9{12}},5,12}",
+                    "expression": "indexof_cvc(replace_cvc(_arg_1, _arg_2, int_to_str_cvc(1)), \" \", 1)",
+                    "cost": -1,
+                    "index_in_pool": 1
+                }
+            ]
+        },
+        "statistics": {
+            "programs_evaluated": 1338,
+            "execution_time_seconds": 0.255366833,
+            "memory_bytes": 114172464
+        },
+        "heuristic": {
+            "number_of_candidate_properties": 9168,
+            "selected_properties": 1,
+            "properties": [
+                {
+                    "rulenode": "23{16{17{3},28},38}",
+                    "expression": "len_cvc(_arg_2) - 3 == _arg_out",
+                    "target_values": "Bool[1, 1]",
+                    "iteration_added": 1
+                }
+            ]
+        }
+    }
+]
