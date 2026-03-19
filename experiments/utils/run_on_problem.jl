@@ -134,7 +134,7 @@ function run(;
     #     println(" - $target_values \t $prop")
     # end
 
-    base_synthesizer_description = "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (at most in one place)."
+    base_synthesizer_description = "Neighborhood search. Neighborhood is obtained by expanding all pool entries. To expand a pool entry, each node in the program is replaced with a grammar rule, filled with an extension or the program (exactly in one place)."
 
     return OrderedDict(
         "specification" => OrderedDict(

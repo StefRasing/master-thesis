@@ -204,7 +204,8 @@ function neighborhood(iter::PropertyBasedNeighborhoodIterator, program::Abstract
                 continue
             end
 
-            for program_index in [0; findall(t -> t == program_type, grammar.childtypes[rule_id])]
+            for program_index in findall(t -> t == program_type, grammar.childtypes[rule_id])
+            # for program_index in [0; findall(t -> t == program_type, grammar.childtypes[rule_id])]
                 child_options = []
 
                 for (index, child_type) in enumerate(grammar.childtypes[rule_id])

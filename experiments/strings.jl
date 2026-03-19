@@ -61,7 +61,7 @@ for (i, n) in enumerate([problem_names[1]; problem_names])
         max_extension_size = 1,
         max_property_depth = 4,
         max_property_size = 6,
-        max_number_of_properties = 15,
+        max_number_of_properties = 5,
         max_iterations = typemax(Int),
         property_grammar_description = "Extensions: ints 0,1,2,3,4,5,6,7,8,9, == for String, ==, <=, < for Int. Constraints: a + b <> b + a, a == b <> b == a, forbid if true/false ..., forbid if ... then S else S. Prune properties that produce nothing on target outputs.",
     )
