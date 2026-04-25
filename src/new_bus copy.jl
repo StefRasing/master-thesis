@@ -2,19 +2,6 @@
 const HASH_SEED = hash("DON'T PANIC")
 
 
-struct CachedRuleNode
-    rule::Int
-    children::Vector{CachedRuleNode}
-    outputs::Vector{Any}
-end
-
-function CachedRuleNode(rule::Int, children::Vector{CachedRuleNode}, interp::Function) 
-    children_outputs = [child.outputs for child in children]
-    CachedRuleNode(rule, children, interp(rule, children_outputs))
-end
-
-HerbCore.RuleNode(program::CachedRuleNode) = RuleNode(program.rule, [RuleNode(c) for c in program.children])
-
 """
     BUBank{P}
 
@@ -35,7 +22,6 @@ end
 Add `prog` to the bank under the given return `type` and integer `cost`.
 """
 function add!(bank::BUBank{P}, type::Symbol, cost::Int, prog::P) where {P}
-    any(isnothing, prog.outputs) && return nothing
     by_cost = get!(bank.data, type, Dict{Int, Vector{P}}())
     progs   = get!(by_cost, cost, P[])
     push!(progs, prog)
@@ -52,10 +38,6 @@ function get_programs(bank::BUBank{P}, type::Symbol, cost::Int)::Vector{P} where
     by_cost = get(bank.data, type, nothing)
     isnothing(by_cost) && return P[]
     return get(by_cost, cost, P[])
-end
-
-function get_programs(bank::BUBank{P}, cost::Int)::Vector{P} where {P}
-    vcat([get_programs(bank, type, cost) for type in get_types(bank)]...)
 end
 
 
@@ -250,15 +232,35 @@ Return a fresh empty bank for `iter`.
 The default returns `BUBank{RuleNode}()`.
 Override to use a different bank structure.
 """
-make_bank(::AbstractBUSIterator) = BUBank{CachedRuleNode}()
+make_bank(::AbstractBUSIterator) = BUBank{RuleNode}()
 
 """
     assemble(op::Int, children) :: RuleNode
 
 Construct a `RuleNode` for rule `op` with the given `children`.
 """
-assemble(op::Int, children, interp::Function) = CachedRuleNode(op, collect(children), interp)
+assemble(op::Int, children) = RuleNode(op, collect(children))
 
+"""
+    assemble(prog::RuleNode, children) :: RuleNode
+
+Fill the holes in `prog` with `children` in depth-first order and return
+the resulting complete program. Holes (any `AbstractHole` subtype) are
+replaced one by one as they are encountered during a left-to-right
+depth-first traversal.
+"""
+function assemble(prog::RuleNode, children)
+    iter = Iterators.Stateful(children)
+    return _fill_holes(prog, iter)
+end
+
+function _fill_holes(node::RuleNode, iter)
+    new_children = Vector{AbstractRuleNode}(undef, length(node.children))
+    for (i, child) in enumerate(node.children)
+        new_children[i] = child isa AbstractHole ? popfirst!(iter) : _fill_holes(child, iter)
+    end
+    return RuleNode(node.ind, new_children)
+end
 
 """
     grow(iter::AbstractBUSIterator, level::Int, grammar::AbstractGrammar, bank::BUBank, ops::Vector{Int})
@@ -285,7 +287,7 @@ end
 function _grow_op(iter, level, grammar, bank, op)
     budget = level - node_cost(iter, op)
     return (
-        (assemble(op, children, iter.program_to_outputs), grammar.types[op])
+        (assemble(op, children), grammar.types[op])
         for children in program_combinations(bank, grammar.childtypes[op], budget)
     )
 end
@@ -325,11 +327,11 @@ returns `false`.
 function is_observationally_equivalent!(
     seen::Dict{Symbol, Set{UInt64}},
     type::Symbol,
-    prog::CachedRuleNode,
+    prog::RuleNode,
     eval_fn
 )
     isnothing(eval_fn) && return false
-    sig = _hash_outputs(prog.outputs)
+    sig = _hash_outputs(eval_fn(prog))
     type_seen = get!(seen, type, Set{UInt64}())
     sig ∈ type_seen && return true
     push!(type_seen, sig)
@@ -367,7 +369,7 @@ CostBUSIterator(grammar, start_symbol, max_cost, rule_costs) =
     CostBUSIterator(grammar, start_symbol, max_cost, rule_costs, nothing)
 
 node_cost(iter::CostBUSIterator, op::Int) = iter.rule_costs[op]
-node_cost(iter::CostBUSIterator, prog::CachedRuleNode) = iter.rule_costs[prog.ind]
+node_cost(iter::CostBUSIterator, prog::RuleNode) = iter.rule_costs[prog.ind]
 
 Base.IteratorSize(::Type{<:CostBUSIterator}) = Base.SizeUnknown()
 
@@ -395,7 +397,7 @@ struct BUSState{B}
 end
 
 # Keep the old name as an alias so existing code continues to work.
-const CostBUSState = BUSState{BUBank{CachedRuleNode}}
+const CostBUSState = BUSState{BUBank{RuleNode}}
 
 function Base.iterate(iter::AbstractBUSIterator)
     bank    = make_bank(iter)
@@ -406,7 +408,7 @@ function Base.iterate(iter::AbstractBUSIterator)
     # Seed the bank with all terminal programs.
     for rule_idx in eachindex(grammar.isterminal)
         grammar.isterminal[rule_idx] || continue
-        prog = CachedRuleNode(rule_idx, CachedRuleNode[], iter.program_to_outputs)
+        prog = RuleNode(rule_idx)
         type = grammar.types[rule_idx]
         cost = node_cost(iter, rule_idx)
         if !is_observationally_equivalent!(seen, type, prog, iter.program_to_outputs)
@@ -436,8 +438,7 @@ function _next_bus(iter::AbstractBUSIterator, state::BUSState)
     grammar = iter.grammar
 
     while true
-        # progs = get_programs(bank, iter.start_symbol, level)
-        progs = get_programs(bank, level)
+        progs = get_programs(bank, iter.start_symbol, level)
         while yi <= length(progs)
             prog = progs[yi]
             yi += 1

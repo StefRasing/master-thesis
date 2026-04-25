@@ -433,12 +433,19 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Rule
     types = grammar.types
 
     # Select a random mutation operation
+    operations = [:replace]
+
     # Check if we can perform a delete operation (only if a recursive rule exists in the program)
     if any(count -> count > 0, individual.rule_counts[iter.recursive_rules])
-        operation = rand([:replace, :insert, :delete])
-    else
-        operation = rand([:replace, :insert])
+        push!(operations, :delete)
     end
+
+    # Check if we can perform am insert operation (only is a rule appearing in recurisve rules exists)
+    if any(count -> count > 0, individual.rule_counts[iter.rules_in_recursive_rules])
+        push!(operations, :insert)
+    end
+
+    operation = rand(operations)
 
     if operation == :replace
         # Select a random subprogram to replace. Every node is allowed in this case

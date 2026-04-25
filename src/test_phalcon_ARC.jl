@@ -9,10 +9,10 @@ include("phalcon.jl")
 # using Profile, ProfileView
 # Profile.clear()
 
-benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
+benchmark = HerbBenchmarks.ARC_AGI1
 RuntimeGeneratedFunctions.init(benchmark)
-problem = benchmark.problem_17212077
-grammar = benchmark.grammar_17212077
+problem = benchmark.problem_007bbfb7
+grammar = benchmark.grammar_hodel
 
 iterator = GeneticIterator(grammar, :Start,
     benchmark = benchmark,
@@ -30,20 +30,11 @@ function grammar_to_property_grammar(grammar)
 
     # Set start rule to boolean
     original_starting_symbol = property_grammar.rules[1]
-    property_grammar.rules[1] = :ntBool
-
-    # Add extra rules for property expressivity
-    merge_grammars!(property_grammar, @cfgrammar begin
-        ntInt = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-        ntBool = ntString == ntString
-        ntBool = ntInt == ntInt
-        ntBool = ntInt <= ntInt
-        ntBool = ntInt < ntInt
-    end)    
+    property_grammar.rules[1] = :Boolean
 
     # Add 'y' rule and constraint grammar to contain it
     add_rule!(property_grammar, Expr(:(=), original_starting_symbol, :_arg_out))
-    # addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
+    addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
 
     return property_grammar
 end
@@ -51,7 +42,7 @@ end
 solution = phalcon(
     iterator = iterator, 
     grammar_to_property_grammar = grammar_to_property_grammar, 
-    max_number_of_properties = 20,
+    max_number_of_properties = 1,
 )
 
 println()

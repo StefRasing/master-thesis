@@ -10,9 +10,9 @@ function find_property!(;
 )
     target_outputs = [io.out for io in problem.spec]
 
-    interp = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
-    interp_one = (program, ys) -> [interp(program, (io.in[:_arg_out] = y; io.in)) for (io, y) in zip(problem.spec, ys)]
-    interp_all = program -> [interp_one(program, ys) for ys in [[target_outputs]; local_optimum_outputs]]
+    interp = HerbInterpret.make_output_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+    specs = [(new_in = copy(io.in); new_in[:_arg_out] = y; new_in) for (io, y) in zip(Iterators.cycle(problem.spec), [target_outputs; local_optimum_outputs...])]
+    interp_all = (rule, os) -> interp(rule, os, specs)
 
     max_score = sum(sum(output .!= target_outputs) for output in local_optimum_outputs)
     best_property = nothing
@@ -29,8 +29,11 @@ function find_property!(;
     )
 
     for property in properties
-        target_values = interp_one(property, target_outputs)
-        score = sum(sum(interp_one(property, values) .!= target_values) for values in local_optimum_outputs)
+        all_values = property.outputs
+        target_values = all_values[begin:length(problem.spec)]
+        other_values = all_values[length(problem.spec)+1:end]
+
+        score = sum(target_value != other_value for (target_value, other_value) in zip(Iterators.cycle(target_values), other_values))
 
         if score > max_score * maximum_increase
             continue
@@ -48,5 +51,9 @@ function find_property!(;
         end
     end
 
-    return best_property, ys -> sum(interp_one(best_property, ys) .!= best_target_values)
+    interp = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+    interp_one = (program, io, y) -> interp(program, (io.in[:_arg_out] = y; io.in))
+    program = RuleNode(best_property)
+
+    return program, ys -> sum(best_target_values .!= [interp_one(program, io, y) for (io, y) in zip(problem.spec, ys)])
 end

@@ -36,15 +36,15 @@ function phalcon(;
         # Obtain local optimum
         outputs = local_optimum_outputs(iterator)
 
-        # Select new property if limit not exceeded
-        if length(selected_properties) >= max_number_of_properties
-            break
-        end
-
         println("\n--------")
 
         for entry in iterator.population
-            println(entry.cost, " ", entry.program.outputs)
+            println(join(["\"" * o * "\"" for o in entry.program.outputs], "\t"))
+        end
+
+        # Select new property if limit not exceeded
+        if length(selected_properties) >= max_number_of_properties
+            break
         end
 
         # Find new property
@@ -53,9 +53,10 @@ function phalcon(;
             problem = problem,
             grammar = property_grammar,
             local_optimum_outputs = outputs, 
-            minimal_increase = 0.8, 
+            minimal_increase = 0.7, 
             maximum_increase = 0.9,
-            max_size = 6)
+            max_size = 5
+        )
         
         push!(selected_properties, (property, partial_cost))
 
