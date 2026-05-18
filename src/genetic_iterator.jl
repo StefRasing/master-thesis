@@ -222,7 +222,7 @@ end
     max_extension_size::Int = 1,
     max_initial_population_size::Int = 2,
     rule_costs::Vector{Int} = [],
-    prune_program_by_output::Union{Nothing,Function} = nothing,
+    prune_node_by_output::Union{Nothing,Function} = nothing,
 
     # Internal structures
     population::Vector{Individual} = Individual[],
@@ -282,7 +282,7 @@ function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
 
     # Loop until stability critereon has been met
     while stable_populations < iter.max_generations_without_improvement
-        # @show new_population_cost
+        @show population_cost
 
         combine!(iter)
         iterations += 1
@@ -324,7 +324,7 @@ function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
     any(isnothing, outputs) && return Inf
 
     # If program should be pruned by any output, return +Inf
-    !isnothing(iter.prune_program_by_output) && any(iter.prune_program_by_output, outputs) && return Inf
+    !isnothing(iter.prune_node_by_output) && any(iter.prune_node_by_output(io, y) for (io, y) in zip(iter.problem.spec, outputs)) && return Inf
 
     # Obtain target outputs
     targets = [io.out for io in iter.problem.spec]
@@ -594,9 +594,9 @@ function combine!(iter::GeneticIterator)::Nothing
     # Create candidates
     for _ in 1:2:iter.candidate_pool_size
 
-        # Select parents
-        parent_1 = rand(old_population)
-        parent_2 = rand(old_population)
+        # Select parents using tournament selection
+        parent_1 = old_population[minimum(rand(1:iter.population_size, 2))]
+        parent_2 = old_population[minimum(rand(1:iter.population_size, 2))]
         program_1 = parent_1.program
         program_2 = parent_2.program
 

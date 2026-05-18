@@ -57,7 +57,7 @@ function find_property!(;
     end
 
     interp = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
-    interp_one = (program, io, y) -> interp(program, (io.in[:_arg_out] = y; io.in))
+    interp_one = (program, io, y) -> interp(program, (new_in = copy(io.in); new_in[:_arg_out] = y; new_in))
     program = RuleNode(best_property)
 
     @show best_target_values
