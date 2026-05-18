@@ -2,11 +2,17 @@
 const HASH_SEED = hash("DON'T PANIC")
 
 
-struct CachedRuleNode
+struct CachedRuleNode <: AbstractRuleNode
     rule::Int
     children::Vector{CachedRuleNode}
     outputs::Vector{Any}
 end
+
+# Implement the AbstractRuleNode interface
+HerbCore.isfilled(::CachedRuleNode)::Bool = true
+HerbCore.isuniform(::CachedRuleNode)::Bool = true
+HerbCore.get_rule(program::CachedRuleNode)::Int = program.rule
+HerbCore.get_children(program::CachedRuleNode)::Vector{AbstractRuleNode} = program.children
 
 function CachedRuleNode(rule::Int, children::Vector{CachedRuleNode}, interp::Function) 
     children_outputs = [child.outputs for child in children]
@@ -54,8 +60,8 @@ function get_programs(bank::BUBank{P}, type::Symbol, cost::Int)::Vector{P} where
     return get(by_cost, cost, P[])
 end
 
-function get_programs(bank::BUBank{P}, cost::Int)::Vector{P} where {P}
-    vcat([get_programs(bank, type, cost) for type in get_types(bank)]...)
+function get_programs(bank::BUBank{P}, types::Vector, cost::Int)::Vector{P} where {P}
+    vcat([get_programs(bank, type, cost) for type in types]...)
 end
 
 
@@ -357,7 +363,7 @@ pruning: programs with identical output signatures are discarded.
 """
 struct CostBUSIterator{G<:AbstractGrammar, F} <: AbstractBUSIterator
     grammar::G
-    start_symbol::Symbol
+    start_symbols::Vector
     max_cost::Int
     rule_costs::Vector{Int}
     program_to_outputs::F
@@ -436,8 +442,7 @@ function _next_bus(iter::AbstractBUSIterator, state::BUSState)
     grammar = iter.grammar
 
     while true
-        # progs = get_programs(bank, iter.start_symbol, level)
-        progs = get_programs(bank, level)
+        progs = get_programs(bank, iter.start_symbols, level)
         while yi <= length(progs)
             prog = progs[yi]
             yi += 1

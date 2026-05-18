@@ -1,19 +1,19 @@
 using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, HerbGrammar, HerbInterpret
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays
 
-include("lazy_size_based_bus.jl")
 include("genetic_iterator.jl")
+include("new_bus.jl")
 include("property_synthesizer.jl")
 include("phalcon.jl")
 
 # using Profile, ProfileView
 # Profile.clear()
 
-benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
+benchmark = HerbBenchmarks.PBE_BV_Track_2018
 RuntimeGeneratedFunctions.init(benchmark)
-problem = benchmark.problem_39060015
-grammar = benchmark.grammar_39060015
-max_length = maximum(length, vcat([[values(io.in)...; io.out] for io in problem.spec]...))
+problem_grammar_pair = filter(pg -> length(pg.problem.spec) <= 10, get_all_problem_grammar_pairs(benchmark))[1]
+problem = problem_grammar_pair.problem
+grammar = problem_grammar_pair.grammar
 
 iterator = GeneticIterator(grammar, :Start,
     benchmark = benchmark,
@@ -22,16 +22,15 @@ iterator = GeneticIterator(grammar, :Start,
     population_size = 10,
     candidate_pool_size = 2000,
     max_generations_without_improvement = 3,
-    max_extension_size = 4,
-    prune_program_by_output = output -> length(output) > max_length*5
+    max_extension_depth = 2,
 )
 
 solution = phalcon(
     iterator = iterator,
-    max_number_of_properties = 20,
-    property_types = Vector{Symbol}(unique(grammar.types)),
+    max_number_of_properties = 15,
     minimal_increase_property = 0.8,
-    max_property_size = 10,
+    maximum_increase_property = 0.9,
+    max_property_size = 6,
 )
 
 println()

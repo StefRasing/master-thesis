@@ -62,7 +62,7 @@ function RuleNodeWithRuleCounts(iter::ProgramIterator, rule::Int, children::Vect
     end
 
     children_outputs = [child.outputs for child in children]
-    return RuleNodeWithRuleCounts(rule, children, rule_counts, iter.interp(rule, children_outputs))
+    return RuleNodeWithRuleCounts(rule, children, rule_counts, interp(iter, rule, children_outputs))
 end
 
 """
@@ -71,6 +71,24 @@ end
 Given an ProgramIterator, converts a RuleNode into a RuleNodeWithRuleCounts.
 """
 RuleNodeWithRuleCounts(iter::ProgramIterator, program::RuleNode) = RuleNodeWithRuleCounts(iter, program.ind, RuleNodeWithRuleCounts[RuleNodeWithRuleCounts(iter, c) for c in program.children])
+
+
+function RuleNodeWithRuleCounts(iter::ProgramIterator, program::CachedRuleNode)    
+    rule = program.rule
+
+    # Creates a new rule count vector and add a count of one to the rule of this program
+    rule_counts = SparseVector{Int, Int}(length(iter.solver.grammar.rules), Int[], Int[])
+    rule_counts[rule] += 1
+
+    children = [RuleNodeWithRuleCounts(iter, c) for c in program.children]
+    
+    # Add the rule counts of all children
+    for c in children
+        rule_counts += c.rule_counts
+    end
+
+    return RuleNodeWithRuleCounts(rule, children, rule_counts, program.outputs)
+end
 
 """
     HerbCore.RuleNode(program::RuleNodeWithRuleCounts)
@@ -132,13 +150,47 @@ function replace_at_path(iter::ProgramIterator, program::RuleNodeWithRuleCounts,
 end
 
 """
-    struct Individual
+    mutable struct Individual
 
 Store an Individual living in a population. Contains the program and the cost.
 """
-struct Individual
+mutable struct Individual
     program::RuleNodeWithRuleCounts
     cost::Number
+    parents::Union{Nothing, Tuple{Individual, Individual}}
+    crossover::Union{Nothing,RuleNodeWithRuleCounts}
+    crossover_parts::Union{Nothing,Tuple{RuleNodeWithRuleCounts, RuleNodeWithRuleCounts}}
+    mutation::Union{Nothing,Symbol}
+end
+
+function pretty_print(ind::Individual, grammar::AbstractGrammar)
+    println(rulenode2expr(ind.program, grammar))
+    _pretty_print(ind, "", grammar)
+end
+
+
+function _pretty_print(ind::Individual, prefix::String, grammar::AbstractGrammar)
+    ind.parents === nothing && return
+
+    p1, p2 = ind.parents
+    replacement, removed = ind.crossover_parts
+
+    # Meta
+    println(prefix * "├── Parent 1:        ", rulenode2expr(p1.program, grammar))
+    println(prefix * "│   └── replacement: ", rulenode2expr(replacement, grammar))
+    println(prefix * "├── Parent 2:        ", rulenode2expr(p2.program, grammar))
+    println(prefix * "│   └── removed:     ", rulenode2expr(removed, grammar))
+    println(prefix * "├── Crossover:       ", rulenode2expr(ind.crossover, grammar))
+    println(prefix * "│   ├── mutation:    ", ind.mutation)
+    println(prefix * "│   └── result:      ", rulenode2expr(ind.program, grammar))
+
+    # parent 1
+    println(prefix * "├── Parent 1 origin:")
+    _pretty_print(p1, prefix * "│   ", grammar)
+
+    # parent 2
+    println(prefix * "└── Parent 2 origin: ")
+    _pretty_print(p2, prefix * "    ", grammar)
 end
 
 """
@@ -167,8 +219,10 @@ end
     population_size::Int = 10,
     candidate_pool_size::Int = 1000,
     max_generations_without_improvement::Int = 5,
-    max_extension_depth::Int = 1,
     max_extension_size::Int = 1,
+    max_initial_population_size::Int = 2,
+    rule_costs::Vector{Int} = [],
+    prune_program_by_output::Union{Nothing,Function} = nothing,
 
     # Internal structures
     population::Vector{Individual} = Individual[],
@@ -179,7 +233,7 @@ end
     rules_in_recursive_rules::Vector{Bool} = Bool[],
 
     # Interpreter
-    interp = nothing,
+    interpreter = nothing,
     rules_interpreted::Int = 0,
 ) <: AbstractGeneticIterator
 
@@ -189,7 +243,10 @@ end
 
 Given a GeneticIterator and RuleNodeWithRuleCounts, create a new Individual. Automatically calls the cost function.
 """
-Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts) = Individual(program, outputs_to_cost(iter, program.outputs))
+Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts) = Individual(program, outputs_to_cost(iter, program.outputs), nothing, nothing, nothing, nothing)
+
+
+Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts, parents::Tuple{Individual, Individual}, crossover::RuleNodeWithRuleCounts, crossover_parts::Tuple{RuleNodeWithRuleCounts, RuleNodeWithRuleCounts}, mutations::Symbol) = Individual(program, outputs_to_cost(iter, program.outputs), parents, crossover, crossover_parts, mutations)
 
 
 """
@@ -201,10 +258,9 @@ function update_cost_function(iter::GeneticIterator, cost::Function)::Nothing
     # Update cost
     iter.cost = cost
 
-    # Kill current population and fill again with extensions
     empty!(iter.population)
     for program in iter.extensions[get_starting_symbol(iter)]
-        add_to_population!(iter, program)
+        add_to_population!(iter, Individual(iter, program))
     end
 
     return nothing
@@ -219,8 +275,6 @@ population hasn't improvded for N generation (max_generations_without_improvemen
 Returns a solution as RuleNode, or nothing if search failed.
 """
 function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
-    initialize!(iter)
-
     # Count number of stable populations and store the last seen cost
     stable_populations = 0
     population_cost = sum(individual.cost for individual in iter.population)
@@ -228,6 +282,8 @@ function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
 
     # Loop until stability critereon has been met
     while stable_populations < iter.max_generations_without_improvement
+        # @show new_population_cost
+
         combine!(iter)
         iterations += 1
 
@@ -239,7 +295,9 @@ function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
         # If the new_population_cost is the same as before, increment stable_populations, otherwise reset it
         new_population_cost = sum(individual.cost for individual in iter.population)
         stable_populations = new_population_cost == population_cost ? stable_populations + 1 : 0
-        population_cost = new_population_cost        
+        population_cost = new_population_cost
+
+        new_population_cost == 0 && return nothing
     end
 
     # Search failed, return nothing.
@@ -264,6 +322,9 @@ outputs have a cost of -Inf.
 function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
     # If any output is nothing, return +Inf
     any(isnothing, outputs) && return Inf
+
+    # If program should be pruned by any output, return +Inf
+    !isnothing(iter.prune_program_by_output) && any(iter.prune_program_by_output, outputs) && return Inf
 
     # Obtain target outputs
     targets = [io.out for io in iter.problem.spec]
@@ -303,30 +364,57 @@ function initialize!(iter::GeneticIterator)::Nothing
     iter.rules_in_recursive_rules = [type in recurisve_types for type in types]
 
     # Build interpreter
-    interpeter = HerbInterpret.make_output_interpreter(grammar, target_module=iter.benchmark, cache_module=iter.benchmark)
-    iter.interp = (r, o) -> (iter.rules_interpreted += 1; interpeter(r, o, iter.problem.spec))
+    iter.interpreter = HerbInterpret.make_output_interpreter(grammar, target_module=iter.benchmark, cache_module=iter.benchmark)
+    types = Vector{Symbol}(unique(grammar.types))
+
 
     # Create extensions that produce unique outputs
-    for type in unique(types)
-        seen_outputs = Set()
+    extensions = LazyCostBasedBus(
+        grammar,
+        types,
+        iter.max_extension_size,
+        iter.rule_costs,
+        (r, o) -> interp(iter, r, o),
+    )
+    
+    # Iterate over all extensions and add to initial population if its of the correct starting symbol
+    for extension in extensions
+        type = grammar.types[get_rule(extension)]
+        extension = RuleNodeWithRuleCounts(iter, extension)
+        push!(iter.extensions[type], extension)
 
-        for extension in BFSIterator(grammar, type, max_depth = iter.max_extension_depth, max_size = iter.max_extension_size)
-            extension = RuleNodeWithRuleCounts(iter, freeze_state(extension))
-            outputs = extension.outputs
-
-            if !(outputs in seen_outputs)
-                push!(seen_outputs, outputs)
-                push!(iter.extensions[type], extension)
-            end
+        if type == get_starting_symbol(iter)
+            add_to_population!(iter, Individual(iter, extension))
         end
     end
 
-    # Fill intial population with extensions
-    for program in iter.extensions[get_starting_symbol(iter)]
-        add_to_population!(iter, program)
+    # Iterate over the extra programs of the initial population
+    for size in (iter.max_extension_size+1):iter.max_initial_population_size
+        for extension in get_programs(extensions, :Start, size)
+            type = grammar.types[get_rule(extension)]
+            extension = RuleNodeWithRuleCounts(iter, extension)
+            push!(iter.extensions[type], extension)
+            add_to_population!(iter, Individual(iter, extension))
+        end
+    end
+
+    # If some type doesn't have any extensions, that type can never be reached and thats to be prevented
+    for type in unique(grammar.types)
+        isempty(iter.extensions[type]) && throw(ArgumentError("Extension depth to low for any extension of type $type"))
     end
 
     return nothing
+end
+
+Base.length(x) = 1
+
+function interp(iter::GeneticIterator, rule_id::Int, children_outputs::Vector{Vector{Any}})
+    iter.rules_interpreted += 1
+
+    res = iter.interpreter(rule_id, children_outputs, iter.problem.spec)
+    any(isnothing, res) && return fill(nothing, length(iter.problem.spec))
+    
+    res
 end
 
 """
@@ -335,9 +423,7 @@ end
 Given a GeneticIterator, adds a RuleNodeWithRuleCounts to the population. This function ensures that
 the population only keeps the N best programs with unique outputs.
 """
-function add_to_population!(iter::GeneticIterator, program::RuleNodeWithRuleCounts)::Nothing
-    new_individual = Individual(iter, program)
-
+function add_to_population!(iter::GeneticIterator, new_individual::Individual)::Nothing
     # If the cost is infinity, skip the program
     new_individual.cost == Inf && return nothing
 
@@ -398,23 +484,23 @@ replacement substree must also exists in parent_2.
 
 Returns the resulting RuleNodeWithRuleCounts.
 """
-function crossover(iter::GeneticIterator, parent_1::RuleNodeWithRuleCounts, parent_2::RuleNodeWithRuleCounts)::RuleNodeWithRuleCounts
+function crossover(iter::GeneticIterator, program_1::RuleNodeWithRuleCounts, program_2::RuleNodeWithRuleCounts)::Tuple{RuleNodeWithRuleCounts, Tuple{RuleNodeWithRuleCounts, RuleNodeWithRuleCounts}}
     types = iter.solver.grammar.types
 
     # We may only select subprograms of types that are present in parent_2
-    allowed_types = unique([types[rule] for (rule, rule_count) in enumerate(parent_2.rule_counts) if rule_count > 0])
+    allowed_types = unique([types[rule] for (rule, rule_count) in enumerate(program_2.rule_counts) if rule_count > 0])
     allowed_rules = [type in allowed_types for type in types]
 
-    # Select a random subprogram from parent_1 of these types
-    replacement, _ = random_subtree(iter, parent_1, allowed_rules)
+    # Select a random subprogram from program_1 of these types
+    replacement, _ = random_subtree(iter, program_1, allowed_rules)
     replacement_type = types[replacement.rule]
     replacement_rules = [type == replacement_type for type in types]
 
-    # Find a random path of parent_2 of the selected type
-    _, replacement_path = random_subtree(iter, parent_2, replacement_rules)
+    # Find a random path of program_2 of the selected type
+    removed, replacement_path = random_subtree(iter, program_2, replacement_rules)
 
     # Replace and return
-    return replace_at_path(iter, parent_2, replacement_path, replacement)
+    return replace_at_path(iter, program_2, replacement_path, replacement), (replacement, removed)
 end
 
 """
@@ -428,7 +514,7 @@ These mutation operations closely resemble how humans program; we can replace in
 
 Returns the resulting RuleNodeWithRuleCounts.
 """
-function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::RuleNodeWithRuleCounts
+function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tuple{RuleNodeWithRuleCounts, Symbol}
     grammar = iter.solver.grammar
     types = grammar.types
 
@@ -440,7 +526,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Rule
         push!(operations, :delete)
     end
 
-    # Check if we can perform am insert operation (only is a rule appearing in recurisve rules exists)
+    # Check if we can perform am insert operation (only if a rule appearing in recurisve rules exists)
     if any(count -> count > 0, individual.rule_counts[iter.rules_in_recursive_rules])
         push!(operations, :insert)
     end
@@ -451,12 +537,15 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Rule
         # Select a random subprogram to replace. Every node is allowed in this case
         old_node, replacement_path = random_subtree(iter, individual, [true for _ in types])
 
-        # Obtain type and select a random extension of that type
+        # Obtain type and select a random rule of that type and fill with random extensions
         replacement_type = types[old_node.rule]
-        replacement = rand(iter.extensions[replacement_type])
+        replacement_rule = rand([rule_id for (rule_id, type) in enumerate(grammar.types) if type == replacement_type])
+        children = [rand(iter.extensions[child_type]) for child_type in grammar.childtypes[replacement_rule]]
+        replacement = RuleNodeWithRuleCounts(iter, replacement_rule, children)
+        # replacement = rand(iter.extensions[replacement_type])
 
         # Replace and return
-        return replace_at_path(iter, individual, replacement_path, replacement)
+        return replace_at_path(iter, individual, replacement_path, replacement), :replace
 
     elseif operation == :insert
         # Select a random node of a type that can be used in recurisve rules.
@@ -476,7 +565,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Rule
         replacement = RuleNodeWithRuleCounts(iter, rule_id, children)
 
         # Replace and return
-        return replace_at_path(iter, individual, replacement_path, replacement)
+        return replace_at_path(iter, individual, replacement_path, replacement), :insert
 
     elseif operation == :delete
         # Select a random subprogram that is suitable for deletion
@@ -487,7 +576,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Rule
 
         # Replace and return
         replacement = rand([c for c in node.children if types[c.rule] == type])
-        return replace_at_path(iter, individual, replacement_path, replacement)
+        return replace_at_path(iter, individual, replacement_path, replacement), :delete
     end
 end
 
@@ -503,17 +592,27 @@ function combine!(iter::GeneticIterator)::Nothing
     old_population = collect(iter.population)
     
     # Create candidates
-    for _ in 1:iter.candidate_pool_size
+    for _ in 1:2:iter.candidate_pool_size
+
         # Select parents
-        parent_1 = rand(old_population).program
-        parent_2 = rand(old_population).program
+        parent_1 = rand(old_population)
+        parent_2 = rand(old_population)
+        program_1 = parent_1.program
+        program_2 = parent_2.program
 
         # Crossover and mutate
-        child = crossover(iter, parent_1, parent_2)
-        child = mutate(iter, child)
+        crossed_over_child, crossover_parts = crossover(iter, program_1, program_2)
+        mutated_child, mutation = mutate(iter, crossed_over_child)
+
+        # # Create individuals
+        individual_1 = Individual(iter, crossed_over_child, (parent_1, parent_2), crossed_over_child, crossover_parts, :none)
+        individual_2 = Individual(iter, mutated_child, (parent_1, parent_2), crossed_over_child, crossover_parts, mutation)
         
-        # Add to population
-        add_to_population!(iter, child)
+        # Add both to population
+        add_to_population!(iter, individual_1)
+        add_to_population!(iter, individual_2)
+
+        length(iter.population) == iter.population_size && iter.population[end].cost == 0 && return nothing
     end
 
     return nothing

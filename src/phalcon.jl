@@ -4,6 +4,28 @@ struct Property
     target_values::Vector{Any}
 end
 
+function _grammar_to_property_grammar(grammar::AbstractGrammar)
+    property_grammar = deepcopy(grammar)
+
+    # Add 'y' rule for two cases
+    if allequal(grammar.types)
+        # 1. All rules are of the same type
+        add_rule!(property_grammar, Expr(:(=), :Start, :_arg_out))
+    else
+        # 2. Rules have different types
+        add_rule!(property_grammar, Expr(:(=), property_grammar.rules[1], :_arg_out))
+    end
+
+    # Add 'y' rule and constraint grammar to contain it
+    addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
+
+
+    # Constraint grammar to contain it
+    addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
+
+    return property_grammar
+end
+
 #=
     Expects an iterator that implements at least the following:
         - function update_cost_function(iter::GeneticIterator, cost::Function)::Nothing
@@ -19,28 +41,41 @@ end
 
 function phalcon(;
     iterator::ProgramIterator,
-    grammar_to_property_grammar::Function = identity,
-    # max_property_depth::Int = 4,
-    # max_property_size::Int = 6,
     max_number_of_properties::Int = typemax(Int),
+    property_types::Vector,
+    minimal_increase_property::Float64 = 0.8,
+    max_property_depth::Int = 4,
+    grammar_to_property_grammar::Function = _grammar_to_property_grammar,
 )
-    target_outputs = [io.out for io in iterator.problem.spec]
+    initialize!(iterator)
     property_grammar = grammar_to_property_grammar(iterator.solver.grammar)
     selected_properties = []
 
     while true
         # Run search and return if it found the solution
         solution = find_solution(iterator)
-        !isnothing(solution) && return solution
+        !isnothing(solution) && return solution, iterator.population[begin]
 
         # Obtain local optimum
         outputs = local_optimum_outputs(iterator)
 
-        println("\n--------")
+        println("\n----[ Iteration $(length(selected_properties)+1) ]----")
+        total_population_cost = sum(individual.cost for individual in iterator.population)
+        @show total_population_cost
+        println("\nBest individual:")
+        for individual in iterator.population[1:1]
+            expr = rulenode2expr(individual.program, grammar)
+            cost = individual.cost
 
-        for entry in iterator.population
-            println(join(["\"" * o * "\"" for o in entry.program.outputs], "\t"))
+            @show expr
+            @show cost
+            benchmark.visualize(individual.program.outputs)
+            println()
         end
+
+        # for entry in iterator.population
+        #     println(join(["\"" * string(o) * "\"" for o in entry.program.outputs], "\t"))
+        # end
 
         # Select new property if limit not exceeded
         if length(selected_properties) >= max_number_of_properties
@@ -53,9 +88,9 @@ function phalcon(;
             problem = problem,
             grammar = property_grammar,
             local_optimum_outputs = outputs, 
-            minimal_increase = 0.7, 
-            maximum_increase = 0.9,
-            max_size = 5
+            property_types = property_types,
+            minimal_increase = minimal_increase_property,
+            max_depth = max_property_depth,
         )
         
         push!(selected_properties, (property, partial_cost))
@@ -68,5 +103,5 @@ function phalcon(;
         update_cost_function(iterator, cost)
     end
 
-    return nothing
+    return nothing, nothing
 end
