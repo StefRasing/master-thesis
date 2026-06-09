@@ -1,9 +1,4 @@
 
-struct Property
-    program::RuleNode
-    target_values::Vector{Any}
-end
-
 function _grammar_to_property_grammar(grammar::AbstractGrammar)
     property_grammar = deepcopy(grammar)
 
@@ -19,11 +14,24 @@ function _grammar_to_property_grammar(grammar::AbstractGrammar)
     # Add 'y' rule and constraint grammar to contain it
     addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
 
-
     # Constraint grammar to contain it
     addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
 
     return property_grammar
+end
+
+function run_with_timeout(f, timeout_seconds)
+    task = @async f()
+
+    start = time()
+    while !istaskdone(task)
+        if time() - start > timeout_seconds
+            return nothing
+        end
+        sleep(0.1)
+    end
+
+    fetch(task)
 end
 
 #=
@@ -44,64 +52,65 @@ function phalcon(;
     max_number_of_properties::Int = typemax(Int),
     property_types::Vector,
     minimal_increase_property::Float64 = 0.8,
-    max_property_depth::Int = 4,
+    max_property_cost::Int = 4,
     grammar_to_property_grammar::Function = _grammar_to_property_grammar,
+    rule_costs::Vector{Int},
+    timeout::Int = typemax(Int),
 )
+    start = time()
+    previous_programs_evaluated = 0
+    previous_time = start
+
     initialize!(iterator)
     property_grammar = grammar_to_property_grammar(iterator.solver.grammar)
     selected_properties = []
+    solution = nothing
 
-    while true
-        # Run search and return if it found the solution
-        solution = find_solution(iterator)
-        !isnothing(solution) && return solution, iterator.population[begin]
+    run_with_timeout(timeout) do
+        while true
+            # Run search and return if it found the solution
+            solution = find_solution(iterator)
+            !isnothing(solution) && break
 
-        # Obtain local optimum
-        outputs = local_optimum_outputs(iterator)
+            # Obtain local optimum
+            outputs = local_optimum_outputs(iterator)
 
-        println("\n----[ Iteration $(length(selected_properties)+1) ]----")
-        total_population_cost = sum(individual.cost for individual in iterator.population)
-        @show total_population_cost
-        println("\nBest individual:")
-        for individual in iterator.population[1:1]
-            expr = rulenode2expr(individual.program, grammar)
-            cost = individual.cost
+            # Select new property if limit not exceeded
+            if length(selected_properties) >= max_number_of_properties
+                break
+            end
 
-            @show expr
-            @show cost
-            benchmark.visualize(individual.program.outputs)
-            println()
+            # Find new property
+            property, partial_cost = find_property!(
+                benchmark = iterator.benchmark,
+                problem = iterator.problem,
+                grammar = property_grammar,
+                local_optimum_outputs = outputs, 
+                property_types = property_types,
+                minimal_increase = minimal_increase_property,
+                max_depth = max_property_cost,
+                rule_costs = rule_costs,
+            )
+            
+            push!(selected_properties, (property, partial_cost))
+
+            previous_programs_evaluated = iterator.programs_evaluated
+            previous_time = time()
+
+            # Define new cost
+            cost(outputs_and_targets) = sum(partial_cost(map(first, outputs_and_targets)) for (property, partial_cost) in selected_properties)
+            update_cost_function(iterator, cost)
         end
-
-        # for entry in iterator.population
-        #     println(join(["\"" * string(o) * "\"" for o in entry.program.outputs], "\t"))
-        # end
-
-        # Select new property if limit not exceeded
-        if length(selected_properties) >= max_number_of_properties
-            break
-        end
-
-        # Find new property
-        property, partial_cost = find_property!(
-            benchmark = benchmark,
-            problem = problem,
-            grammar = property_grammar,
-            local_optimum_outputs = outputs, 
-            property_types = property_types,
-            minimal_increase = minimal_increase_property,
-            max_depth = max_property_depth,
-        )
-        
-        push!(selected_properties, (property, partial_cost))
-
-        p = rulenode2expr(property, property_grammar)
-        @show p
-
-        # Define new cost
-        cost(outputs_and_targets) = sum(partial_cost(map(first, outputs_and_targets)) for (property, partial_cost) in selected_properties)
-        update_cost_function(iterator, cost)
     end
 
-    return nothing, nothing
+    return OrderedDict(
+        "problem_name" => iterator.problem.name,
+        "solved" => !isnothing(solution),
+        "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
+        "programs_enumerated" => iterator.programs_evaluated,
+        "programs_enumerated_last_iteration" => iterator.programs_evaluated - previous_programs_evaluated,
+        "execution_time" => time() - start,
+        "execution_time_last_iteration" => time() - previous_time,
+        "heuristic" => [string(rulenode2expr(p, property_grammar)) for (p, _) in selected_properties],
+    )
 end

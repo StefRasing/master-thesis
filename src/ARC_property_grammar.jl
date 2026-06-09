@@ -1,26 +1,19 @@
-property_grammar_hodel = @csgrammar begin    
+property_grammar_hodel = @csgrammar begin       
     Start = Grid
     Grid = _arg_1
 
-    # Boolean = false | true
-    # Integer = |(-2:9)
-    # IntegerTuple = IntegerTuple((1, 0)) | IntegerTuple((0, 1)) | IntegerTuple((-1, 0)) | IntegerTuple((0, -1))
-    # IntegerTuple = IntegerTuple((0, 0)) | IntegerTuple((1, 1)) | IntegerTuple((-1, -1)) | IntegerTuple((1, -1)) | IntegerTuple((-1, 1))
-    # IntegerTuple = IntegerTuple((0, 2)) | IntegerTuple((2, 0)) | IntegerTuple((2, 2)) | IntegerTuple((3, 3))
+    Boolean = false | true
+    Integer = |(-2:9)
+    IntegerTuple = down | right | up | left
+    IntegerTuple = unity | neg_unity | up_right | down_left
+    IntegerTuple = zero_by_two | two_by_zero | two_by_two | three_by_three
 
-    Grid = empty_grid
-    GridContainer = empty_grid_container
-    Object = empty_object
-    Objects = empty_objects
-    Indices = empty_indices
-    IntContainer = empty_int_container
-
-    BooleanParam = true | false
     ColorParam = |(0:9)
+    BooleanParam = true | false
 
     Patch = Object | Indices
     Piece = Grid | Patch
-    Element = Object | Grid
+    Element = Grid | Object
     Container = Grid | Object | Objects | Indices
 
     # Integer and IntegerTuple producers
@@ -35,22 +28,22 @@ property_grammar_hodel = @csgrammar begin
     # Integer = decrement(Integer)
     # Integer = crement(Integer)
     # Integer = signof(Integer)
-    Integer = size_of(Container)
+    # Integer = size_of(Container)
     Integer = maximum_of(IntContainer) 
-    Integer = maximum_of(Grid)
+    Integer = maximum_of(Grid) 
     Integer = minimum_of(IntContainer) 
-    Integer = minimum_of(Grid)
+    Integer = minimum_of(Grid) 
     Integer = lowermost(Patch)
     Integer = uppermost(Patch)
     Integer = rightmost(Patch)
     Integer = leftmost(Patch)
     Integer = height(Piece)
-    Integer = width(Piece)
+    Integer = width(Piece) 
     Integer = mostcolor(Element)
     Integer = leastcolor(Element)
     Integer = colorcount(Element, ColorParam)
-    Integer = manhattan(Patch, Patch) 
-    Integer = color(Object)
+    Integer = manhattan(Patch, Patch)
+    Integer = color(Object) 
     Integer = hperiod(Object)
     Integer = vperiod(Object)
     Integer = index(Grid, IntegerTuple)
@@ -72,7 +65,7 @@ property_grammar_hodel = @csgrammar begin
     # IntegerTuple = decrement(IntegerTuple)
     # IntegerTuple = crement(IntegerTuple)
     # IntegerTuple = signof(IntegerTuple)
-    # IntegerTuple = toivec(Integer)
+    # IntegerTuple = toivec(Integer) 
     # IntegerTuple = tojvec(Integer) 
     # IntegerTuple = astuple(Integer, Integer)
     IntegerTuple = ulcorner(Patch) 
@@ -86,21 +79,21 @@ property_grammar_hodel = @csgrammar begin
     IntegerTuple = shape(Piece)
 
     # Higher-order funcs + usage
-    ObjectToObjectFunc = normalize | hmirror | vmirror | dmirror | cmirror 
-    ObjectToIntFunc = color | size_of | height | width | numcolors | leastcolor | mostcolor
-    IndexToIndicesFunc = dneighbors | ineighbors | neighbors | vfrontier | hfrontier
+    GridToIntFunc = maximum_of | minimum_of | height | width | mostcolor | leastcolor | numcolors | g -> colorcount(g, Integer)
+    ObjectToIntFunc = lowermost | uppermost | rightmost | leftmost | color | hperiod | vperiod | size_of | height | width | numcolors | leastcolor | mostcolor | g -> colorcount(g, Integer)
+    # ObjectToObjectFunc = normalize | hmirror | vmirror | dmirror | cmirror | o -> recolor(Integer, o)
+    # IndexToIndicesFunc = dneighbors | ineighbors | neighbors | vfrontier | hfrontiert -> shoot(t, IntegerTuple)
     ObjectToIndicesFunc = toindices | corners | backdrop | delta | box | outbox | inbox
-    GridToIntFunc = maximum_of | minimum_of | height | width | mostcolor | leastcolor | numcolors
     
-    Objects = apply_obj_to_obj(ObjectToObjectFunc, Objects)
+    # Objects = apply_obj_to_obj(ObjectToObjectFunc, Objects)
     IntContainer = apply_obj_to_int(ObjectToIntFunc, Objects)
-    Indices = mapply(IndexToIndicesFunc, Indices)
+    # Indices = mapply(IndexToIndicesFunc, Indices)
     Indices = mapply(ObjectToIndicesFunc, Objects)
 
     Object = argmax_by(Objects, ObjectToIntFunc)
     Object = argmin_by(Objects, ObjectToIntFunc)
-    Grid = argmax_by(GridContainer, GridToIntFunc)
-    Grid = argmin_by(GridContainer, GridToIntFunc)
+    # Grid = argmax_by(GridContainer, GridToIntFunc)
+    # Grid = argmin_by(GridContainer, GridToIntFunc)
     Objects = order_by(Objects, ObjectToIntFunc)
     Integer = valmax(Objects, ObjectToIntFunc)
     Integer = valmin(Objects, ObjectToIntFunc) 
@@ -126,12 +119,11 @@ property_grammar_hodel = @csgrammar begin
     Boolean = equality(IntegerTuple, IntegerTuple)
     Boolean = equality(Grid, Grid)
     Boolean = equality(Object, Object)
-    Boolean = equality(IntContainer, IntContainer)
 
     ## shared core for combinators: Integer -> Boolean
-    # IntToBoolFunc = even
-    # IntToBoolFunc = positive
-    # IntToBoolFunc = x -> greater(x, Integer)
+    IntToBoolFunc = even
+    IntToBoolFunc = positive
+    IntToBoolFunc = x -> greater(x, Integer)
 
     ## shared core for combinators: Object -> Boolean
     ObjectToBoolFunc = portrait | square | vline | hline
@@ -145,45 +137,48 @@ property_grammar_hodel = @csgrammar begin
     # ObjectToBoolFunc = conjunct(ObjectToBoolFunc, ObjectToBoolFunc) 
     # ObjectToBoolFunc = disjunct(ObjectToBoolFunc, ObjectToBoolFunc) 
     
-    # Boolean = IntToBoolFunc(Integer)
+    Boolean = IntToBoolFunc(Integer)
     Boolean = ObjectToBoolFunc(Object)
 
     # Grid producers
-    Grid = rot90deg(Grid)
-    Grid = rot180deg(Grid)
-    Grid = rot270deg(Grid)
-    Grid = downscale(Grid, Integer) 
+    # Grid = rot90deg(Grid)
+    # Grid = rot180deg(Grid)
+    # Grid = rot270deg(Grid)
+    # Grid = downscale(Grid, Integer) 
     # Grid = hconcat(Grid, Grid)
     # Grid = vconcat(Grid, Grid)
     # Grid = hupscale(Grid, Integer) 
     # Grid = vupscale(Grid, Integer)    
     # Grid = cellwise(Grid, Grid, Integer) 
-    # Grid = replace_color(Grid, Integer, Integer) 
-    # Grid = switch(Grid, Integer, Integer)
-    Grid = trim(Grid) 
-    Grid = tophalf(Grid)
-    Grid = bottomhalf(Grid)
-    Grid = lefthalf(Grid)
-    Grid = righthalf(Grid)
-    Grid = compress(Grid)
+    # Grid = trim(Grid) 
+    # Grid = tophalf(Grid)
+    # Grid = bottomhalf(Grid)
+    # Grid = lefthalf(Grid)
+    # Grid = righthalf(Grid)
+    # Grid = compress(Grid)
     # Grid = canvas(Integer, IntegerTuple)
-    Grid = subgrid(Patch, Grid)
+    # Grid = subgrid(Patch, Grid)
     # Grid = move(Grid, Object, IntegerTuple)
     # Grid = cover(Grid, Patch) 
-    Grid = crop(Grid, IntegerTuple, IntegerTuple) 
+    # Grid = crop(Grid, IntegerTuple, IntegerTuple) 
     # Grid = fill_loc(Grid, Integer, Patch) 
     # Grid = paint(Grid, Object)
     # Grid = underfill(Grid, Integer, Patch) 
-    # Grid = underpaint(Grid, Object)  
+    # Grid = underpaint(Grid, Object)
     # Grid = init(Integer)
-    # Grid = repeat_item(Grid, Integer)
+    # Grid = repeat_item(Grid, IntegerTuple)
+    # Grid = replace_color(Grid, Integer, Integer)
+    # Grid = switch(Grid, Integer, Integer)
+    # Grid = asgrid(Object, Integer)
+    # Grid = asgrid(Objects, Integer)
     
  
-    GridContainer = hsplit(Grid, Integer) # we need to be able to pick one (e.g., firstof(), extract, filter + merge, argmax/argmin + score)
-    GridContainer = vsplit(Grid, Integer) 
+    # GridContainer = hsplit(Grid, Integer) # we need to be able to pick one (e.g., firstof(), extract, filter + merge, argmax/argmin + score)
+    # GridContainer = vsplit(Grid, Integer) 
 
     # Object/Objects
     ## Object(s) extraction from Grid
+    Objects = objects(Grid, BooleanParam, BooleanParam, ColorParam)
     Objects = objects(Grid, BooleanParam, BooleanParam, BooleanParam)
     Objects = partition(Grid)
     Objects = fgpartition(Grid)
@@ -191,33 +186,32 @@ property_grammar_hodel = @csgrammar begin
 
     ## Object/Patch/Piece/Element construction & transformation
     # Object = recolor(Integer, Patch) 
-    Object = toobject(Patch, Grid) 
+    # Object = toobject(Patch, Grid) 
     Object = asobject(Grid)
     Object = merge_containers(Objects)
 
     # Patch = shift(Patch, IntegerTuple) 
-    Patch = normalize(Patch)
+    # Patch = normalize(Patch)
 
-    Piece = vmirror(Piece)
-    Piece = hmirror(Piece)
-    Piece = dmirror(Piece)
-    Piece = cmirror(Piece)
+    # Piece = vmirror(Piece)
+    # Piece = hmirror(Piece)
+    # Piece = dmirror(Piece)
+    # Piece = cmirror(Piece)
 
     # Element = upscale(Element, Integer)
 
     # Predicates & filtering
-    # IntPredicate = IntToBoolFunc
+    IntPredicate = IntToBoolFunc
     ObjectPredicate = ObjectToBoolFunc
     GridPredicate = ObjectToBoolFunc
 
     # IntContainer = sfilter(IntContainer, IntPredicate) 
-    Objects = sfilter(Objects, ObjectPredicate) 
+    # Objects = sfilter(Objects, ObjectPredicate) 
     Object = mfilter(Objects, ObjectPredicate)
-    GridContainer = sfilter(GridContainer, GridPredicate) 
-    Objects = sizefilter(Objects, Integer)
-    Objects = colorfilter(Objects, Integer)
+    # GridContainer = sfilter(GridContainer, GridPredicate) 
+    # Objects = sizefilter(Objects, Integer)
+    # Objects = colorfilter(Objects, Integer)
 
-    IntContainer = order_int_container(IntContainer)
 
     # Set/collection operations
     # Indices = intersection(Indices, Indices)
@@ -245,20 +239,27 @@ property_grammar_hodel = @csgrammar begin
 
     # Indices producers
     ## from Patch
-    Indices = toindices(Patch)
-    Indices = inbox(Patch) 
-    Indices = outbox(Patch) 
-    Indices = box(Patch)
-    Indices = corners(Patch)
-    Indices = backdrop(Patch)
-    Indices = delta(Patch) 
+    # Indices = toindices(Patch)
+    # Indices = inbox(Patch) 
+    # Indices = outbox(Patch) 
+    # Indices = box(Patch)
+    # Indices = corners(Patch)
+    # Indices = backdrop(Patch)
+    # Indices = delta(Patch) 
+    Indices = toindices(Object)
+    Indices = inbox(Object) 
+    Indices = outbox(Object) 
+    Indices = box(Object)
+    Indices = corners(Object)
+    Indices = backdrop(Object)
+    Indices = delta(Object) 
 
     ## from a location
-    Indices = neighbors(IntegerTuple)
-    Indices = dneighbors(IntegerTuple)
-    Indices = ineighbors(IntegerTuple)
-    Indices = vfrontier(IntegerTuple) 
-    Indices = hfrontier(IntegerTuple)
+    # Indices = neighbors(IntegerTuple)
+    # Indices = dneighbors(IntegerTuple)
+    # Indices = ineighbors(IntegerTuple)
+    # Indices = vfrontier(IntegerTuple) 
+    # Indices = hfrontier(IntegerTuple)
 
     ## between two points
     # Indices = connect(IntegerTuple, IntegerTuple) 
@@ -266,49 +267,49 @@ property_grammar_hodel = @csgrammar begin
     # Indices = pair(IntegerTuple, IntegerTuple)
 
     ## from Grid
-    Indices = asindices(Grid)
+    Indices = asindices(Grid) 
     Indices = ofcolor(Grid, ColorParam) 
     Indices = occurrences(Grid, Object)
     # Indices = cartesian_product(IntContainer, IntContainer)
 
     # IntContainer producers
     # IntContainer = interval(Integer, Integer, Integer)
-    IntContainer = palette(Element)
+    IntContainer = palette(Element) 
 
     # Deduplication and ordering
-    Grid = dedupe(Grid)
-    Indices = dedupe(Indices)
+    # Grid = dedupe(Grid)
+    # Indices = dedupe(Indices)
     # Object = dedupe(Object) # probably not needed
     # Objects = dedupe(Objects) # probably not needed
     # IntContainer = dedupe(IntContainer)
     # Objects = order(Objects)
 
     # Selection/extraction (of single elements from containers)
-    # Integer = mostcommon(IntContainer)
-    # IntegerTuple = mostcommon(Indices)
+    Integer = mostcommon(IntContainer)
+    IntegerTuple = mostcommon(Indices)
     # Object = mostcommon(Objects) # probably not needed
     
-    # Integer = leastcommon(IntContainer)
-    # IntegerTuple = leastcommon(Indices)
+    Integer = leastcommon(IntContainer)
+    IntegerTuple = leastcommon(Indices)
     # Object = leastcommon(Objects) # probably not needed
 
     IntegerTuple = firstof(Indices)
     Object = firstof(Objects)
     Integer = firstof(IntContainer)
-    Grid = firstof(GridContainer)
+    # Grid = firstof(GridContainer)
 
     IntegerTuple = lastof(Indices)
     Object = lastof(Objects)
     Integer = lastof(IntContainer)
-    Grid = lastof(GridContainer)
+    # Grid = lastof(GridContainer)
 
-    IntegerTuple = other(IntegerTuple, Indices)
-    Object = other(Object, Objects)
-    Integer = other(Integer, IntContainer)
+    # IntegerTuple = other(IntegerTuple, Indices)
+    # Object = other(Object, Objects)
+    # Integer = other(Integer, IntContainer)
 
-    # Integer = extract(IntContainer, IntPredicate)
+    Integer = extract(IntContainer, IntPredicate)
     Object = extract(Objects, ObjectPredicate)
-    Grid = extract(GridContainer, GridPredicate)
+    # Grid = extract(GridContainer, GridPredicate)
   
     # Control flow (branch)  
     # Integer = branch(Boolean, Integer, Integer)
@@ -319,3 +320,8 @@ property_grammar_hodel = @csgrammar begin
     # Grid = branch(Boolean, Grid, Grid)
     # only most likely branch targets included
 end
+
+
+
+
+

@@ -150,14 +150,14 @@ function replace_at_path(iter::ProgramIterator, program::RuleNodeWithRuleCounts,
 end
 
 """
-    mutable struct Individual
+    struct Individual
 
 Store an Individual living in a population. Contains the program and the cost.
 """
-mutable struct Individual
+struct Individual
     program::RuleNodeWithRuleCounts
     cost::Number
-    parents::Union{Nothing, Tuple{Individual, Individual}}
+    parents::Union{Nothing, Individual, Tuple{Individual, Individual}}
     crossover::Union{Nothing,RuleNodeWithRuleCounts}
     crossover_parts::Union{Nothing,Tuple{RuleNodeWithRuleCounts, RuleNodeWithRuleCounts}}
     mutation::Union{Nothing,Symbol}
@@ -172,25 +172,52 @@ end
 function _pretty_print(ind::Individual, prefix::String, grammar::AbstractGrammar)
     ind.parents === nothing && return
 
-    p1, p2 = ind.parents
-    replacement, removed = ind.crossover_parts
+    if ind.parents isa Tuple
+        p1, p2 = ind.parents
+        replacement, removed = ind.crossover_parts
 
-    # Meta
-    println(prefix * "├── Parent 1:        ", rulenode2expr(p1.program, grammar))
-    println(prefix * "│   └── replacement: ", rulenode2expr(replacement, grammar))
-    println(prefix * "├── Parent 2:        ", rulenode2expr(p2.program, grammar))
-    println(prefix * "│   └── removed:     ", rulenode2expr(removed, grammar))
-    println(prefix * "├── Crossover:       ", rulenode2expr(ind.crossover, grammar))
-    println(prefix * "│   ├── mutation:    ", ind.mutation)
-    println(prefix * "│   └── result:      ", rulenode2expr(ind.program, grammar))
+        # Meta
+        println(prefix * "├── Parent 1:        ", rulenode2expr(p1.program, grammar))
+        println(prefix * "│   └── replacement: ", rulenode2expr(replacement, grammar))
+        println(prefix * "├── Parent 2:        ", rulenode2expr(p2.program, grammar))
+        println(prefix * "│   └── removed:     ", rulenode2expr(removed, grammar))
 
-    # parent 1
-    println(prefix * "├── Parent 1 origin:")
-    _pretty_print(p1, prefix * "│   ", grammar)
+        if ind.mutation != :none
+            println(prefix * "├── Crossover:       ", rulenode2expr(ind.crossover, grammar))
+            println(prefix * "│   ├── mutation:    ", ind.mutation)
+            println(prefix * "│   └── result:      ", rulenode2expr(ind.program, grammar))
+        end
 
-    # parent 2
-    println(prefix * "└── Parent 2 origin: ")
-    _pretty_print(p2, prefix * "    ", grammar)
+        # parent 1
+        if !isnothing(p1.parents)
+            println(prefix * "├── Parent 1 origin:")
+            _pretty_print(p1, prefix * "│   ", grammar)
+        else
+            println(prefix * "├── Parent 1 origin: extensions")
+        end
+
+        # parent 2
+        if !isnothing(p2.parents)
+            println(prefix * "└── Parent 2 origin: ")
+            _pretty_print(p2, prefix * "    ", grammar)
+        else
+            println(prefix * "└── Parent 2 origin: extensions")
+        end
+    else
+        p = ind.parents
+
+        println(prefix * "├── Parent:       ", rulenode2expr(p.program, grammar))
+        println(prefix * "│   ├── mutation: ", ind.mutation)
+        println(prefix * "│   └── result:   ", rulenode2expr(ind.program, grammar))
+
+        # parent
+        if !isnothing(p.parents)
+            println(prefix * "└── Parent origin:")
+            _pretty_print(p, prefix * "    ", grammar)
+        else
+            println(prefix * "└── Parent origin:   extension")
+        end
+    end
 end
 
 """
@@ -234,7 +261,7 @@ end
 
     # Interpreter
     interpreter = nothing,
-    rules_interpreted::Int = 0,
+    programs_evaluated::Int = 0,
 ) <: AbstractGeneticIterator
 
 
@@ -245,8 +272,9 @@ Given a GeneticIterator and RuleNodeWithRuleCounts, create a new Individual. Aut
 """
 Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts) = Individual(program, outputs_to_cost(iter, program.outputs), nothing, nothing, nothing, nothing)
 
+Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts, parents::Tuple{Individual, Individual}, crossover::RuleNodeWithRuleCounts, crossover_parts::Tuple{RuleNodeWithRuleCounts, RuleNodeWithRuleCounts}, mutation::Symbol) = Individual(program, outputs_to_cost(iter, program.outputs), parents, crossover, crossover_parts, mutation)
 
-Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts, parents::Tuple{Individual, Individual}, crossover::RuleNodeWithRuleCounts, crossover_parts::Tuple{RuleNodeWithRuleCounts, RuleNodeWithRuleCounts}, mutations::Symbol) = Individual(program, outputs_to_cost(iter, program.outputs), parents, crossover, crossover_parts, mutations)
+Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts, parent::Individual, mutation::Symbol) = Individual(program, outputs_to_cost(iter, program.outputs), parent, nothing, nothing, mutation)
 
 
 """
@@ -282,8 +310,6 @@ function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
 
     # Loop until stability critereon has been met
     while stable_populations < iter.max_generations_without_improvement
-        @show population_cost
-
         combine!(iter)
         iterations += 1
 
@@ -322,9 +348,6 @@ outputs have a cost of -Inf.
 function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
     # If any output is nothing, return +Inf
     any(isnothing, outputs) && return Inf
-
-    # If program should be pruned by any output, return +Inf
-    !isnothing(iter.prune_node_by_output) && any(iter.prune_node_by_output(io, y) for (io, y) in zip(iter.problem.spec, outputs)) && return Inf
 
     # Obtain target outputs
     targets = [io.out for io in iter.problem.spec]
@@ -409,10 +432,11 @@ end
 Base.length(x) = 1
 
 function interp(iter::GeneticIterator, rule_id::Int, children_outputs::Vector{Vector{Any}})
-    iter.rules_interpreted += 1
-
+    # Interp rule on outputs
     res = iter.interpreter(rule_id, children_outputs, iter.problem.spec)
-    any(isnothing, res) && return fill(nothing, length(iter.problem.spec))
+
+    # If program should be pruned by its output, return nothings
+    !isnothing(iter.prune_node_by_output) && any(iter.prune_node_by_output(io, y) for (io, y) in zip(iter.problem.spec, res)) && return fill(nothing, length(iter.problem.spec))
     
     res
 end
@@ -424,6 +448,8 @@ Given a GeneticIterator, adds a RuleNodeWithRuleCounts to the population. This f
 the population only keeps the N best programs with unique outputs.
 """
 function add_to_population!(iter::GeneticIterator, new_individual::Individual)::Nothing
+    iter.programs_evaluated += 1
+    
     # If the cost is infinity, skip the program
     new_individual.cost == Inf && return nothing
 
@@ -584,34 +610,46 @@ end
     function combine!(iter::GeneticIterator)::Nothing
 
 Creates a new generation by creating M (candidate_pool_size) new individuals and selecting the N best ones:
-    - Select two random parents A and B
-    - Perform crossover
-    - Perform mutation
+    - Select two random parents 1 and 2
+    - Create four individuals:
+        1. Mutate parent 1
+        2. Mutate parent 2
+        3. Crossover parent 1 and 2
+        4. Mutate individual 3
 """
 function combine!(iter::GeneticIterator)::Nothing
-    old_population = collect(iter.population)
+    # It does not make sense to select parents with size 1 as that will always create an already existing extension
+    selection_pool = [ind for ind in iter.population if length(ind.program) > 1]
     
     # Create candidates
-    for _ in 1:2:iter.candidate_pool_size
+    for _ in 1:4:iter.candidate_pool_size
+        yield()
 
         # Select parents using tournament selection
-        parent_1 = old_population[minimum(rand(1:iter.population_size, 2))]
-        parent_2 = old_population[minimum(rand(1:iter.population_size, 2))]
+        parent_1 = rand(selection_pool)
+        parent_2 = rand(selection_pool)
         program_1 = parent_1.program
         program_2 = parent_2.program
 
         # Crossover and mutate
-        crossed_over_child, crossover_parts = crossover(iter, program_1, program_2)
-        mutated_child, mutation = mutate(iter, crossed_over_child)
+        child_1, mutation_1 = mutate(iter, program_1)
+        child_2, mutation_2 = mutate(iter, program_2)
+        child_3, crossover_parts = crossover(iter, program_1, program_2)
+        child_4, mutation_4 = mutate(iter, child_3)
 
-        # # Create individuals
-        individual_1 = Individual(iter, crossed_over_child, (parent_1, parent_2), crossed_over_child, crossover_parts, :none)
-        individual_2 = Individual(iter, mutated_child, (parent_1, parent_2), crossed_over_child, crossover_parts, mutation)
+        # Create individuals
+        individual_1 = Individual(iter, child_1, parent_1, mutation_1)
+        individual_2 = Individual(iter, child_2, parent_2, mutation_2)
+        individual_3 = Individual(iter, child_3, (parent_1, parent_2), child_3, crossover_parts, :none)
+        individual_4 = Individual(iter, child_4, (parent_1, parent_2), child_3, crossover_parts, mutation_4)
         
         # Add both to population
         add_to_population!(iter, individual_1)
         add_to_population!(iter, individual_2)
+        add_to_population!(iter, individual_3)
+        add_to_population!(iter, individual_4)
 
+        iter.population[begin].cost == -Inf && return nothing
         length(iter.population) == iter.population_size && iter.population[end].cost == 0 && return nothing
     end
 

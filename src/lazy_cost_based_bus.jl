@@ -77,10 +77,6 @@ function program_combinations(iter::LazyCostBasedBus, types::Vector{Symbol}, tot
 end
 
 function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRuleNode})
-    # rn = RuleNode(rule, children)
-    # e = rulenode2expr(rn, iter.grammar)
-    # @show e
-
     type = iter.grammar.types[rule]
     child_outputs = [c.outputs for c in children]
     outputs = iter.program_to_outputs(rule, child_outputs)
@@ -111,7 +107,7 @@ function grow(iter::LazyCostBasedBus, type::Symbol, cost::Int)
     #     counts = collect(counts)
     #     sort!(counts, by = last, rev = true)
 
-    #     println("\n---[ $type ]---", " " ^ (56 - length("---[ $type ]---")), length(res))
+    #     println("\n---[ $type : $cost ]---", " " ^ (56 - length("---[ $type : $cost ]---")), length(res))
 
     #     for (rule, count) in counts
     #         println(rule, ":", " " ^ (55 - length(string(rule))), count)
