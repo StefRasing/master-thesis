@@ -141,9 +141,11 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
     x_plot_max < global_max && @warn "Global max $global_max falls out of xticks"
     x_plot_min > global_min && @warn "Global min $global_min falls out of xticks"
 
+    problems = series_kwargs[2].label == "CrossBeam" ? 89 : 22
+
     p = plot(;
-        xlabel = field == :execution_time ? "Execution time (sec)" : "Programs enumerated",
-        ylabel = "Problems solved",
+        xlabel = field == :execution_time ? "Execution time (sec)" : "Programs evaluated",
+        ylabel = "Problems solved (out of $problems)",
         xlims = (x_plot_min, x_plot_max),
         legend = :outerbottom,
 
@@ -158,7 +160,6 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
         plot_kwargs...,
     )
 
-    problems = series_kwargs[2].label == "CrossBeam" ? 89 : 22
     hline!([problems], linestyle = :dash, color = :gray, label = "")
     annotate!(
         x_plot_max * 1.5,  # slightly to the right
@@ -171,7 +172,15 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
 
         x, y = cumulative_curve(results, field, x_plot_max, x_plot_min)
 
-        plot!(p, x, y; lw = 2, series_kwargs[i]...)
+        plot!(
+            p, 
+            x, 
+            y; 
+            lw = 2, 
+            fillrange=y,
+            fillalpha=0.2,
+            series_kwargs[i]...
+        )
 
         annotate!(
             x_plot_max * 1.5,  # slightly to the right
@@ -214,7 +223,7 @@ default(fontfamily="Computer Modern")
 =#
 function strings_time_vs_acc_bustle()
     plot_kwargs = (
-        xticks = ([10.0^n for n in -2:3], ["10e$n" for n in -2:3]),
+        xticks = ([10.0^n for n in -1:3], ["10e$n" for n in -1:3]),
         xscale = :log10,
         yticks = 0:10:90,
         right_margin = 10Plots.mm,
@@ -239,7 +248,7 @@ end
 =#
 function strings_enum_vs_acc_bustle()
     plot_kwargs = (
-        xticks = ([10.0^n for n in 1:6], ["10e$n" for n in 1:6]),
+        xticks = ([10.0^n for n in 2:6], ["10e$n" for n in 2:6]),
         xscale = :log10,
         yticks = 0:10:90,
         right_margin = 10Plots.mm,

@@ -140,10 +140,12 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
     !allequal(result_sizes) && @warn "Result files contain unequal amount of problems: $(result_sizes)"
     x_plot_max < global_max && @warn "Global max $global_max falls out of xticks"
     x_plot_min > global_min && @warn "Global min $global_min falls out of xticks"
+    
+    problems = occursin("bitvectors", files[1]) ? 151 : 124
 
     p = plot(;
-        xlabel = field == :execution_time ? "Execution time (sec)" : "Programs enumerated",
-        ylabel = "Problems solved",
+        xlabel = field == :execution_time ? "Execution time (sec)" : "Programs evaluated",
+        ylabel = "Problems solved (out of $problems)",
         xlims = (x_plot_min, x_plot_max),
         legend = :outerbottom,
 
@@ -158,7 +160,6 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
         plot_kwargs...,
     )
 
-    problems = occursin("bitvectors", files[1]) ? 151 : 124
     hline!([problems], linestyle = :dash, color = :gray, label = "")
     annotate!(
         x_plot_max * 1.5,  # slightly to the right
@@ -171,7 +172,15 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
 
         x, y = cumulative_curve(results, field, x_plot_max, x_plot_min)
 
-        plot!(p, x, y; lw = 2, series_kwargs[i]...)
+        plot!(
+            p, 
+            x, 
+            y; 
+            lw = 2, 
+            fillrange=y,
+            fillalpha=0.2,
+            series_kwargs[i]...
+        )
 
         annotate!(
             x_plot_max * 1.5,  # slightly to the right
@@ -214,7 +223,7 @@ default(fontfamily="Computer Modern")
 =#
 function compare_heuristics_strings_time_vs_acc()
     plot_kwargs = (
-        xticks = ([10.0^n for n in -2:3], ["10e$n" for n in -2:3]),
+        xticks = ([10.0^n for n in -3:2], ["10e$n" for n in -3:2]),
         xscale = :log10,
         yticks = 0:20:140,
         right_margin = 10Plots.mm,
@@ -241,7 +250,7 @@ end
 =#
 function compare_heuristics_strings_enum_vs_acc()
     plot_kwargs = (
-        xticks = ([10.0^n for n in 1:6], ["10e$n" for n in 1:6]),
+        xticks = ([10.0^n for n in 1:5], ["10e$n" for n in 1:5]),
         xscale = :log10,
         yticks = 0:20:160,
         right_margin = 10Plots.mm,
@@ -268,7 +277,7 @@ end
 =#
 function compare_heuristics_bitvectors_time_vs_acc()
     plot_kwargs = (
-        xticks = ([10.0^n for n in -2:3], ["10e$n" for n in -2:3]),
+        xticks = ([10.0^n for n in -2:2], ["10e$n" for n in -2:2]),
         xscale = :log10,
         yticks = 0:20:160,
         right_margin = 10Plots.mm,
@@ -293,7 +302,7 @@ end
 =#
 function compare_heuristics_bitvectors_enum_vs_acc()
     plot_kwargs = (
-        xticks = ([10.0^n for n in 1:6], ["10e$n" for n in 1:6]),
+        xticks = ([10.0^n for n in 3:6], ["10e$n" for n in 3:6]),
         xscale = :log10,
         yticks = 0:20:140,
         right_margin = 10Plots.mm,

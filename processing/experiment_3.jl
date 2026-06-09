@@ -1,6 +1,7 @@
 using JSON3
 using Plots
 using Statistics
+using HerbBenchmarks
 
 struct Result
     problem_name::String
@@ -61,16 +62,22 @@ function aggregate_best_worst(results, field::Symbol)
 end
 
 function load_results(file)
+    benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
+    task_names = [String(s)[9:end] for s in names(benchmark; all=true) if startswith(String(s), "problem_") && all(f -> !occursin(f, String(s)), ["short", "long", "repeat", "small"])]
+    problems = [getfield(benchmark, Symbol("problem_", name)) for name in task_names]
+    grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names]
+    string_tasks = [p.name for (p, g) in zip(problems, grammars) if g.rules[1] == :ntString]
+
     data = JSON3.read(read(file, String))
 
     return [
         Result(
             x.problem_name,
             x.solved,
-            x.execution_time,
-            x.programs_enumerated,
+            haskey(x, "execution_time_last_iteration") ? x.execution_time_last_iteration : x.execution_time,
+            haskey(x, "programs_enumerated_last_iteration") ? x.programs_enumerated_last_iteration : x.programs_enumerated
         )
-        for x in data
+        for x in data if x.problem_name in string_tasks
     ]
 end
 
@@ -137,13 +144,14 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
     x_plot_max = maximum(first(plot_kwargs.xticks))
     x_plot_min = minimum(first(plot_kwargs.xticks))
 
+    @show result_sizes
     !allequal(result_sizes) && @warn "Result files contain unequal amount of problems: $(result_sizes)"
     x_plot_max < global_max && @warn "Global max $global_max falls out of xticks"
     x_plot_min > global_min && @warn "Global min $global_min falls out of xticks"
 
     p = plot(;
-        xlabel = field == :execution_time ? "Execution time (sec)" : "Programs enumerated",
-        ylabel = "Problems solved",
+        xlabel = field == :execution_time ? "Execution time (sec)" : "Programs evaluated",
+        ylabel = "Problems solved (out of 100)",
         xlims = (x_plot_min, x_plot_max),
         legend = :outerbottom,
 
@@ -158,7 +166,7 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
         plot_kwargs...,
     )
 
-    problems = 124
+    problems = 100
     hline!([problems], linestyle = :dash, color = :gray, label = "")
     annotate!(
         x_plot_max * 1.5,  # slightly to the right
@@ -171,7 +179,15 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
 
         x, y = cumulative_curve(results, field, x_plot_max, x_plot_min)
 
-        plot!(p, x, y; lw = 2, series_kwargs[i]...)
+        plot!(
+            p, 
+            x, 
+            y; 
+            lw = 2, 
+            fillrange=y,
+            fillalpha=0.2,
+            series_kwargs[i]...
+        )
 
         annotate!(
             x_plot_max * 1.5,  # slightly to the right
@@ -213,27 +229,23 @@ default(fontfamily="Computer Modern")
 =#
 function nonsense_strings_time_vs_acc()
     plot_kwargs = (
-        xticks = ([10.0^n for n in -2:3], ["10e$n" for n in -2:3]),
+        xticks = ([10.0^n for n in -2:2], ["10e$n" for n in -2:2]),
         xscale = :log10,
-        yticks = 0:20:140,
+        yticks = 0:20:100,
         right_margin = 10Plots.mm,
-        title = "Problems solved over time",
+        title = "Comparing final heuristic performance",
     )
     series_kwargs = [
         (label = "Phalcon", color = RGB(0.00, 0.45, 0.74)),
-        # (label = "Phalcon (matched problem subset)", color = RGBA(0.00, 0.45, 0.74, 0.5), linestyle = :dot),
-        (label = "Nonsense Phalcon", color = RGB(0.85, 0.33, 0.10)),
-        # (label = "Nonsense Phalcon (matched problem subset)", color = RGBA(0.85, 0.33, 0.10, 0.5), linestyle = :dot),
-        # (label = "Levenshtein", color = RGB(0.47, 0.67, 0.19)),
         (label = "General Phalcon", color = RGB(0.47, 0.67, 0.19)),
+        (label = "Nonsense Phalcon", color = RGB(0.85, 0.33, 0.10)),
+        (label = "Levenshtein", color = RGB(0.58, 0.40, 0.74)),
     ]
     names = [
         "phalcon_strings", 
-        # "phalcon_strings_only_string_outputs", 
-        "nonsense_phalcon_strings",
-        # "nonsense_phalcon_strings_only_string_outputs", 
-        # "heuristic_strings",
         "general_phalcon_strings",
+        "nonsense_phalcon_strings",
+        "heuristic_strings",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :execution_time, plot_kwargs, series_kwargs)
@@ -246,27 +258,23 @@ end
 =#
 function nonsense_strings_enum_vs_acc()
     plot_kwargs = (
-        xticks = ([10.0^n for n in 1:6], ["10e$n" for n in 1:6]),
+        xticks = ([10.0^n for n in 2:5], ["10e$n" for n in 2:5]),
         xscale = :log10,
-        yticks = 0:20:140,
+        yticks = 0:20:100,
         right_margin = 10Plots.mm,
-        title = "Problems solved over programs enumerated",
+        title = "Comparing final heuristic performance",
     )
     series_kwargs = [
         (label = "Phalcon", color = RGB(0.00, 0.45, 0.74)),
-        # (label = "Phalcon (matched problem subset)", color = RGBA(0.00, 0.45, 0.74, 0.5), linestyle = :dot),
-        (label = "Nonsense Phalcon", color = RGB(0.85, 0.33, 0.10)),
-        # (label = "Nonsense Phalcon (matched problem subset)", color = RGBA(0.85, 0.33, 0.10, 0.5), linestyle = :dot),
-        # (label = "Levenshtein", color = RGB(0.47, 0.67, 0.19)),
         (label = "General Phalcon", color = RGB(0.47, 0.67, 0.19)),
+        (label = "Nonsense Phalcon", color = RGB(0.85, 0.33, 0.10)),
+        (label = "Levenshtein", color = RGB(0.58, 0.40, 0.74)),
     ]
     names = [
         "phalcon_strings", 
-        # "phalcon_strings_only_string_outputs", 
-        "nonsense_phalcon_strings",
-        # "nonsense_phalcon_strings_only_string_outputs", 
-        # "heuristic_strings",
         "general_phalcon_strings",
+        "nonsense_phalcon_strings",
+        "heuristic_strings",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :programs_enumerated, plot_kwargs, series_kwargs)
