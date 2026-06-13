@@ -224,7 +224,7 @@ function initialize!(iter::Phalcon)
     end
 
     return nothing
-end
+    end
 
 function neighborhood(iter::Phalcon, program::AbstractRuleNode)
     grammar = iter.solver.grammar

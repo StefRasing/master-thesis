@@ -5,30 +5,6 @@ mutable struct Property
     distance::Function
 end
 
-mutable struct PoolEntry
-    program::AbstractRuleNode
-    cost::Number
-    depth::Int
-    size::Int
-    has_been_expanded::Bool
-    parent
-end
-
-PoolEntry(program::AbstractRuleNode, cost::Number, depth::Int, size::Int; parent=nothing) = PoolEntry(program, cost, depth, size, false, parent)
-
-function Base.isless(a::PoolEntry, b::PoolEntry)
-    a.cost != b.cost && return a.cost < b.cost
-    a.size != b.size && return a.size < b.size
-    a.depth != b.depth && return a.depth < b.depth
-    return false
-end
-
-function Base.:(==)(a::PoolEntry, b::PoolEntry)
-    a.cost == b.cost &&
-    a.depth == b.depth &&
-    a.size == b.size &&
-    a.program == b.program
-end
 
 @programiterator mutable PhalconGeneralizedProperties(
     problem = nothing,

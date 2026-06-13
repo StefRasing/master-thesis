@@ -1,132 +1,73 @@
 abstract type AbstractNeighborhoodSearch <: ProgramIterator end
 
+get_program(entry::PoolEntry) = entry.program
+get_cost(entry::PoolEntry) = entry.cost
+HerbCore.depth(entry::PoolEntry) = entry.depth
+Base.length(entry::PoolEntry) = entry.size
 
-mutable struct PoolEntry
-    program::AbstractRuleNode
-    cost::Number
-    depth::Int
-    size::Int
-    has_been_expanded::Bool
-    parent
-end
-
-PoolEntry(program::AbstractRuleNode, cost::Number, depth::Int, size::Int; parent=nothing) = PoolEntry(program, cost, depth, size, false, parent)
-
-function Base.isless(a::PoolEntry, b::PoolEntry)
-    a.cost != b.cost && return a.cost < b.cost
-    a.size != b.size && return a.size < b.size
-    a.depth != b.depth && return a.depth < b.depth
-    return false
-end
-
-function Base.:(==)(a::PoolEntry, b::PoolEntry)
-    a.cost == b.cost &&
-    a.depth == b.depth &&
-    a.size == b.size &&
-    a.program == b.program
-end
+# ------------------------------------------------------------
+# Iterator
+# ------------------------------------------------------------
 
 @programiterator mutable NeighborhoodSearch(
     problem = nothing,
     heuristic = nothing,
-    
+
     pool_size::Int = 0,
     max_extension_depth::Int = 1,
     max_extension_size::Int = 1,
 
     pool::Vector{PoolEntry} = PoolEntry[],
     extensions::Vector{AbstractRuleNode} = AbstractRuleNode[],
-
-    benchmark = nothing,
-    interpreter = nothing,
-
-    programs_evaluated::Int = 0,
 ) <: AbstractNeighborhoodSearch
 
-function heuristic_cost(iter::NeighborhoodSearch, program::AbstractRuleNode)::Number
-    spec = iter.problem.spec
+highest_cost(iter::NeighborhoodSearch) = iter.pool[end].cost
+lowest_cost(iter::NeighborhoodSearch) = iter.pool[begin].cost
 
-    if isnothing(program._val) || length(program._val) == 0
-        program._val = [iter.interpreter(program, io.in) for io in spec]
+function heuristic_cost(iter::NeighborhoodSearch, program::AbstractRuleNode)::Float64
+    cost = iter.heuristic(program)
+    if isnothing(cost) || !isfinite(Float64(cost))
+        return Inf
     end
-
-    outputs = program._val
-
-    if any(isnothing, outputs)
-        return typemax(Int)
-    end
-
-    if all(output == io.out for (output, io) in zip(outputs, spec))
-        return -1
-    end
-
-    return sum(iter.heuristic(output, io.out) for (output, io) in zip(outputs, spec))
+    return Float64(cost)
 end
 
+# ------------------------------------------------------------
+# Pool maintenance
+# ------------------------------------------------------------
 
-"""
-    Base.add_to_pool!(iter::AbstractBeamIterator, beam_entry::BeamEntry)
+function add_to_pool!(iter::NeighborhoodSearch, program::AbstractRuleNode, parent=nothing)
+    grammar = iter.solver.grammar
 
-Adds a program to the pool, ensuring that the pool size is not exceeded and only the best programs are kept.
-"""
-function add_to_pool!(iter::NeighborhoodSearch, program::AbstractRuleNode, parent=nothing)    
-    if any([!check_tree(constraint, program) for constraint in iter.solver.grammar.constraints])
+    if any(!check_tree(constraint, program) for constraint in grammar.constraints)
         return nothing
     end
-    
+
     cost = heuristic_cost(iter, program)
-    pool_entry = PoolEntry(program, cost, depth(program), length(program); parent = parent)
+    cost == Inf && return nothing
 
-    # If the cost is infinity, skip the program
-    if cost == Inf
+    entry = PoolEntry(program, cost, depth(program), length(program); parent=parent)
+
+    if length(iter.pool) >= iter.pool_size && entry >= iter.pool[end]
         return nothing
     end
 
-    # If the beam is full and the new entry has a higher cost than the worst in the beam, we can abort
-    if length(iter.pool) >= iter.pool_size && pool_entry >= iter.pool[end]
-        return nothing
-    end
+    # only compare syntactically against equal-cost region
+    costs = [e.cost for e in iter.pool]
+    first_index = searchsortedfirst(costs, entry.cost)
+    last_index  = searchsortedlast(costs, entry.cost)
 
-    #= Otherwise, add the program to the beam
-    
-    The main difficulty is checking whether a equal (or equivalent program with observation_equivalance) exists in the beam.
-    For this, we only wish to check the programs (or outputs) for beam entries that have the same cost.
-    
-    For this we find the range of equal costs: 
-     - The last index in the array that has a lower cost
-     - The first index in the array that has a higher cost
-    =#
-    first_index = searchsortedfirst([e.cost for e in iter.pool], pool_entry.cost)
-    last_index = searchsortedlast([e.cost for e in iter.pool], pool_entry.cost)
-
-    # If last_index > first_index, there is no entry with the same cost, and this step can be skipped
     if first_index <= last_index
-        
-        # To avoid duplicates, we check every beam entry in this range and see if the program or outputs are already present
         for i in first_index:last_index
-
-            # Check if the programs are equal; abort if so
             if iter.pool[i].program == program
-                return nothing
-            end
-
-            # If an interpreter is supplied and we have observation_equivalance, check if the outputs are equal; keep the shortest program in that case
-            if iter.pool[i].program._val == program._val
-                if pool_entry < iter.pool[i]
-                    iter.pool[i] = pool_entry
-                end
-
                 return nothing
             end
         end
     end
 
-    index = searchsortedlast(iter.pool, pool_entry)
+    index = searchsortedlast(iter.pool, entry)
+    insert!(iter.pool, index + 1, entry)
 
-    # If the entry made it through all the checks above, insert it
-    insert!(iter.pool, index + 1, pool_entry)
-
-    # If that exceeded the beam size, pop the worst entry (located at the end)
     if length(iter.pool) > iter.pool_size
         pop!(iter.pool)
     end
@@ -134,92 +75,82 @@ function add_to_pool!(iter::NeighborhoodSearch, program::AbstractRuleNode, paren
     return nothing
 end
 
-"""
-    initialize!(iter::AbstractBeamIterator)
+# ------------------------------------------------------------
+# Initialization
+# ------------------------------------------------------------
 
-Initializes the iterator by creating all extensions and setting the first beam.
-"""
 function initialize!(iter::NeighborhoodSearch)
-    # ---------------------------
-    #   1. Setup fields
-    # ---------------------------
-
-    grammar = iter.solver.grammar
-    interp = HerbInterpret.make_interpreter(grammar, target_module=iter.benchmark, cache_module=iter.benchmark)
-    iter.interpreter = (p,x) -> (iter.programs_evaluated += 1; interp(p,x))
-
-
-    # ---------------------------
-    #   2. Create extensions
-    # ---------------------------
-
-    # Copy the grammar to clear constraints as we will use another iterator to obtain extensions
     original_grammar = iter.solver.grammar
     grammar = deepcopy(original_grammar)
     clearconstraints!(grammar)
 
-    # Iterate over all grammar types
-    for type in unique(grammar.types)
+    start_symbol = get_starting_symbol(iter.solver)
 
-        # Itertate over all extensions of that type up to the specified depth and size
-        extensions = BFSIterator(grammar, type, 
-            max_depth=iter.max_extension_depth,
-            max_size=iter.max_extension_size)
+    for T in unique(grammar.types)
+        isnothing(T) && continue
+
+        extensions = BFSIterator(
+            grammar,
+            T;
+            max_depth = iter.max_extension_depth,
+            max_size = iter.max_extension_size,
+        )
 
         for extension in extensions
             extension = freeze_state(extension)
 
-            # If an interpreter is defined, set the _val of the rulenode
-            extension._val = [iter.interpreter(extension, io.in) for io in iter.problem.spec]
-
-            # If this extension produces an error or an already existing output, skip it
-            if any(isnothing, extension._val) || any(e._val == extension._val for e in iter.extensions)
+            # avoid duplicate extensions syntactically
+            if any(e -> e == extension, iter.extensions)
                 continue
             end
 
-            # If it has the correct output type and is feasible with the original grammar constraints, add it to the first beam
-            if type == iter.solver.grammar.rules[1] && all([check_tree(constraint, extension) for constraint in grammar.constraints])
+            push!(iter.extensions, extension)
+
+            if T == start_symbol &&
+               all(check_tree(constraint, extension) for constraint in original_grammar.constraints)
                 add_to_pool!(iter, extension)
             end
-
-            # Always add it to the set of extensions
-            push!(iter.extensions, extension)
         end
     end
 
     return nothing
 end
 
+# ------------------------------------------------------------
+# Neighborhood generation
+# ------------------------------------------------------------
+
 function neighborhood(iter::NeighborhoodSearch, program::AbstractRuleNode)
     grammar = iter.solver.grammar
     types = grammar.types
 
-    function extend(program::AbstractRuleNode)
-        program_type = types[get_rule(program)]
-        combinations = Set()
+    function extend(node::AbstractRuleNode)
+        node_type = types[get_rule(node)]
+        combinations = Set{AbstractRuleNode}()
 
-        for rule_id in 1:length(grammar.rules)
-            if types[rule_id] != program_type
+        for rule_id in eachindex(grammar.rules)
+            if types[rule_id] != node_type
                 continue
             end
 
-            for program_index in findall(t -> t == program_type, grammar.childtypes[rule_id])
-            # for program_index in [0; findall(t -> t == program_type, grammar.childtypes[rule_id])]
-                child_options = []
+            childtypes = grammar.childtypes[rule_id]
+            isempty(childtypes) && continue
 
-                for (index, child_type) in enumerate(grammar.childtypes[rule_id])
-                    if index == program_index
-                        push!(child_options, [program])
+            for node_index in findall(t -> t == node_type, childtypes)
+                child_options = Vector{Vector{AbstractRuleNode}}()
+
+                for (idx, child_type) in enumerate(childtypes)
+                    if idx == node_index
+                        push!(child_options, AbstractRuleNode[node])
                     else
-                        push!(child_options, [e for e in iter.extensions if child_type == types[get_rule(e)]])
+                        push!(child_options,
+                              AbstractRuleNode[e for e in iter.extensions if child_type == types[get_rule(e)]])
                     end
                 end
 
                 for child_tuple in Iterators.product(child_options...)
                     children = collect(child_tuple)
-                    new_program = RuleNode(rule_id, children)
-
-                    push!(combinations, new_program)
+                    push!(combinations, RuleNode(rule_id, children))
                 end
             end
         end
@@ -227,16 +158,16 @@ function neighborhood(iter::NeighborhoodSearch, program::AbstractRuleNode)
         return combinations
     end
 
-    function extend_all_nodes(program::AbstractRuleNode)
-        results = extend(program)
+    function extend_all_nodes(node::AbstractRuleNode)
+        results = extend(node)
 
-        for (child_index, child) in enumerate(program.children)
-            new_child_options = extend_all_nodes(child)
-
-            for new_child in new_child_options
-                new_children = [i == child_index ? new_child : c for (i, c) in enumerate(program.children)]
-                new_program = RuleNode(get_rule(program), new_children)
-                push!(results, new_program)
+        children = HerbCore.get_children(node)
+        for (child_index, child) in enumerate(children)
+            for new_child in extend_all_nodes(child)
+                new_children = AbstractRuleNode[
+                    i == child_index ? new_child : c for (i, c) in enumerate(children)
+                ]
+                push!(results, RuleNode(get_rule(node), new_children))
             end
         end
 
@@ -246,14 +177,12 @@ function neighborhood(iter::NeighborhoodSearch, program::AbstractRuleNode)
     return extend_all_nodes(program)
 end
 
-"""
-    combine!(iter::AbstractBeamIterator)
+# ------------------------------------------------------------
+# Expansion
+# ------------------------------------------------------------
 
-Creates new programs by expanding all programs in the beam with all possible extensions.
-Only selects the N best programs of these to create the new beam.
-"""
 function combine!(iter::NeighborhoodSearch)
-    neighbor_to_parent = Dict()
+    neighbor_to_parent = Dict{AbstractRuleNode,Tuple{PoolEntry,Int}}()
 
     for (i, pool_entry) in enumerate(iter.pool)
         if pool_entry.has_been_expanded
@@ -269,59 +198,71 @@ function combine!(iter::NeighborhoodSearch)
         pool_entry.has_been_expanded = true
     end
 
+    # smaller programs first
     sorted = sort(collect(neighbor_to_parent), by = x -> length(first(x)))
 
     for (neighbor, parent) in sorted
         add_to_pool!(iter, neighbor, parent)
-
-        if length(iter.pool) == iter.pool_size && iter.pool[end].cost == 0
-            break
-        end
-
-        if iter.pool[begin].cost == -1
-            return [iter.pool[begin].program]
-        end
     end
 
-    # Only return programs that have not been expanded yet, otherwise they are already iterated over
     return [pool_entry.program for pool_entry in iter.pool if !pool_entry.has_been_expanded]
 end
 
+# ------------------------------------------------------------
+# Iteration protocol
+# ------------------------------------------------------------
 
-"""
-    Base.iterate(iter::AbstractBeamIterator)
-
-The initial call to the iterator. Initializes the beams and iterator's state.
-"""
 function Base.iterate(iter::NeighborhoodSearch)
     initialize!(iter)
-
-    return Base.iterate(
-        iter,
-        [pool_entry.program for pool_entry in iter.pool]
-    )
+    return Base.iterate(iter, [pool_entry.program for pool_entry in iter.pool])
 end
 
-"""
-    Base.iterate(iter::AbstractBeamIterator)
-
-Iterative call to the iterator. Perform the following:
-1. If all programs from the current queue have been returned, expand the current beam and set the queue as the new beam (pruning already returned programs).
-2. If after expansion the beam is empty, the iterator is exhausted.
-3. Otherwise, return the next program from the queue.
-"""
 function Base.iterate(iter::NeighborhoodSearch, state::Vector{<:AbstractRuleNode})
-    # If the current queue is drained, new programs must be created
     if isempty(state)
-        # If so, expand the current pool and set that result as the queue
         state = combine!(iter)
     end
 
-    # If state still is empty, we reached local optimum and can terminate
     if isempty(state)
         return nothing
     end
 
-    # Pop the first program from the queue and return
     return popfirst!(state), state
+end
+
+# ------------------------------------------------------------
+# Convenience constructor for CASYNTH
+# ------------------------------------------------------------
+
+"""
+Build a NeighborhoodSearch iterator that uses the CASYNTH structural heuristic.
+
+Example:
+    cost_model = CASynth.CASynthBeamCostModel(...)
+    iter = make_casynth_neighborhood_iterator(grammar, search_symbol, problem, cost_model;
+        pool_size=100, max_extension_depth=1, max_extension_size=1,
+        max_depth=8, max_size=10)
+"""
+function make_casynth_neighborhood_iterator(grammar,
+                                            start_symbol,
+                                            problem,
+                                            cost_model;
+                                            pool_size::Int=100,
+                                            max_extension_depth::Int=1,
+                                            max_extension_size::Int=1,
+                                            max_depth::Int=typemax(Int),
+                                            max_size::Int=typemax(Int))
+    beam_cost = CASynth.make_casynth_beam_cost(cost_model)
+    structural_heuristic = p -> beam_cost(p, nothing)
+
+    return NeighborhoodSearch(
+        grammar,
+        start_symbol;
+        problem = problem,
+        heuristic = structural_heuristic,
+        pool_size = pool_size,
+        max_extension_depth = max_extension_depth,
+        max_extension_size = max_extension_size,
+        max_depth = max_depth,
+        max_size = max_size,
+    )
 end
