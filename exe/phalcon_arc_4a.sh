@@ -5,7 +5,7 @@
 #SBATCH --time=168:00:00         # Request run time (wall-clock). Default is 1 minute
 #SBATCH --ntasks=1              # Request number of parallel tasks per job. Default is 1
 #SBATCH --cpus-per-task=1       # Request number of CPUs (threads) per task. Default is 1 (note: CPUs are always allocated to jobs per 2).
-#SBATCH --mem=32GB              # Request memory (MB) per node. Default is 1024MB (1GB). For multiple tasks, specify --mem-per-cpu instead
+#SBATCH --mem=64GB              # Request memory (MB) per node. Default is 1024MB (1GB). For multiple tasks, specify --mem-per-cpu instead
 #SBATCH --output=exe/out/p_a_%j.out # Set name of output log. %j is the Slurm jobId
 #SBATCH --error=exe/out/p_a_%j.err  # Set name of error log. %j is the Slurm jobId
 

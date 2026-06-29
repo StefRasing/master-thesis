@@ -12,8 +12,11 @@ include("../src/genetic_iterator.jl")
 include("../src/property_synthesizer.jl")
 include("../src/phalcon.jl")
 
-repetitions = 5
-path = "data/phalcon_bitvectors.json"
+
+repetitions = 1
+run = ARGS[1]
+path = "data/phalcon_bitvectors/phalcon_bitvectors$(run).json"
+store = true
 
 benchmark = HerbBenchmarks.PBE_BV_Track_2018
 RuntimeGeneratedFunctions.init(benchmark)
@@ -24,21 +27,29 @@ task_names = [String(s)[9:end] for s in names(benchmark; all=true) if startswith
 problems = [getfield(benchmark, Symbol("problem_", name)) for name in task_names]
 grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names]
 
+# id = 10
+# problems = problems[id:id]
+# grammars = grammars[id:id]
+# store = false
+
+
 for (problem, grammar) in zip(problems, grammars)
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
     for _ in 1:repetitions_to_perform
-        rule_costs = Int[rule isa Expr for rule in grammar.rules]
+        rule_cost_func = r -> r isa Expr
+        rule_costs = Int[rule_cost_func(rule) for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
             problem = problem,
             cost = _ -> 0,
-            population_size = 10,
+            population_size = 20,
             candidate_pool_size = 2000,
-            max_generations_without_improvement = 4,
+            max_generations_without_improvement = 10,
             max_extension_size = 1,
             max_initial_population_size = 1,
+            max_size = 50,
             rule_costs = rule_costs,
         )
 
@@ -46,11 +57,17 @@ for (problem, grammar) in zip(problems, grammars)
             iterator = iterator,
             max_number_of_properties = 20,
             property_types = [:Start],
-            minimal_increase_property = 0.7,
-            max_property_cost = 2,
-            rule_costs = rule_costs,
+            max_property_cost = 4,
+            rule_cost_func = rule_cost_func,
+            verbose = false,
+            timeout = 60*30,
         )
 
-        append_result(path, result)
+        if store
+            append_result(path, result)
+        else
+            println()
+            @show result
+        end
     end
 end

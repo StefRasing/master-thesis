@@ -32,16 +32,18 @@ struct LazyCostBasedBus
     max_cost::Int
     rule_costs::Vector{Int}
     program_to_outputs
+    prune_by_output
     bank::DefaultDict{Symbol,Dict{Int,Vector{CachedRuleNode}}}
     seen_outputs_hashes::DefaultDict{Symbol,Set{UInt64}}
 end
 
-LazyCostBasedBus(grammar::AbstractGrammar, types::Vector{Symbol}, max_cost::Int, rule_costs::Vector{Int}, program_to_outputs) = LazyCostBasedBus(
+LazyCostBasedBus(grammar::AbstractGrammar, types::Vector{Symbol}, max_cost::Int, rule_costs::Vector{Int}, program_to_outputs, prune_by_output) = LazyCostBasedBus(
     grammar, 
     types, 
-    max_cost, 
+    max_cost,
     rule_costs, 
     program_to_outputs, 
+    prune_by_output,
     DefaultDict{Symbol,DefaultDict{Int,Vector{CachedRuleNode}}}(() -> Dict()), 
     DefaultDict{Symbol,Set{UInt64}}(() -> Set{UInt64}()),
 )
@@ -82,7 +84,7 @@ function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRule
     outputs = iter.program_to_outputs(rule, child_outputs)
     outputs_hash = _hash_outputs(outputs)
 
-    any(isnothing, outputs) && return nothing
+    any(iter.prune_by_output, outputs) && return nothing
     outputs_hash in iter.seen_outputs_hashes[type] && return nothing
 
     push!(iter.seen_outputs_hashes[type], outputs_hash)
@@ -92,29 +94,11 @@ end
 function grow(iter::LazyCostBasedBus, type::Symbol, cost::Int)
     g = iter.grammar
 
-    res = collect(Iterators.filter(!isnothing,
+    collect(Iterators.filter(!isnothing,
         assemble(iter, rule, Vector{CachedRuleNode}(collect(children)))
         for (rule, rule_type) in enumerate(g.types) if rule_type == type
         for children in program_combinations(iter, g.childtypes[rule], cost - iter.rule_costs[rule])
     ))
-
-    # if cost == 3
-    #     counts = DefaultDict(() -> 0)
-    #     for r in res
-    #         rule = g.rules[get_rule(r)]
-    #         counts[rule] += 1
-    #     end
-    #     counts = collect(counts)
-    #     sort!(counts, by = last, rev = true)
-
-    #     println("\n---[ $type : $cost ]---", " " ^ (56 - length("---[ $type : $cost ]---")), length(res))
-
-    #     for (rule, count) in counts
-    #         println(rule, ":", " " ^ (55 - length(string(rule))), count)
-    #     end
-    # end
-
-    res
 end
 
 function _satisfies_constraints(grammar, prog)

@@ -1,0 +1,3829 @@
+[
+    {
+        "execution_time": 16.177345991134644,
+        "problem_name": "problem_11440431",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, \" \", \"\"), _arg_out)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(if false\n        replace_cvc(_arg_1, \" \", \"CAN\")\n    else\n        replace_cvc(_arg_1, \"CAN\", \"US\")\n    end, concat_cvc(\" \", \"US\"), \"\")",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 17956,
+        "solved": true
+    },
+    {
+        "execution_time": 55.215171098709106,
+        "problem_name": "problem_11604909",
+        "heuristic": [
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, if contains_cvc(_arg_1, _arg_out)\n        _arg_out\n    else\n        \" \"\n    end, \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, \".\", _arg_1), \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_out, \" \", \"\"), _arg_out, \"\")",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(concat_cvc(\".\", _arg_1), indexof_cvc(_arg_1, \".\", 1), indexof_cvc(_arg_1, \".\", 1) + (1 + 1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            19,
+            110
+        ],
+        "programs_enumerated": 155910,
+        "solved": true
+    },
+    {
+        "execution_time": 6.265115022659302,
+        "problem_name": "problem_12948338",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_2, substr_cvc(_arg_1, 1, _arg_out), _arg_1)",
+                0.95
+            ],
+            [
+                "at_cvc(\" \", _arg_out)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_2, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "if suffixof_cvc(_arg_2, _arg_1)\n    3\nelse\n    if suffixof_cvc(replace_cvc(at_cvc(_arg_2, 3), replace_cvc(\" \", \"\", _arg_2), int_to_str_cvc(3)), _arg_2)\n        2\n    else\n        1\n    end\nend",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 34860,
+        "solved": true
+    },
+    {
+        "execution_time": 46.90946698188782,
+        "problem_name": "problem_17212077",
+        "heuristic": [
+            [
+                "at_cvc(_arg_1, 1 + len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, int_to_str_cvc(1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"/\", 1)",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, -1 + len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, replace_cvc(_arg_out, at_cvc(_arg_1, 1), \"\"), 1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(_arg_1, substr_cvc(replace_cvc(_arg_1, substr_cvc(replace_cvc(_arg_1, int_to_str_cvc(indexof_cvc(_arg_1, \"/\", 1) + 1), \"\"), 1, indexof_cvc(_arg_1, \"/\", 1)), \"\"), 1, indexof_cvc(_arg_1, \"/\", 1)), \"\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            52,
+            0,
+            0
+        ],
+        "programs_enumerated": 185514,
+        "solved": true
+    },
+    {
+        "execution_time": 0.8231689929962158,
+        "problem_name": "problem_19274448",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(_arg_1, \"9999999\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 7,
+        "solved": true
+    },
+    {
+        "execution_time": 0.4546699523925781,
+        "problem_name": "problem_19558979",
+        "heuristic": [
+        ],
+        "solution": "at_cvc(_arg_1, _arg_2)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 46,
+        "solved": true
+    },
+    {
+        "execution_time": 7.596699953079224,
+        "problem_name": "problem_2171308",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, substr_cvc(_arg_out, 1, indexof_cvc(_arg_out, \" \", 1)), \"\")",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(replace_cvc(at_cvc(_arg_1, 1), int_to_str_cvc(0), _arg_1), substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", 1), len_cvc(_arg_1)))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 16918,
+        "solved": true
+    },
+    {
+        "execution_time": 1.3486311435699463,
+        "problem_name": "problem_23435880",
+        "heuristic": [
+            [
+                "at_cvc(_arg_1, _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "if suffixof_cvc(_arg_2, _arg_1)\n        1 + 1\n    else\n        1\n    end + 1",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 1662,
+        "solved": true
+    },
+    {
+        "execution_time": 19.292381048202515,
+        "problem_name": "problem_25239569",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, \"Branding\", \"BRD\"), _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, \"Branding\", \"BRD\"), \"\")",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, \"Direct Response\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"Branding\", \"BRD\")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(replace_cvc(_arg_1, \"BRD\", \"Branding\"), \"DRS\", \"Direct Response\"), \"LDS\", \"Leads\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            20
+        ],
+        "programs_enumerated": 46383,
+        "solved": true
+    },
+    {
+        "execution_time": 2.552412986755371,
+        "problem_name": "problem_28627624_1",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \" \", \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, (-1 + -1) + indexof_cvc(_arg_1, \"-\", 1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 12224,
+        "solved": true
+    },
+    {
+        "execution_time": 172.78514003753662,
+        "problem_name": "problem_30732554",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, _arg_1, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, \" \"), \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, \"|\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, \"|\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_1, _arg_out, \"\"), \"|\", _arg_out)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, int_to_str_cvc(-1))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, replace_cvc(_arg_out, int_to_str_cvc(1), \"\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, replace_cvc(_arg_out, int_to_str_cvc(1), \"\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(\"|\", _arg_out, \" \")",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(\"|\", _arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(_arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "if contains_cvc(_arg_1, \" \")\n    substr_cvc(_arg_1, (1 + 1) - ((1 + 1) + -1), if contains_cvc(_arg_1, \" \")\n            indexof_cvc(substr_cvc(concat_cvc(_arg_1, _arg_1), 1 - (-1 + -1), if contains_cvc(_arg_1, \" \")\n                        indexof_cvc(_arg_1, \" \", 1)\n                    else\n                        len_cvc(_arg_1)\n                    end), \" \", 1)\n        else\n            len_cvc(_arg_1)\n        end)\nelse\n    _arg_1\nend",
+        "population_costs": [
+            0,
+            0,
+            0,
+            19,
+            37,
+            57,
+            76,
+            95,
+            104,
+            114,
+            131,
+            138
+        ],
+        "programs_enumerated": 503919,
+        "solved": true
+    },
+    {
+        "execution_time": 116.93993711471558,
+        "problem_name": "problem_31753108",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 3)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, \"\"), \"\")",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 5 + 1, 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 5 + 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, concat_cvc(substr_cvc(_arg_1, 4, 5), _arg_out), _arg_1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, substr_cvc(_arg_1, 3, 4), 2)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_out, 5), 1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(substr_cvc(_arg_1, 5 + (4 + indexof_cvc(substr_cvc(_arg_1, 5 + 5, len_cvc(_arg_1)), \" \", 1)), (len_cvc(_arg_1) - 4) - indexof_cvc(substr_cvc(_arg_1, 5 + if prefixof_cvc(\" \", _arg_1)\n                            5\n                        else\n                            5 + 2\n                        end, len_cvc(_arg_1)), \" \", 1)), \" \", \"\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            20,
+            200,
+            39,
+            115,
+            280
+        ],
+        "programs_enumerated": 505784,
+        "solved": true
+    },
+    {
+        "execution_time": 43.47575402259827,
+        "problem_name": "problem_33619752",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, \" \", \"\"), _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \"Corporation\", replace_cvc(_arg_out, \"Corporation\", \"\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \"Corporation\", _arg_out)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\"Enterprises\", _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_out, \"Inc\", \"\"), \" \", \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \"Company\", _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, replace_cvc(_arg_1, \"Inc\", _arg_out))",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(replace_cvc(_arg_1, if suffixof_cvc(\"Company\", _arg_1)\n                \"Company\"\n            else\n                \"Inc\"\n            end, \"Corporation\"), \"Enterprises\", \"Corporation\"), concat_cvc(\" \", \"Corporation\"), \"\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 78628,
+        "solved": true
+    },
+    {
+        "execution_time": 92.71310496330261,
+        "problem_name": "problem_34801680",
+        "heuristic": [
+            [
+                "substr_cvc(\"Name\", indexof_cvc(_arg_out, \" \", 1), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "len_cvc(replace_cvc(_arg_out, \" \", \"\"))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_1, 1), 1)",
+                0.95
+            ],
+            [
+                "len_cvc(replace_cvc(_arg_out, \"=\", \"\"))",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_out, replace_cvc(_arg_out, \"=\", _arg_1), \"Name\"), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, str_to_int_cvc(at_cvc(_arg_out, 1)))",
+                0.8
+            ],
+            [
+                "contains_cvc(_arg_1, at_cvc(_arg_out, 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(replace_cvc(_arg_out, \"Name\", \"\")))",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(substr_cvc(_arg_1, len_cvc(replace_cvc(concat_cvc(_arg_1, \"Name\"), _arg_1, replace_cvc(\"=\", \"\", \"=\"))), len_cvc(_arg_1)), \"=\", \"Name\"), \"Name\", \" \")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            60,
+            40,
+            60,
+            20
+        ],
+        "programs_enumerated": 225262,
+        "solved": true
+    },
+    {
+        "execution_time": 1.284256935119629,
+        "problem_name": "problem_35016216",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "if prefixof_cvc(\"C0\", _arg_1)\n    _arg_1\nelse\n    _arg_2\nend",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 622,
+        "solved": true
+    },
+    {
+        "execution_time": 2.095427989959717,
+        "problem_name": "problem_35744094",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_1, \"apple\", _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(\"windows\", _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "if suffixof_cvc(\"windows\", _arg_1)\n    \"windows\"\nelse\n    if suffixof_cvc(\"/\", _arg_1)\n        \"microsoft\"\n    else\n        \"mac\"\n    end\nend",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 13045,
+        "solved": true
+    },
+    {
+        "execution_time": 1.1944561004638672,
+        "problem_name": "problem_36462127",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 1), 1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, replace_cvc(_arg_1, \"/\", \"\"))",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(substr_cvc(_arg_1, len_cvc(_arg_1) - indexof_cvc(_arg_1, \"/\", 1), len_cvc(_arg_1)), \"/\", \"\")",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 13061,
+        "solved": true
+    },
+    {
+        "execution_time": 0.2202610969543457,
+        "problem_name": "problem_37281007",
+        "heuristic": [
+        ],
+        "solution": "suffixof_cvc(_arg_2, _arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 7,
+        "solved": true
+    },
+    {
+        "execution_time": 2.174252986907959,
+        "problem_name": "problem_37534494",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, _arg_2, replace_cvc(_arg_1, _arg_3, \"\"))",
+                0.95
+            ]
+        ],
+        "solution": "if contains_cvc(_arg_1, _arg_3)\n    _arg_1\nelse\n    _arg_2\nend",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 3306,
+        "solved": true
+    },
+    {
+        "execution_time": 1.4271738529205322,
+        "problem_name": "problem_38664547",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, _arg_1, \"\")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(_arg_1, if prefixof_cvc(\"that\", _arg_1)\n        replace_cvc(replace_cvc(\"that\", _arg_1, \" \"), concat_cvc(\"that\", _arg_1), concat_cvc(\"that\", \"that\"))\n    else\n        \"that\"\n    end, \"\")",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 2644,
+        "solved": true
+    },
+    {
+        "execution_time": 3.1757941246032715,
+        "problem_name": "problem_38871714",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, \"<\", len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, concat_cvc(\" \", \"<\"), \" \")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(_arg_1, \">\", \"\"), \"<\", \"\")",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 5877,
+        "solved": true
+    },
+    {
+        "execution_time": 235.93041801452637,
+        "problem_name": "problem_39060015",
+        "heuristic": [
+            [
+                "indexof_cvc(\"/\", _arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(at_cvc(_arg_out, 1), _arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, indexof_cvc(_arg_1, \"/\", 1), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, \"/\", len_cvc(_arg_out))",
+                0.9
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_out, \"/\", \"\"), \" \", indexof_cvc(_arg_1, \"/\", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"/\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", indexof_cvc(_arg_1, \"/\", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "len_cvc(replace_cvc(_arg_out, \" \", \"\"))",
+                0.9
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_out, \" \", \"\"), indexof_cvc(_arg_1, \"/\", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, concat_cvc(\" \", \" \"), 1)",
+                0.85
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_out, \" \", \"\"), indexof_cvc(_arg_1, \"/\", 1))",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            19,
+            0,
+            19,
+            0,
+            20,
+            20,
+            20,
+            19,
+            0,
+            80,
+            99,
+            0,
+            0,
+            32,
+            95
+        ],
+        "programs_enumerated": 858713,
+        "solved": false
+    },
+    {
+        "execution_time": 0.6922309398651123,
+        "problem_name": "problem_40498040",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(if suffixof_cvc(\"overhead\", _arg_1)\n        replace_cvc(\"some project\", \"\", \",\")\n    else\n        _arg_1\n    end, _arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 793,
+        "solved": true
+    },
+    {
+        "execution_time": 22.045335054397583,
+        "problem_name": "problem_41503046",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_out, indexof_cvc(_arg_1, \" \", 1), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"ssp.\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_1, \"ssp.\", \"\"), _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_1, \"ssp.\", \"\"), _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(\"ssp.\", 1), 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, indexof_cvc(_arg_1, \" \", len_cvc(replace_cvc(\" \", \"\", \"ssp.\"))) - 1)",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            38,
+            0
+        ],
+        "programs_enumerated": 70976,
+        "solved": true
+    },
+    {
+        "execution_time": 248.39573502540588,
+        "problem_name": "problem_43120683",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_1, \"2\", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"2\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"strawberries\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"4\", 1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\"oranges\", _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"3\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_1, 1)",
+                0.95
+            ],
+            [
+                "contains_cvc(replace_cvc(_arg_out, \"apple\", _arg_1), \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_out, \"apple\", \"1\"), \"oranges\", \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"1\")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(replace_cvc(replace_cvc(replace_cvc(replace_cvc(_arg_1, \"3\", \"strawberries\"), \"2\", \"bananas\"), \"4\", \"oranges\"), \"1\", _arg_1), replace_cvc(_arg_1, \"4\", \"3\"), \"apple\"), \",\", \"\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            20,
+            20,
+            20,
+            40,
+            20,
+            0,
+            34,
+            55,
+            73,
+            79,
+            111,
+            132
+        ],
+        "programs_enumerated": 603170,
+        "solved": true
+    },
+    {
+        "execution_time": 15.59458613395691,
+        "problem_name": "problem_43606446",
+        "heuristic": [
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, replace_cvc(_arg_out, \">\", \"\"))",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\">\", _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, \"\"), \"\")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(substr_cvc(_arg_1, -1 + (len_cvc(_arg_1) + (-1 + -1)), len_cvc(_arg_1)), \">\", \"\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            56
+        ],
+        "programs_enumerated": 125128,
+        "solved": true
+    },
+    {
+        "execution_time": 61.60470008850098,
+        "problem_name": "problem_44789427",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \"-\", _arg_2)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 2, indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 2 + 1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, replace_cvc(_arg_1, \"-\", \" \"))",
+                0.95
+            ],
+            [
+                "concat_cvc(_arg_out, at_cvc(\" \", _arg_2))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, substr_cvc(_arg_1, 1, _arg_2), _arg_2)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, replace_cvc(_arg_1, \"-\", \" \"))",
+                0.95
+            ],
+            [
+                "prefixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "if 1 == _arg_2\n    substr_cvc(_arg_1, 1, indexof_cvc(_arg_1, \"-\", _arg_2) + -1)\nelse\n    replace_cvc(replace_cvc(_arg_1, substr_cvc(_arg_1, 1, indexof_cvc(_arg_1, \"-\", _arg_2) + 1), substr_cvc(_arg_1, 1, 1)), \"-\", \" \")\nend",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            19,
+            20,
+            100
+        ],
+        "programs_enumerated": 263749,
+        "solved": true
+    },
+    {
+        "execution_time": 4.0466468334198,
+        "problem_name": "problem_add_a_line_break_with_a_formula",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, replace_cvc(_arg_out, _arg_3, \"\"), \" \")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"/n\", \"\")",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(_arg_1, concat_cvc(\"/n\", concat_cvc(_arg_2, concat_cvc(\"/n\", _arg_3))))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 5943,
+        "solved": true
+    },
+    {
+        "execution_time": 3.2633018493652344,
+        "problem_name": "problem_bikes",
+        "heuristic": [
+            [
+                "at_cvc(replace_cvc(_arg_out, _arg_1, \" \"), 3)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 5, indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, (1 - 5) + (1 + len_cvc(_arg_1)))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 6600,
+        "solved": true
+    },
+    {
+        "execution_time": 0.4463341236114502,
+        "problem_name": "problem_cell_contains_all_of_many_things",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(_arg_1, _arg_4)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 8,
+        "solved": true
+    },
+    {
+        "execution_time": 0.6389129161834717,
+        "problem_name": "problem_cell_contains_number",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(if contains_cvc(_arg_1, \"1\")\n        concat_cvc(\"2\", \"3\")\n    else\n        _arg_1\n    end, \"2\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 412,
+        "solved": true
+    },
+    {
+        "execution_time": 0.004324913024902344,
+        "problem_name": "problem_cell_contains_one_of_many_things",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(_arg_1, _arg_2)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 9,
+        "solved": true
+    },
+    {
+        "execution_time": 0.004939079284667969,
+        "problem_name": "problem_cell_contains_one_of_many_with_exclusions",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(_arg_1, _arg_3)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 9,
+        "solved": true
+    },
+    {
+        "execution_time": 0.1423020362854004,
+        "problem_name": "problem_cell_contains_some_words_but_not_others",
+        "heuristic": [
+        ],
+        "solution": "prefixof_cvc(_arg_2, _arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 12,
+        "solved": true
+    },
+    {
+        "execution_time": 0.002766132354736328,
+        "problem_name": "problem_cell_contains_specific_text",
+        "heuristic": [
+        ],
+        "solution": "contains_cvc(_arg_1, _arg_2)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 8,
+        "solved": true
+    },
+    {
+        "execution_time": 9.329105138778687,
+        "problem_name": "problem_cell_equals_one_of_many_things",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_1, if _arg_out\n        \"orange\"\n    else\n        _arg_1\n    end, \"yellow\")",
+                0.95
+            ]
+        ],
+        "solution": "contains_cvc(if suffixof_cvc(replace_cvc(_arg_1, \"yellow\", \"\"), \"pink\")\n        _arg_1\n    else\n        \"blue\"\n    end, at_cvc(_arg_1, len_cvc(_arg_1)))",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 13940,
+        "solved": true
+    },
+    {
+        "execution_time": 0.4325439929962158,
+        "problem_name": "problem_change_negative_numbers_to_positive",
+        "heuristic": [
+        ],
+        "solution": "replace_cvc(_arg_1, \"-\", \"\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 28,
+        "solved": true
+    },
+    {
+        "execution_time": 22.12794804573059,
+        "problem_name": "problem_clean_and_reformat_telephone_numbers",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 1 + 1)",
+                0.95
+            ],
+            [
+                "if true\n    1\nelse\n    str_to_int_cvc(_arg_out)\nend",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, int_to_str_cvc(0))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \" \", at_cvc(_arg_out, 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(replace_cvc(replace_cvc(replace_cvc(\" \", \"-\", \"\"), \" \", replace_cvc(replace_cvc(_arg_1, \"-\", \"\"), \" \", \"<\")), \">\", \"\"), \"<\", \"\"), \".\", \"\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 30320,
+        "solved": true
+    },
+    {
+        "execution_time": 0.0028018951416015625,
+        "problem_name": "problem_compare_two_strings",
+        "heuristic": [
+        ],
+        "solution": "prefixof_cvc(_arg_2, _arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 7,
+        "solved": true
+    },
+    {
+        "execution_time": 0.3916909694671631,
+        "problem_name": "problem_convert_numbers_to_text",
+        "heuristic": [
+        ],
+        "solution": "int_to_str_cvc(_arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 12,
+        "solved": true
+    },
+    {
+        "execution_time": 0.15253305435180664,
+        "problem_name": "problem_convert_text_to_numbers",
+        "heuristic": [
+        ],
+        "solution": "str_to_int_cvc(_arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 11,
+        "solved": true
+    },
+    {
+        "execution_time": 25.808410167694092,
+        "problem_name": "problem_count_consecutive_monthly_orders",
+        "heuristic": [
+            [
+                "at_cvc(replace_cvc(\" \", \"\", \" \"), _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(at_cvc(_arg_1, _arg_out), \"0\", \" \")",
+                0.95
+            ],
+            [
+                "substr_cvc(replace_cvc(_arg_1, \" \", \"\"), _arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \"0\", int_to_str_cvc(_arg_out))",
+                0.95
+            ]
+        ],
+        "solution": "indexof_cvc(replace_cvc(_arg_1, \"0\", \" \"), \" \", if suffixof_cvc(\"0\", _arg_1)\n            1 + 1\n        else\n            1\n        end + if prefixof_cvc(int_to_str_cvc(indexof_cvc(_arg_1, \"0\", 1)), _arg_1)\n            1\n        else\n            if prefixof_cvc(\"0\", _arg_1)\n                1\n            else\n                1 + (if contains_cvc(_arg_1, \"0\")\n                            -1\n                        else\n                            1\n                        end - (-1 + -1))\n            end\n        end)",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 122983,
+        "solved": true
+    },
+    {
+        "execution_time": 2.286201000213623,
+        "problem_name": "problem_count_line_breaks_in_cell",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, _arg_out + _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "if contains_cvc(_arg_1, \"/n\")\n        len_cvc(int_to_str_cvc(len_cvc(_arg_1)))\n    else\n        0\n    end + 1",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 7662,
+        "solved": true
+    },
+    {
+        "execution_time": 1.3828129768371582,
+        "problem_name": "problem_count_specific_characters_in_a_cell",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, _arg_out + 1, _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_2, _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "if suffixof_cvc(_arg_2, _arg_1)\n    1\nelse\n    if contains_cvc(_arg_1, _arg_2)\n        1 + 1\n    else\n        if contains_cvc(_arg_1, _arg_2)\n            1 + 1\n        else\n            0\n        end\n    end\nend",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 7825,
+        "solved": true
+    },
+    {
+        "execution_time": 0.1389179229736328,
+        "problem_name": "problem_count_specific_words_in_a_cell",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, _arg_2, _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "((if suffixof_cvc(_arg_2, _arg_1)\n                indexof_cvc(concat_cvc(replace_cvc(\" \", \"\", \" \"), _arg_1), \" \", 1)\n            else\n                indexof_cvc(_arg_1, _arg_2, 1)\n            end + -1) + 1) + 1",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 2094,
+        "solved": true
+    },
+    {
+        "execution_time": 0.0025010108947753906,
+        "problem_name": "problem_count_total_characters_in_a_cell",
+        "heuristic": [
+        ],
+        "solution": "len_cvc(_arg_1)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 11,
+        "solved": true
+    },
+    {
+        "execution_time": 4.223751783370972,
+        "problem_name": "problem_count_total_words_in_a_cell",
+        "heuristic": [
+            [
+                "at_cvc(concat_cvc(replace_cvc(_arg_1, \" \", \"\"), _arg_1), _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "(len_cvc(_arg_1) - len_cvc(replace_cvc(_arg_1, \" \", \"\"))) - -1",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 15446,
+        "solved": true
+    },
+    {
+        "execution_time": 1.8857381343841553,
+        "problem_name": "problem_create_email_address_from_name",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, _arg_1, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"_acme.com\", _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(concat_cvc(at_cvc(_arg_2, 1), _arg_1), \"_acme.com\")",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 8178,
+        "solved": true
+    },
+    {
+        "execution_time": 6.453763961791992,
+        "problem_name": "problem_create_email_address_with_name_and_domain",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, replace_cvc(_arg_out, _arg_3, \"\"), \" \")",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_3, indexof_cvc(_arg_out, _arg_2, 1), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_2, \"\")",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(substr_cvc(_arg_1, 1, 1), concat_cvc(concat_cvc(_arg_2, \"_\"), _arg_3))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 11816,
+        "solved": true
+    },
+    {
+        "execution_time": 3.2163100242614746,
+        "problem_name": "problem_dr_name",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, \" \", len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_out, \".\", \"Dr.\"), _arg_out, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(\"Dr.\", substr_cvc(concat_cvc(\" \", _arg_1), 1, indexof_cvc(_arg_1, \" \", 1)))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 8764,
+        "solved": true
+    },
+    {
+        "execution_time": 4.1224188804626465,
+        "problem_name": "problem_exceljet1",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_out, indexof_cvc(_arg_2, \"_\", 1), 1)",
+                0.95
+            ],
+            [
+                "if suffixof_cvc(_arg_out, _arg_2)\n    _arg_1\nelse\n    _arg_out\nend",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_2, 1 + indexof_cvc(_arg_2, \"_\", 1), len_cvc(_arg_2))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 10179,
+        "solved": true
+    },
+    {
+        "execution_time": 2.340359926223755,
+        "problem_name": "problem_exceljet2",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 1), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \".\", \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, len_cvc(replace_cvc(replace_cvc(replace_cvc(_arg_1, \".\", \" \"), replace_cvc(\" \", \"\", \".\"), \".\"), at_cvc(_arg_1, (len_cvc(_arg_1) - 1) + -1), \"\")) + -1, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 26089,
+        "solved": true
+    },
+    {
+        "execution_time": 3.0293691158294678,
+        "problem_name": "problem_exceljet3",
+        "heuristic": [
+            [
+                "suffixof_cvc(_arg_out, replace_cvc(_arg_1, \"=\", \" \"))",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", indexof_cvc(_arg_1, \"=\", 1)) + 1, len_cvc(_arg_1)), \"=\", \" \")",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 7080,
+        "solved": true
+    },
+    {
+        "execution_time": 3.301100969314575,
+        "problem_name": "problem_exceljet4",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, \"=\", len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"/\", \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, (indexof_cvc(_arg_1, \"/\", 1) + 1) + 1, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 4523,
+        "solved": true
+    },
+    {
+        "execution_time": 193.62771892547607,
+        "problem_name": "problem_extract_nth_word_from_text_string",
+        "heuristic": [
+            [
+                "prefixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, indexof_cvc(_arg_1, \" \", _arg_2), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, replace_cvc(_arg_out, \" \", \"\"), \"\"), \"\")",
+                0.95
+            ],
+            [
+                "prefixof_cvc(\" \", _arg_out)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", indexof_cvc(_arg_1, \" \", _arg_2))",
+                0.95
+            ],
+            [
+                "concat_cvc(_arg_out, at_cvc(\" \", _arg_2))",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 1 + _arg_2, _arg_2)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, _arg_2 + _arg_2, _arg_2)",
+                0.95
+            ],
+            [
+                "contains_cvc(replace_cvc(_arg_1, \" \", \"\"), _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, \"\"), _arg_out), \" \", \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, substr_cvc(_arg_out, 1, 1 + _arg_2), _arg_1)",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(replace_cvc(_arg_1, if 1 == _arg_2\n            \"\"\n        else\n            substr_cvc(_arg_1, 1, (-1 + (_arg_2 + (-1 + _arg_2))) + _arg_2)\n        end, \"\"), len_cvc(int_to_str_cvc(1 + (1 - _arg_2))), len_cvc(replace_cvc(\" \", \"\", replace_cvc(\" \", at_cvc(_arg_1, _arg_2), substr_cvc(_arg_1, 1, _arg_2)))))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            20,
+            20,
+            20,
+            36,
+            60,
+            60,
+            39,
+            66
+        ],
+        "programs_enumerated": 634478,
+        "solved": true
+    },
+    {
+        "execution_time": 367.01815700531006,
+        "problem_name": "problem_extract_text_between_parentheses",
+        "heuristic": [
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + -1), 1)",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            19,
+            38,
+            57,
+            76,
+            285,
+            342,
+            399,
+            152,
+            171,
+            570,
+            627,
+            684,
+            741,
+            266,
+            285,
+            912,
+            323,
+            1026,
+            1083
+        ],
+        "programs_enumerated": 660460,
+        "solved": false
+    },
+    {
+        "execution_time": 11.742326974868774,
+        "problem_name": "problem_extract_word_containing_specific_text",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 2)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 3), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, \".\", \" \"), \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, _arg_1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(substr_cvc(_arg_1, 4 + 1, len_cvc(_arg_1)), \"_\", 1), 3 + indexof_cvc(_arg_1, \".\", 1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            27
+        ],
+        "programs_enumerated": 101246,
+        "solved": true
+    },
+    {
+        "execution_time": 35.06817102432251,
+        "problem_name": "problem_extract_word_that_begins_with_specific_character",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, int_to_str_cvc(1), _arg_1), \"\")",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(_arg_1, \"_\", 1), len_cvc(replace_cvc(_arg_1, substr_cvc(_arg_1, indexof_cvc(_arg_1, \"_\", 1), len_cvc(replace_cvc(substr_cvc(_arg_1, indexof_cvc(_arg_1, \"_\", 1), len_cvc(_arg_1) + -1), at_cvc(_arg_1, indexof_cvc(_arg_1, \"_\", 1)), replace_cvc(\"_\", \"\", \" \")))), \"\")))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            17,
+            59
+        ],
+        "programs_enumerated": 245480,
+        "solved": true
+    },
+    {
+        "execution_time": 1.7337241172790527,
+        "problem_name": "problem_find_nth_occurrence_of_character",
+        "heuristic": [
+            [
+                "at_cvc(_arg_1, _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "indexof_cvc(_arg_1, \"_\", (_arg_2 + _arg_2) + ((_arg_2 + ((_arg_2 + _arg_2) + _arg_2)) + _arg_2))",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 9260,
+        "solved": true
+    },
+    {
+        "execution_time": 1.5106840133666992,
+        "problem_name": "problem_firstname",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 2)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, indexof_cvc(_arg_1, \" \", 1) - 1)",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 5530,
+        "solved": true
+    },
+    {
+        "execution_time": 0.9961462020874023,
+        "problem_name": "problem_get_domain_from_email_address_2",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_2, _arg_out, 1))",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_2, 1, indexof_cvc(replace_cvc(\"_\", \"\", _arg_1), replace_cvc(\" \", \"\", \"_\"), 1) + indexof_cvc(_arg_2, \"_\", 1))",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 4354,
+        "solved": true
+    },
+    {
+        "execution_time": 56.18367385864258,
+        "problem_name": "problem_get_domain_name_from_url",
+        "heuristic": [
+            [
+                "at_cvc(replace_cvc(_arg_out, _arg_1, \"\"), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"/\", 1)",
+                0.95
+            ],
+            [
+                "substr_cvc(replace_cvc(_arg_1, _arg_out, \"\"), indexof_cvc(_arg_1, \"/\", 1), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"/\", \"\")",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_1, _arg_out, \"\"), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, replace_cvc(_arg_out, \"/\", \"\"))",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\"/\", _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, (((((3 + 3) + indexof_cvc(_arg_1, at_cvc(_arg_1, (3 + 3) + 3), 3)) + (((3 + 3) - -1) - indexof_cvc(_arg_1, \"/\", 1))) + ((3 + 3) - indexof_cvc(_arg_1, \"/\", 3))) + ((3 + 3) - indexof_cvc(_arg_1, \"/\", 1))) + 3)",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            16,
+            49,
+            85
+        ],
+        "programs_enumerated": 326968,
+        "solved": true
+    },
+    {
+        "execution_time": 0.47918009757995605,
+        "problem_name": "problem_get_first_name_from_name",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, _arg_1, indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \" \", \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(concat_cvc(\" \", _arg_1), 1 + 1, indexof_cvc(_arg_1, \" \", 1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 5051,
+        "solved": true
+    },
+    {
+        "execution_time": 12.079854011535645,
+        "problem_name": "problem_get_first_name_from_name_with_comma",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, len_cvc(_arg_out), _arg_2)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, concat_cvc(_arg_out, \",\"), _arg_1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_1, _arg_out, _arg_2))",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, if 2 == _arg_2\n        1\n    else\n        2 + (2 + (_arg_2 + 2))\n    end, if 2 == _arg_2\n            1 - _arg_2\n        else\n            len_cvc(_arg_1) - indexof_cvc(_arg_1, \",\", _arg_2)\n        end + indexof_cvc(_arg_1, \",\", _arg_2))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 69689,
+        "solved": true
+    },
+    {
+        "execution_time": 2.8302969932556152,
+        "problem_name": "problem_get_first_word",
+        "heuristic": [
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_1, _arg_out, \"\"), 1)",
+                0.95
+            ]
+        ],
+        "solution": "if contains_cvc(_arg_1, \" \")\n    substr_cvc(_arg_1, 1, if contains_cvc(_arg_1, \" \")\n                indexof_cvc(_arg_1, \" \", 1) - (1 + 1)\n            else\n                1\n            end + 1)\nelse\n    \"\"\nend",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 37665,
+        "solved": true
+    },
+    {
+        "execution_time": 8.754777908325195,
+        "problem_name": "problem_get_last_line_in_cell",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, _arg_1, 1)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, _arg_out)",
+                0.95
+            ],
+            [
+                "if suffixof_cvc(_arg_out, _arg_1)\n    \" \"\nelse\n    _arg_out\nend",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_1, \"/n\", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(_arg_1, \"/n\", (len_cvc(_arg_1) + (0 - (indexof_cvc(_arg_1, \" \", 1) + -1))) - indexof_cvc(_arg_1, \"/n\", 1)) + len_cvc(\"/n\"), len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            20
+        ],
+        "programs_enumerated": 81634,
+        "solved": true
+    },
+    {
+        "execution_time": 8.414891004562378,
+        "problem_name": "problem_get_last_name_from_name",
+        "heuristic": [
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(replace_cvc(_arg_out, \" \", \"\"), _arg_1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, at_cvc(_arg_out, 1), \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, (len_cvc(_arg_1) + -1) + -1, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 143332,
+        "solved": true
+    },
+    {
+        "execution_time": 51.68636083602905,
+        "problem_name": "problem_get_last_name_from_name_with_comma",
+        "heuristic": [
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1 + indexof_cvc(_arg_out, \",\", 1))",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(\",\", \"\", replace_cvc(_arg_1, \",\", \"\")), _arg_out, \"\")",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, -1 + indexof_cvc(_arg_out, \",\", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, replace_cvc(_arg_out, at_cvc(_arg_out, 1), \"\"), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \",\", len_cvc(_arg_1))",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(concat_cvc(concat_cvc(substr_cvc(_arg_1, 1 + indexof_cvc(_arg_1, \",\", 1), len_cvc(_arg_1)), \",\"), replace_cvc(replace_cvc(_arg_1, \",\", \" \"), int_to_str_cvc(1), concat_cvc(_arg_1, int_to_str_cvc(len_cvc(_arg_1))))), 1, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            57,
+            17,
+            138
+        ],
+        "programs_enumerated": 187664,
+        "solved": true
+    },
+    {
+        "execution_time": 1.223433017730713,
+        "problem_name": "problem_get_last_word",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 1), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, len_cvc(_arg_1) - len_cvc(replace_cvc(\" \", \"\", \" \")), len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 19527,
+        "solved": true
+    },
+    {
+        "execution_time": 44.54638981819153,
+        "problem_name": "problem_get_middle_name_from_full_name",
+        "heuristic": [
+            [
+                "prefixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, \" \")",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, indexof_cvc(replace_cvc(_arg_1, \" \", \"\"), _arg_out, 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, indexof_cvc(_arg_1, \" \", indexof_cvc(_arg_1, _arg_out, 1)))",
+                0.9
+            ],
+            [
+                "replace_cvc(at_cvc(_arg_1, 1), _arg_out, \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", 1) + 1, len_cvc(substr_cvc(_arg_1, ((1 + (1 + 1)) + 1) + indexof_cvc(_arg_1, at_cvc(_arg_1, (1 + (-1 + 1)) + 1), 1 - -1), -1 + len_cvc(_arg_1))))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            18,
+            42
+        ],
+        "programs_enumerated": 267802,
+        "solved": true
+    },
+    {
+        "execution_time": 31.122331142425537,
+        "problem_name": "problem_initials",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \".\", 1)",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, at_cvc(_arg_out, 1), \" \"), \" \")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, at_cvc(_arg_out, 2 + 1), \" \")",
+                0.85
+            ],
+            [
+                "str_to_int_cvc(at_cvc(_arg_out, 2 + 1))",
+                0.7
+            ],
+            [
+                "at_cvc(concat_cvc(_arg_out, _arg_out), indexof_cvc(_arg_1, \" \", 1))",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(concat_cvc(concat_cvc(at_cvc(_arg_1, 1), \".\"), at_cvc(_arg_1, (2 + indexof_cvc(_arg_1, \" \", 1)) + (0 - 1))), \".\")",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 57847,
+        "solved": true
+    },
+    {
+        "execution_time": 13.391163110733032,
+        "problem_name": "problem_join_cells_with_comma",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, replace_cvc(_arg_out, _arg_3, \"\"), _arg_2)",
+                0.95
+            ],
+            [
+                "replace_cvc(\"\", _arg_2, replace_cvc(_arg_out, \" \", _arg_1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_1, concat_cvc(_arg_2, \",\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_2, \"\")",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(_arg_1, concat_cvc(concat_cvc(if prefixof_cvc(_arg_2, _arg_1)\n                \",\"\n            else\n                replace_cvc(concat_cvc(concat_cvc(\",\", \" \"), concat_cvc(_arg_2, \",\")), int_to_str_cvc(1 + 1), \" \")\n            end, \" \"), _arg_3))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            19
+        ],
+        "programs_enumerated": 93980,
+        "solved": true
+    },
+    {
+        "execution_time": 0.39453697204589844,
+        "problem_name": "problem_join_first_and_last_name",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, _arg_1, \"\")",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(if true\n        concat_cvc(_arg_1, \" \")\n    else\n        concat_cvc(_arg_1, \" \")\n    end, _arg_2)",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 1262,
+        "solved": true
+    },
+    {
+        "execution_time": 1.3140549659729004,
+        "problem_name": "problem_lastname",
+        "heuristic": [
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(concat_cvc(int_to_str_cvc(1), _arg_1), \" \", 1), len_cvc(_arg_1))",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 4556,
+        "solved": true
+    },
+    {
+        "execution_time": 1.2687299251556396,
+        "problem_name": "problem_most_frequently_occurring_text",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, _arg_1, replace_cvc(_arg_3, _arg_2, _arg_1))",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(_arg_3, replace_cvc(_arg_2, _arg_1, _arg_3), _arg_2)",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 2746,
+        "solved": true
+    },
+    {
+        "execution_time": 1.2169990539550781,
+        "problem_name": "problem_name_combine",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(_arg_1, concat_cvc(\" \", _arg_2))",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 476,
+        "solved": true
+    },
+    {
+        "execution_time": 1.5854787826538086,
+        "problem_name": "problem_name_combine_2",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \".\", \" \")",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(concat_cvc(_arg_1, \" \"), concat_cvc(at_cvc(_arg_2, 1), \".\"))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 8929,
+        "solved": true
+    },
+    {
+        "execution_time": 3.9090640544891357,
+        "problem_name": "problem_name_combine_3",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_out, \".\", 2))",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_1, len_cvc(_arg_out), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(concat_cvc(at_cvc(_arg_1, 1), \".\"), replace_cvc(concat_cvc(\" \", _arg_2), concat_cvc(\".\", _arg_2), concat_cvc(\".\", \".\")))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 8144,
+        "solved": true
+    },
+    {
+        "execution_time": 3.271796941757202,
+        "problem_name": "problem_name_combine_4",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \",\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_2, at_cvc(_arg_1, 1))",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(_arg_2, concat_cvc(concat_cvc(\",\", concat_cvc(\" \", at_cvc(_arg_1, 1))), \".\"))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 13108,
+        "solved": true
+    },
+    {
+        "execution_time": 0.002747058868408203,
+        "problem_name": "problem_phone",
+        "heuristic": [
+        ],
+        "solution": "substr_cvc(_arg_1, 1, 3)",
+        "population_costs": [
+        ],
+        "programs_enumerated": 32,
+        "solved": true
+    },
+    {
+        "execution_time": 0.8496918678283691,
+        "problem_name": "problem_phone_1",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 2)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 4)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 5, 2 + 5)",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 12712,
+        "solved": true
+    },
+    {
+        "execution_time": 1850.2329800128937,
+        "problem_name": "problem_phone_10",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, _arg_1, 2)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_out, \"(\", 4))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"(\", 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 5)",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_out, \"-\", \" \"), \" \", 5)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 1, 5 + 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 2 + indexof_cvc(_arg_1, \" \", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 2 + indexof_cvc(_arg_1, \" \", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \".\", indexof_cvc(replace_cvc(_arg_out, \"(\", \"+\"), \"+\", 5))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \")\", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(\" \", at_cvc(_arg_1, 3), replace_cvc(_arg_out, \"-\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            19,
+            220,
+            100,
+            100,
+            140,
+            140,
+            380,
+            399,
+            519,
+            440,
+            578
+        ],
+        "programs_enumerated": 926138,
+        "solved": false
+    },
+    {
+        "execution_time": 0.10230612754821777,
+        "problem_name": "problem_phone_2",
+        "heuristic": [
+            [
+                "len_cvc(_arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 5 + 4, len_cvc(_arg_1))",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 1496,
+        "solved": true
+    },
+    {
+        "execution_time": 209.19565796852112,
+        "problem_name": "problem_phone_3",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_out, 1, 2)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, concat_cvc(\")\", \" \"), \"-\")",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 5)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, concat_cvc(\")\", \" \"), \"-\")",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"-\", concat_cvc(\")\", \" \"))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \")\", 5 + 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 5)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \")\", 5 + 1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(concat_cvc(concat_cvc(\"(\", concat_cvc(substr_cvc(concat_cvc(int_to_str_cvc(4), _arg_1), 2, 4), \")\")), _arg_1), substr_cvc(_arg_1, 1, 5 - 1), \" \")",
+        "population_costs": [
+            0,
+            0,
+            18,
+            19,
+            273,
+            57,
+            76,
+            95,
+            34,
+            234,
+            75,
+            354
+        ],
+        "programs_enumerated": 561742,
+        "solved": true
+    },
+    {
+        "execution_time": 0.34182190895080566,
+        "problem_name": "problem_phone_4",
+        "heuristic": [
+        ],
+        "solution": "replace_cvc(_arg_1, \"-\", \".\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 71,
+        "solved": true
+    },
+    {
+        "execution_time": 7.032042026519775,
+        "problem_name": "problem_phone_5",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, \" \", indexof_cvc(_arg_1, _arg_out, 2))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 3)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 2, indexof_cvc(_arg_1, \" \", 1) - 1)",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 5642,
+        "solved": true
+    },
+    {
+        "execution_time": 6.3057780265808105,
+        "problem_name": "problem_phone_6",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, len_cvc(_arg_out), 2)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 3), 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", 1), 5 + 4), 1 + 1, 4)",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 2338,
+        "solved": true
+    },
+    {
+        "execution_time": 11.84283995628357,
+        "problem_name": "problem_phone_7",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, len_cvc(_arg_out), 2)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 3), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, \"-\"))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"-\", 3)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(substr_cvc(_arg_1, indexof_cvc(_arg_1, \"-\", 1), len_cvc(_arg_1)), 2, 4)",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 16562,
+        "solved": true
+    },
+    {
+        "execution_time": 194.39453196525574,
+        "problem_name": "problem_phone_8",
+        "heuristic": [
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"-\", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, replace_cvc(_arg_out, at_cvc(_arg_1, 4), \" \"))",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", 1) + (5 + 4), len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            18,
+            39
+        ],
+        "programs_enumerated": 101894,
+        "solved": true
+    },
+    {
+        "execution_time": 9.618812084197998,
+        "problem_name": "problem_phone_9",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_out, 5, indexof_cvc(_arg_out, \".\", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 4)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \".\", \"-\")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(substr_cvc(concat_cvc(replace_cvc(_arg_1, \"-\", \" \"), _arg_1), 2, len_cvc(_arg_1)), \" \", \".\")",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 42252,
+        "solved": true
+    },
+    {
+        "execution_time": 1.3376851081848145,
+        "problem_name": "problem_position_of_2nd_3rd_etc_instance_of_character",
+        "heuristic": [
+            [
+                "at_cvc(_arg_1, _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "1 + ((len_cvc(_arg_1) - (3 + _arg_3)) + 2)",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 2094,
+        "solved": true
+    },
+    {
+        "execution_time": 0.9886178970336914,
+        "problem_name": "problem_remove_characters_from_left",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, substr_cvc(_arg_1, 1, _arg_2), \"\")",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(_arg_1, concat_cvc(substr_cvc(_arg_1, 1, _arg_2), \"\"), substr_cvc(_arg_1, _arg_2 + _arg_2, 1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 13617,
+        "solved": true
+    },
+    {
+        "execution_time": 39.37977910041809,
+        "problem_name": "problem_remove_characters_from_right",
+        "heuristic": [
+            [
+                "at_cvc(int_to_str_cvc(_arg_out + _arg_out), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, int_to_str_cvc(_arg_out), 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, int_to_str_cvc(_arg_out), 1)",
+                0.9
+            ],
+            [
+                "indexof_cvc(_arg_1, int_to_str_cvc(_arg_out), 1)",
+                0.85
+            ],
+            [
+                "replace_cvc(_arg_1, int_to_str_cvc(_arg_out + -1), _arg_1)",
+                0.9
+            ]
+        ],
+        "solution": "str_to_int_cvc(substr_cvc(_arg_1, 1, indexof_cvc(_arg_1, \" \", 1)))",
+        "population_costs": [
+            0,
+            0,
+            18,
+            34,
+            48
+        ],
+        "programs_enumerated": 229162,
+        "solved": true
+    },
+    {
+        "execution_time": 3.943824052810669,
+        "problem_name": "problem_remove_file_extension_from_filename",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \".\", indexof_cvc(_arg_1, \" \", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_1, \".\", \" \"), _arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \" \", _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(replace_cvc(_arg_1, \".\", \" \"), 1, indexof_cvc(substr_cvc(_arg_1, 1 + 1, indexof_cvc(_arg_1, \".\", 1)), \".\", 1))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 25452,
+        "solved": true
+    },
+    {
+        "execution_time": 0.3198051452636719,
+        "problem_name": "problem_remove_leading_and_trailing_spaces_from_text",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, \"\")",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(_arg_1, if prefixof_cvc(\" \", _arg_1)\n        concat_cvc(\" \", \" \")\n    else\n        replace_cvc(\" \", \"\", \" \")\n    end, \"\")",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 7307,
+        "solved": true
+    },
+    {
+        "execution_time": 0.0026578903198242188,
+        "problem_name": "problem_remove_text_by_matching",
+        "heuristic": [
+        ],
+        "solution": "replace_cvc(_arg_1, \"-\", \"\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 27,
+        "solved": true
+    },
+    {
+        "execution_time": 11.423660039901733,
+        "problem_name": "problem_remove_text_by_position",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 1), 1)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, indexof_cvc(_arg_1, _arg_out, 1), 1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, replace_cvc(_arg_1, \" \", _arg_1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, indexof_cvc(_arg_out, \" \", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_1, 1), 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, len_cvc(replace_cvc(concat_cvc(if true\n                    int_to_str_cvc(-1)\n                else\n                    _arg_1\n                end, replace_cvc(\" \", \"\", concat_cvc(\" \", \" \"))), \"\", \" \")), len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 88868,
+        "solved": true
+    },
+    {
+        "execution_time": 0.02171778678894043,
+        "problem_name": "problem_remove_unwanted_characters",
+        "heuristic": [
+        ],
+        "solution": "replace_cvc(_arg_1, _arg_2, \"\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 27,
+        "solved": true
+    },
+    {
+        "execution_time": 0.0026459693908691406,
+        "problem_name": "problem_replace_one_character_with_another",
+        "heuristic": [
+        ],
+        "solution": "replace_cvc(_arg_1, \" \", \"-\")",
+        "population_costs": [
+        ],
+        "programs_enumerated": 27,
+        "solved": true
+    },
+    {
+        "execution_time": 0.031805992126464844,
+        "problem_name": "problem_reverse_name",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(concat_cvc(_arg_2, \" \"), _arg_1)",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 224,
+        "solved": true
+    },
+    {
+        "execution_time": 1.6638820171356201,
+        "problem_name": "problem_split_numbers_from_units_of_measure_1",
+        "heuristic": [
+            [
+                "substr_cvc(_arg_out, 2, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(if false\n        _arg_1\n    else\n        concat_cvc(\" \", _arg_1)\n    end, 2, _arg_2)",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 3583,
+        "solved": true
+    },
+    {
+        "execution_time": 2.5264179706573486,
+        "problem_name": "problem_split_numbers_from_units_of_measure_2",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, _arg_2)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(replace_cvc(_arg_1, at_cvc(_arg_1, 2), at_cvc(_arg_1, _arg_2)), _arg_2, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            19
+        ],
+        "programs_enumerated": 38524,
+        "solved": true
+    },
+    {
+        "execution_time": 1.0714969635009766,
+        "problem_name": "problem_split_text_and_numbers",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, 3 + 3)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(concat_cvc(concat_cvc(\" \", _arg_1), \" \"), 2, _arg_2)",
+        "population_costs": [
+            0
+        ],
+        "programs_enumerated": 4084,
+        "solved": true
+    },
+    {
+        "execution_time": 28.980300903320312,
+        "problem_name": "problem_split_text_string_at_specific_character",
+        "heuristic": [
+            [
+                "prefixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ],
+            [
+                "replace_cvc(replace_cvc(_arg_1, _arg_out, \"\"), \"_\", _arg_out)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, _arg_2, 1)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, indexof_cvc(_arg_1, _arg_out, _arg_2), _arg_2)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_1, 1), _arg_2)",
+                0.95
+            ]
+        ],
+        "solution": "if 1 == _arg_2\n    substr_cvc(_arg_1, _arg_2, (2 + 2) + 2)\nelse\n    if 2 == _arg_2\n        replace_cvc(_arg_1, if 2 == _arg_2\n                substr_cvc(_arg_1, 1, (_arg_2 + (2 + _arg_2)) - -1)\n            else\n                \"\"\n            end, \"\")\n    else\n        _arg_1\n    end\nend",
+        "population_costs": [
+            0,
+            0,
+            0,
+            4,
+            19
+        ],
+        "programs_enumerated": 220500,
+        "solved": true
+    },
+    {
+        "execution_time": 11.61793303489685,
+        "problem_name": "problem_stackoverflow1",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_1, \" \", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_1, _arg_out, \"\"), \".\", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \",\", _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, (-1 + -1) + indexof_cvc(_arg_1, \"Inc\", 1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 39702,
+        "solved": true
+    },
+    {
+        "execution_time": 200.16173791885376,
+        "problem_name": "problem_stackoverflow10",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 4)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, int_to_str_cvc(4))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, substr_cvc(_arg_1, 4, 5), 3)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_1, 1), 1)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, substr_cvc(_arg_out, 3, 4))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, at_cvc(concat_cvc(_arg_out, \" \"), 5), \" \")",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 5 + 3)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(int_to_str_cvc(1), substr_cvc(substr_cvc(_arg_1, indexof_cvc(_arg_1, int_to_str_cvc(1), indexof_cvc(_arg_1, \" \", 1) + 3), len_cvc(_arg_1)), 2, 4))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            40,
+            0
+        ],
+        "programs_enumerated": 154763,
+        "solved": true
+    },
+    {
+        "execution_time": 104.00925707817078,
+        "problem_name": "problem_stackoverflow11",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \"_\", 1 + 1)",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(replace_cvc(_arg_out, \"_\", \"1\"))",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, replace_cvc(_arg_1, \"_\", \"\"))",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(substr_cvc(_arg_1, indexof_cvc(_arg_1, \"_\", 1), len_cvc(_arg_1)), concat_cvc(\"_\", \" \"), \"\")",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 20216,
+        "solved": true
+    },
+    {
+        "execution_time": 4.357233047485352,
+        "problem_name": "problem_stackoverflow2",
+        "heuristic": [
+            [
+                "indexof_cvc(\"in\", _arg_out, indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, \" \", \"\"), _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, len_cvc(replace_cvc(_arg_1, substr_cvc(_arg_1, 1, len_cvc(replace_cvc(\"in\", \"\", \"in\"))), \"in\")))",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 40592,
+        "solved": true
+    },
+    {
+        "execution_time": 787.7779259681702,
+        "problem_name": "problem_stackoverflow3",
+        "heuristic": [
+            [
+                "if suffixof_cvc(\" \", _arg_1)\n    _arg_out\nelse\n    _arg_1\nend",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 3 + 2)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_1, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"1\", str_to_int_cvc(\"9\"))",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_out, \"9\", \"1\"), \"1\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, \" \", indexof_cvc(_arg_out, \" \", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(concat_cvc(_arg_1, \"9\"), len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(at_cvc(_arg_out, 3 + 3))",
+                0.85
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_out, 1), 2)",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(concat_cvc(substr_cvc(_arg_out, 2, 3), \"1\"))",
+                0.9
+            ],
+            [
+                "suffixof_cvc(at_cvc(_arg_out, indexof_cvc(_arg_1, \"9\", 1)), _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 2)",
+                0.95
+            ],
+            [
+                "replace_cvc(\"9\", at_cvc(_arg_1, indexof_cvc(_arg_out, \" \", 1)), _arg_1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\" \", replace_cvc(replace_cvc(_arg_1, _arg_out, \"\"), _arg_1, _arg_out))",
+                0.85
+            ],
+            [
+                "at_cvc(_arg_out, 3 + 3)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 3 + 2)",
+                0.95
+            ],
+            [
+                "indexof_cvc(replace_cvc(_arg_out, int_to_str_cvc(3), \"\"), \" \", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, int_to_str_cvc(indexof_cvc(_arg_out, \" \", 1)), 1)",
+                0.9
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, at_cvc(_arg_out, 1), \"\"), \"\")",
+                0.95
+            ],
+            [
+                "replace_cvc(substr_cvc(_arg_1, 1, 3), at_cvc(_arg_out, 1), _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            80,
+            0,
+            40,
+            40,
+            0,
+            40,
+            80,
+            80,
+            80,
+            40,
+            120,
+            120,
+            80
+        ],
+        "programs_enumerated": 758882,
+        "solved": false
+    },
+    {
+        "execution_time": 4.969758987426758,
+        "problem_name": "problem_stackoverflow4",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, \"<\", len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(replace_cvc(_arg_1, \"<\", \" \"), \">\", \"\"), \",\", \" \")",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 5757,
+        "solved": true
+    },
+    {
+        "execution_time": 7.751533031463623,
+        "problem_name": "problem_stackoverflow5",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_1, _arg_out, \"\"), 1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, 1, (-1 + -1) + indexof_cvc(_arg_1, int_to_str_cvc(1), 1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 15920,
+        "solved": true
+    },
+    {
+        "execution_time": 1.3856191635131836,
+        "problem_name": "problem_stackoverflow6",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_1, \"-\", indexof_cvc(_arg_1, _arg_out, 1))",
+                0.95
+            ],
+            [
+                "suffixof_cvc(_arg_out, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(concat_cvc(replace_cvc(\"-\", \"\", \" \"), _arg_1), concat_cvc(int_to_str_cvc(0), \"=\"), 1), len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 11560,
+        "solved": true
+    },
+    {
+        "execution_time": 2.120919942855835,
+        "problem_name": "problem_stackoverflow7",
+        "heuristic": [
+            [
+                "replace_cvc(replace_cvc(_arg_out, _arg_1, \"\"), \" \", \"\")",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, _arg_1), _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "if suffixof_cvc(_arg_2, _arg_1)\n    replace_cvc(_arg_1, concat_cvc(\" \", _arg_2), \"\")\nelse\n    replace_cvc(_arg_1, _arg_2, \"\")\nend",
+        "population_costs": [
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 23836,
+        "solved": true
+    },
+    {
+        "execution_time": 12.373183012008667,
+        "problem_name": "problem_stackoverflow8",
+        "heuristic": [
+            [
+                "at_cvc(replace_cvc(_arg_out, \" \", \"\"), 2)",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_out, _arg_1, \"\"), 3)",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_out, _arg_1, \"\"), 4)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"/\", 2)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_1))",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_1, replace_cvc(_arg_out, \"/\", \"\"))",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, (len_cvc(_arg_1) - (4 + 4)) - 1, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "programs_enumerated": 91237,
+        "solved": true
+    },
+    {
+        "execution_time": 1.3769259452819824,
+        "problem_name": "problem_stackoverflow9",
+        "heuristic": [
+            [
+                "suffixof_cvc(replace_cvc(_arg_out, _arg_1, \" \"), _arg_1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \" \", \"\")",
+                0.95
+            ]
+        ],
+        "solution": "substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", indexof_cvc(_arg_1, \" \", 1) + 1) + 1, len_cvc(_arg_1))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 28455,
+        "solved": true
+    },
+    {
+        "execution_time": 26.47099280357361,
+        "problem_name": "problem_strip_html_from_text_or_numbers",
+        "heuristic": [
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_1, _arg_out, 1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(int_to_str_cvc(0), substr_cvc(_arg_1, indexof_cvc(_arg_1, \">\", 1) + (1 + 1), len_cvc(_arg_1) - (1 + (indexof_cvc(_arg_1, \">\", 1) - 1))))",
+        "population_costs": [
+            0,
+            0,
+            57,
+            114,
+            171,
+            228,
+            285,
+            133,
+            342
+        ],
+        "programs_enumerated": 223744,
+        "solved": true
+    },
+    {
+        "execution_time": 166.18247318267822,
+        "problem_name": "problem_strip_non_numeric_characters",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \" \", 2)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, \"%\", _arg_1), _arg_out)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_1, indexof_cvc(_arg_1, _arg_out, 5), 1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 2)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_1, \"%\", _arg_1), _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, concat_cvc(_arg_out, \" \"), _arg_1)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 5, 1)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 1, 4)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 4)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 3)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 5)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 6)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 9)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 8)",
+                0.95
+            ]
+        ],
+        "solution": "if contains_cvc(_arg_1, int_to_str_cvc(5))\n    concat_cvc(concat_cvc(int_to_str_cvc(5), int_to_str_cvc(0)), int_to_str_cvc(0))\nelse\n    if contains_cvc(_arg_1, \"%\")\n        concat_cvc(concat_cvc(concat_cvc(int_to_str_cvc(0), int_to_str_cvc(0)), concat_cvc(int_to_str_cvc(3), int_to_str_cvc(3))), concat_cvc(int_to_str_cvc(9), int_to_str_cvc(9)))\n    else\n        substr_cvc(_arg_1, 1, 3)\n    end\nend",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            19,
+            18,
+            18,
+            18,
+            20,
+            40,
+            79,
+            19,
+            20,
+            20,
+            20
+        ],
+        "programs_enumerated": 749068,
+        "solved": true
+    },
+    {
+        "execution_time": 376.76991295814514,
+        "problem_name": "problem_strip_numeric_characters_from_cell",
+        "heuristic": [
+            [
+                "replace_cvc(\" \", at_cvc(_arg_out, 4), _arg_1)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, replace_cvc(_arg_out, \" \", \"\"), _arg_out)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\" \", _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(\" \", at_cvc(_arg_1, 9), _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(\" \", at_cvc(_arg_1, 9), _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 6)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 5, indexof_cvc(_arg_1, \" \", 1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_1, 2), 1)",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(at_cvc(_arg_out, 3))",
+                0.95
+            ],
+            [
+                "replace_cvc(\" \", at_cvc(_arg_out, 3), _arg_1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, at_cvc(_arg_out, 6), 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, at_cvc(_arg_out, 5), \" \")",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 7, 1)",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(substr_cvc(_arg_out, 5, 8), \" \", _arg_1), 3)",
+                0.95
+            ],
+            [
+                "substr_cvc(_arg_out, 3, 7)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 9 + 6)",
+                0.95
+            ],
+            [
+                "str_to_int_cvc(at_cvc(_arg_out, 8))",
+                0.95
+            ],
+            [
+                "at_cvc(replace_cvc(_arg_1, _arg_out, \"\"), 9)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(at_cvc(_arg_out, 7), _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            19,
+            38,
+            20,
+            20,
+            40,
+            40,
+            20,
+            100,
+            40,
+            120,
+            60,
+            40,
+            60,
+            180,
+            40,
+            160
+        ],
+        "programs_enumerated": 973781,
+        "solved": false
+    },
+    {
+        "execution_time": 1.80344820022583,
+        "problem_name": "problem_univ_1",
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \",\", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_2, _arg_1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(concat_cvc(_arg_1, \",\"), concat_cvc(\" \", _arg_2))",
+        "population_costs": [
+            0,
+            0
+        ],
+        "programs_enumerated": 6994,
+        "solved": true
+    },
+    {
+        "execution_time": 1434.1120901107788,
+        "problem_name": "problem_univ_2",
+        "heuristic": [
+            [
+                "suffixof_cvc(\"USA\", _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "contains_cvc(_arg_out, \"CA\")",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \",\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_2, \" \", indexof_cvc(_arg_out, \" \", 1))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"PA\", replace_cvc(_arg_out, _arg_2, concat_cvc(\" \", \"USA\")))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"USA\", _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \" \", concat_cvc(\"MD\", \",\"))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_2, 1)",
+                0.95
+            ]
+        ],
+        "solution": "concat_cvc(_arg_1, concat_cvc(\",\", replace_cvc(concat_cvc(\" \", replace_cvc(_arg_2, \"MD\", concat_cvc(concat_cvc(concat_cvc(\"MD\", \",\"), \" \"), \"USA\"))), \"CA\", concat_cvc(concat_cvc(\"CA\", replace_cvc(concat_cvc(\",\", \" \"), replace_cvc(_arg_2, \"MD\", _arg_1), \"NY\")), \"USA\"))))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            19
+        ],
+        "programs_enumerated": 242360,
+        "solved": true
+    },
+    {
+        "execution_time": 75.03705310821533,
+        "problem_name": "problem_univ_3",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_2, \"USA\", _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_2, 1)",
+                0.95
+            ],
+            [
+                "suffixof_cvc(\"CA\", _arg_out)",
+                0.95
+            ],
+            [
+                "if suffixof_cvc(\"USA\", _arg_out)\n    _arg_2\nelse\n    _arg_out\nend",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", replace_cvc(_arg_out, \",\", \" \"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", _arg_out)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", _arg_out)",
+                0.95
+            ]
+        ],
+        "solution": "replace_cvc(replace_cvc(_arg_2, \"MD\", concat_cvc(replace_cvc(concat_cvc(\"MD\", if suffixof_cvc(\"CA\", _arg_2)\n                        concat_cvc(_arg_2, \"USA\")\n                    else\n                        concat_cvc(\",\", \" \")\n                    end), \"CA\", substr_cvc(_arg_1, 1, 2)), \"USA\")), _arg_2, replace_cvc(_arg_2, \"CA\", concat_cvc(concat_cvc(\"CA\", concat_cvc(\",\", \" \")), \"USA\")))",
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            16,
+            35
+        ],
+        "programs_enumerated": 150432,
+        "solved": true
+    },
+    {
+        "execution_time": 5362.268908023834,
+        "problem_name": "problem_univ_4",
+        "heuristic": [
+            [
+                "replace_cvc(_arg_2, \"NY\", _arg_out)",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, len_cvc(_arg_out))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"New York\", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(\"USA\", at_cvc(_arg_out, 1), _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"PA\", indexof_cvc(_arg_out, \"USA\", 1))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_out, 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"CA\", 1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \"MD\", 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \"NY\", replace_cvc(_arg_2, _arg_out, _arg_1))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_2, indexof_cvc(_arg_2, \"New York\", 1))",
+                0.95
+            ],
+            [
+                "suffixof_cvc(concat_cvc(\"CA\", \"USA\"), _arg_out)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \",\", len_cvc(\"New York\"))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", replace_cvc(_arg_out, _arg_2, \",\"))",
+                0.95
+            ],
+            [
+                "contains_cvc(replace_cvc(_arg_out, \",\", \"USA\"), _arg_1)",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", len_cvc(_arg_2))",
+                0.95
+            ],
+            [
+                "at_cvc(_arg_1, indexof_cvc(_arg_out, \"USA\", 1))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", replace_cvc(_arg_out, concat_cvc(\"CA\", \",\"), _arg_2))",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_1, \" \", replace_cvc(_arg_out, _arg_2, \" \"))",
+                0.95
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_1, 1)",
+                0.95
+            ],
+            [
+                "replace_cvc(_arg_out, \"NY\", \"New York\")",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            20,
+            20,
+            40,
+            20,
+            20,
+            20,
+            20,
+            0,
+            80,
+            20,
+            100,
+            60,
+            80,
+            119,
+            31
+        ],
+        "programs_enumerated": 809084,
+        "solved": false
+    }
+]

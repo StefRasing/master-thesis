@@ -17,21 +17,8 @@ function _grammar_to_property_grammar(grammar::AbstractGrammar)
     # Constraint grammar to contain it
     addconstraint!(property_grammar, Contains(length(property_grammar.rules)))
 
+
     return property_grammar
-end
-
-function run_with_timeout(f, timeout_seconds)
-    task = @async f()
-
-    start = time()
-    while !istaskdone(task)
-        if time() - start > timeout_seconds
-            return nothing
-        end
-        sleep(0.1)
-    end
-
-    fetch(task)
 end
 
 #=
@@ -51,56 +38,97 @@ function phalcon(;
     iterator::ProgramIterator,
     max_number_of_properties::Int = typemax(Int),
     property_types::Vector,
-    minimal_increase_property::Float64 = 0.8,
-    max_property_cost::Int = 4,
+    max_property_cost::Int,
     grammar_to_property_grammar::Function = _grammar_to_property_grammar,
-    rule_costs::Vector{Int},
+    rule_cost_func::Function,
+    prune_node_by_output::Function = _ -> false,
     timeout::Int = typemax(Int),
+    verbose::Bool = false,
 )
     start = time()
-    previous_programs_evaluated = 0
-    previous_time = start
+    population_costs = []
 
     initialize!(iterator)
+
     property_grammar = grammar_to_property_grammar(iterator.solver.grammar)
+    rule_costs = Int[rule_cost_func(r) for r in property_grammar.rules]
     selected_properties = []
+    
+    property_interpreter = HerbInterpret.make_interpreter(property_grammar, target_module=benchmark, cache_module=benchmark)
+    property_interp = (program, io, y) -> property_interpreter(program, (new_in = copy(io.in); new_in[:_arg_out] = y; new_in))
+
     solution = nothing
 
-    run_with_timeout(timeout) do
-        while true
-            # Run search and return if it found the solution
-            solution = find_solution(iterator)
-            !isnothing(solution) && break
+    while time() - start < timeout
+        # Run search and return if it found the solution
+        solution = find_solution(iterator)
+        !isnothing(solution) && break
 
-            # Obtain local optimum
-            outputs = local_optimum_outputs(iterator)
+        # Obtain local optimum
+        outputs = local_optimum_outputs(iterator)
 
-            # Select new property if limit not exceeded
-            if length(selected_properties) >= max_number_of_properties
-                break
-            end
-
-            # Find new property
-            property, partial_cost = find_property!(
-                benchmark = iterator.benchmark,
-                problem = iterator.problem,
-                grammar = property_grammar,
-                local_optimum_outputs = outputs, 
-                property_types = property_types,
-                minimal_increase = minimal_increase_property,
-                max_depth = max_property_cost,
-                rule_costs = rule_costs,
-            )
-            
-            push!(selected_properties, (property, partial_cost))
-
-            previous_programs_evaluated = iterator.programs_evaluated
-            previous_time = time()
-
-            # Define new cost
-            cost(outputs_and_targets) = sum(partial_cost(map(first, outputs_and_targets)) for (property, partial_cost) in selected_properties)
-            update_cost_function(iterator, cost)
+        # Select new property if limit not exceeded
+        if length(selected_properties) >= max_number_of_properties
+            break
         end
+
+        population_cost = sum(ind.cost for ind in iterator.population)
+        push!(population_costs, population_cost)
+
+        if verbose
+            best = iterator.population[begin]
+            expr = rulenode2expr(best.program, iterator.solver.grammar)
+            cost = best.cost
+            out = best.program.outputs
+
+            println()
+            @show population_cost
+            @show expr
+            @show cost
+
+            if iterator.benchmark == HerbBenchmarks.ARC_AGI1
+                HerbBenchmarks.ARC_AGI1.visualize(out)
+            else
+                @show out
+            end
+        end
+
+        # Find new property
+        property = find_property!(
+            benchmark = iterator.benchmark,
+            problem = iterator.problem,
+            grammar = property_grammar,
+            local_optimum_outputs = outputs, 
+            property_types = property_types,
+            max_cost = max_property_cost,
+            rule_costs = rule_costs,
+            prune_node_by_output = prune_node_by_output,
+        )
+
+        if isnothing(property)
+            if verbose
+                println("Failed to find property...")
+            end
+        else
+            if verbose
+                expr = rulenode2expr(property.program, property_grammar)
+
+                println()
+                @show expr
+                @show property.target_values
+                @show property.reduction_rate
+            end
+        end
+
+        push!(selected_properties, property)
+
+        # Define new cost
+        cost(outputs_and_targets) = sum(
+            sum(property.target_values .!= [property_interp(property.program, io, y) for (io, (y, _)) in zip(iterator.problem.spec, outputs_and_targets)])
+            for property in selected_properties if !isnothing(property)
+        , init=0)
+
+        update_cost_function(iterator, cost)
     end
 
     return OrderedDict(
@@ -108,9 +136,10 @@ function phalcon(;
         "solved" => !isnothing(solution),
         "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
         "programs_enumerated" => iterator.programs_evaluated,
-        "programs_enumerated_last_iteration" => iterator.programs_evaluated - previous_programs_evaluated,
         "execution_time" => time() - start,
-        "execution_time_last_iteration" => time() - previous_time,
-        "heuristic" => [string(rulenode2expr(p, property_grammar)) for (p, _) in selected_properties],
+        "heuristic" => [
+            isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.reduction_rate)
+            for property in selected_properties],
+        "population_costs" => population_costs,
     )
 end

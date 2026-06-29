@@ -19,16 +19,16 @@ function performed_repetitions(path, problem_name)
     return count(result["problem_name"] == problem_name for result in results)
 end
 
-function run_with_timeout(f, timeout_seconds)
-    task = @async f()
+function load_properties(path)::Vector{StoredProperty}
+    !isfile(path) && return []
 
-    start = time()
-    while !istaskdone(task)
-        if time() - start > timeout_seconds
-            return nothing
-        end
-        sleep(0.1)
-    end
+    properties = load(path, "properties")
+    return [StoredProperty(property.property, property.grammar) for property in properties]
+end
 
-    fetch(task)
+
+function store_properties(path, properties)
+    isempty(properties) && return
+
+    save(path, "properties", [(property = property.property, grammar = property.property_grammar) for property in properties])
 end

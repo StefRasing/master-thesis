@@ -13,10 +13,12 @@ include("../src/property_synthesizer.jl")
 include("../src/phalcon.jl")
 include("../src/ARC_property_grammar.jl")
 
-# repetitions = 5
+repetitions = 1
 run = ARGS[1]
 range_i = ARGS[2]
-path = "data/phalcon_arc_$(run)$(range_i).json"
+path = "data/phalcon_arc/phalcon_arc_$(run)$(range_i).json"
+store = true
+
 
 benchmark = HerbBenchmarks.ARC_AGI1
 RuntimeGeneratedFunctions.init(benchmark)
@@ -25,45 +27,57 @@ RuntimeGeneratedFunctions.init(benchmark)
 problems = benchmark.training_problems()
 grammar = benchmark.grammar_hodel
 
-range = Dict(
+
+problems = problems[Dict(
     "a" =>  1:100,
     "b" => 101:200,
     "c" => 201:300,
     "d" => 301:400,
-)[ARGS[2]]
+)[range_i]]
 
-for problem in problems[range]
-    # repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
-    repetitions_to_perform = 1
+# id = 20
+# problems = problems[id:id]
+# store = false
+
+for problem in problems
+    repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
     for _ in 1:repetitions_to_perform
-        max_length = maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
-        rule_costs = Int[rule isa Expr && !(rule.args[1] in [:objects, :asgrid]) for rule in grammar.rules]
+        max_length = 2 * maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
+        rule_cost_func = r -> r isa Expr && !(r.args[1] in [:objects, :asgrid])
+        rule_costs = Int[rule_cost_func(r) for r in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
             problem = problem,
             cost = _ -> 0,
-            population_size = 10,
+            population_size = 20,
             candidate_pool_size = 10000,
-            max_generations_without_improvement = 4,
+            max_generations_without_improvement = 10,
             max_extension_size = 1,
             max_initial_population_size = 1,
+            max_size = 50,
             rule_costs = rule_costs,
-            prune_node_by_output = (io, y) -> length(y) > 3*max(maximum(length, values(io.in)), length(io.out))
+            prune_node_by_output = (io, y) -> length(y) > max_length,
         )
 
         result = phalcon(
             iterator = iterator,
             max_number_of_properties = 20,
             property_types = [:Grid, :Objects, :Object, :Indices, :IntContainer, :IntegerTuple, :Integer, :Boolean],
-            minimal_increase_property = 0.7,
             max_property_cost = 3,
             grammar_to_property_grammar = _ -> _grammar_to_property_grammar(property_grammar_hodel),
-            rule_costs = rule_costs,
+            rule_cost_func = rule_cost_func,
+            prune_node_by_output = y -> length(y) > max_length,
+            verbose = false,
             timeout = 60*30,
         )
 
-        append_result(path, result)
+        if store
+            append_result(path, result)
+        else
+            println()
+            @show result
+        end
     end
 end

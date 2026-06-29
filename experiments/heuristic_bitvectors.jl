@@ -13,7 +13,7 @@ include("../src/heuristics.jl")
 
 
 repetitions = 5
-path = "data/heuristic_bitvectors.json"
+path = "data/heuristic_bitvectors_20.json"
 
 benchmark = HerbBenchmarks.PBE_BV_Track_2018
 RuntimeGeneratedFunctions.init(benchmark)
@@ -34,11 +34,12 @@ for (problem, grammar) in zip(problems, grammars)
             benchmark = benchmark,
             problem = problem,
             cost = outputs_and_targets -> sum(hamming_distance(output, target) for (output, target) in outputs_and_targets),
-            population_size = 10,
+            population_size = 20,
             candidate_pool_size = 2000,
             max_generations_without_improvement = 4,
             max_extension_size = 1,
             max_initial_population_size = 1,
+            max_size = 50,
             rule_costs = rule_costs,
         )
 

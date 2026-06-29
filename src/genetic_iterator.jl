@@ -398,6 +398,7 @@ function initialize!(iter::GeneticIterator)::Nothing
         iter.max_extension_size,
         iter.rule_costs,
         (r, o) -> interp(iter, r, o),
+        isnothing,
     )
     
     # Iterate over all extensions and add to initial population if its of the correct starting symbol
@@ -452,6 +453,8 @@ function add_to_population!(iter::GeneticIterator, new_individual::Individual)::
     
     # If the cost is infinity, skip the program
     new_individual.cost == Inf && return nothing
+
+    length(new_individual.program) > get_max_size(iter) && return nothing
 
     # If the population is full and the new individual has a higher cost than the worst in the population, we can terminate
     length(iter.population) >= iter.population_size && new_individual > iter.population[end] && return nothing
@@ -568,7 +571,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
         replacement_rule = rand([rule_id for (rule_id, type) in enumerate(grammar.types) if type == replacement_type])
         children = [rand(iter.extensions[child_type]) for child_type in grammar.childtypes[replacement_rule]]
         replacement = RuleNodeWithRuleCounts(iter, replacement_rule, children)
-        # replacement = rand(iter.extensions[replacement_type])
+        replacement = rand(iter.extensions[replacement_type])
 
         # Replace and return
         return replace_at_path(iter, individual, replacement_path, replacement), :replace
@@ -623,8 +626,6 @@ function combine!(iter::GeneticIterator)::Nothing
     
     # Create candidates
     for _ in 1:4:iter.candidate_pool_size
-        yield()
-
         # Select parents using tournament selection
         parent_1 = rand(selection_pool)
         parent_2 = rand(selection_pool)

@@ -12,8 +12,10 @@ include("../src/genetic_iterator.jl")
 include("../src/property_synthesizer.jl")
 include("../src/phalcon.jl")
 
-repetitions = 5
-path = "data/phalcon_strings.json"
+repetitions = 1
+run = ARGS[1]
+path = "data/phalcon_strings/phalcon_strings$(run).json"
+store = true
 
 benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
 RuntimeGeneratedFunctions.init(benchmark)
@@ -24,36 +26,51 @@ task_names = [String(s)[9:end] for s in names(benchmark; all=true) if startswith
 problems = [getfield(benchmark, Symbol("problem_", name)) for name in task_names]
 grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names]
 
+id = 2
+problems = problems[id:id]
+grammars = grammars[id:id]
+store = false
+
 
 for (problem, grammar) in zip(problems, grammars)
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
     for _ in 1:repetitions_to_perform
-        max_length = maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
-        rule_costs = Int[rule isa Expr for rule in grammar.rules]
+        max_length = 2 * maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
+        rule_cost_func = r -> r isa Expr
+        rule_costs = Int[rule_cost_func(rule) for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
             problem = problem,
             cost = _ -> 0,
-            population_size = 10,
+            population_size = 20,
             candidate_pool_size = 2000,
-            max_generations_without_improvement = 4,
+            max_generations_without_improvement = 10,
             max_extension_size = 1,
             max_initial_population_size = 1,
+            max_size = 50,
             rule_costs = rule_costs,
-            prune_node_by_output = (io, y) -> length(y) > 3*max(maximum(length, values(io.in)), length(io.out))
+            prune_node_by_output = (io, y) -> length(y) > max_length,
         )
 
         result = phalcon(
             iterator = iterator,
             max_number_of_properties = 20,
             property_types = [:ntString, :ntInt, :ntBool],
-            minimal_increase_property = 0.7,
-            max_property_cost = 2,
-            rule_costs = rule_costs,
+            max_property_cost = 3,
+            rule_cost_func = rule_cost_func,
+            prune_node_by_output = y -> length(y) > max_length,
+            # verbose = false,
+            verbose = true,
+            timeout = 60*30,
         )
 
-        append_result(path, result)
+        if store
+            append_result(path, result)
+        else
+            println()
+            @show result
+        end
     end
 end
