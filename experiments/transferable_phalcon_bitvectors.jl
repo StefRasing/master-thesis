@@ -10,12 +10,15 @@ include("io.jl")
 include("../src/lazy_cost_based_bus.jl")
 include("../src/genetic_iterator.jl")
 include("../src/property_synthesizer.jl")
-include("../src/transferable_phalcon.jl")
+# include("../src/transferable_phalcon.jl")
+include("../src/strict_transferable_phalcon.jl")
 
 repetitions = 1
 run = ARGS[1]
-path =          "data/transferable_phalcon_bitvectors/transferable_phalcon_bitvectors$(run).json"
-property_path = "data/transferable_phalcon_bitvectors/properties/properties$(run).jld2"
+# path =          "data/transferable_phalcon_bitvectors/transferable_phalcon_bitvectors$(run).json"
+# property_path = "data/transferable_phalcon_bitvectors/properties/properties$(run).jld2"
+path =          "data/strict_transferable_phalcon_bitvectors/strict_transferable_phalcon_bitvectors$(run).json"
+property_path = "data/strict_transferable_phalcon_bitvectors/properties/properties$(run).jld2"
 store = true
 
 benchmark = HerbBenchmarks.PBE_BV_Track_2018
@@ -47,6 +50,7 @@ for (problem, grammar) in zip(problems, grammars)
         max_generations_without_improvement = 10,
         max_extension_size = 1,
         max_initial_population_size = 1,
+        max_size = 50,
         rule_costs = rule_costs,
     )
 
@@ -58,7 +62,7 @@ for (problem, grammar) in zip(problems, grammars)
         max_property_cost = 4,
         rule_cost_func = rule_cost_func,
         verbose = false,
-        timeout = 60*60,
+        timeout = 60*30,
     )
 
 

@@ -10,12 +10,13 @@ include("io.jl")
 include("../src/lazy_cost_based_bus.jl")
 include("../src/genetic_iterator.jl")
 include("../src/property_synthesizer.jl")
-include("../src/phalcon.jl")
-
+# include("../src/phalcon.jl")
+include("../src/strict_phalcon.jl")
 
 repetitions = 1
 run = ARGS[1]
 path = "data/phalcon_bitvectors/phalcon_bitvectors$(run).json"
+path = "data/strict_phalcon_bitvectors/strict_phalcon_bitvectors$(run).json"
 store = true
 
 benchmark = HerbBenchmarks.PBE_BV_Track_2018
@@ -26,11 +27,6 @@ RuntimeGeneratedFunctions.init(benchmark)
 task_names = [String(s)[9:end] for s in names(benchmark; all=true) if startswith(String(s), "problem_") && length(getfield(benchmark, s).spec) <= 10]
 problems = [getfield(benchmark, Symbol("problem_", name)) for name in task_names]
 grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names]
-
-# id = 10
-# problems = problems[id:id]
-# grammars = grammars[id:id]
-# store = false
 
 
 for (problem, grammar) in zip(problems, grammars)

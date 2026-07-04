@@ -35,10 +35,6 @@ problems = problems[Dict(
     "d" => 301:400,
 )[range_i]]
 
-# id = 20
-# problems = problems[id:id]
-# store = false
-
 for problem in problems
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 

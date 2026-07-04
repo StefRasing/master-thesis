@@ -115,21 +115,34 @@ function transferable_phalcon(;
         end
 
         # Find library properties
-        found_library_property = false
+        potential_stored_properties = []
 
         for stored_property in stored_properties
             target_values = [stored_property.property_interp(stored_property.property.program, io, io.out) for io in iterator.problem.spec]
-            reduction_number = count(target_values != [stored_property.property_interp(stored_property.property.program, io, y) for (io, y) in zip(iterator.problem.spec, output)] for output in outputs)
+            reduction_profile = [target_values != [stored_property.property_interp(stored_property.property.program, io, y) for (io, y) in zip(iterator.problem.spec, output)] for output in outputs]
+            satisfied_indices = [i for (i, r) in enumerate(reduction_profile) if !r]
+            reduction_number = sum(reduction_profile)
             reduction_rate = reduction_number / length(outputs)
 
             if reduction_rate >= 0.7 && reduction_rate < 1
-                push!(selected_stored_properties, (stored_property, target_values, reduction_rate))
-                found_library_property = true
+                push!(potential_stored_properties, (stored_property, target_values, satisfied_indices, reduction_rate))
             end
         end
 
+        invent_new_property = isempty(potential_stored_properties)
+        sort!(potential_stored_properties, by = last, rev = true)
+        outputs_to_satisfy = collect(1:length(outputs))
+
+        while !isempty(potential_stored_properties)
+            stored_property, target_values, satisfied_indices, reduction_rate = pop!(potential_stored_properties)
+            isempty(intersect(satisfied_indices, outputs_to_satisfy)) && continue
+
+            push!(selected_stored_properties, (stored_property, target_values, reduction_rate))
+            setdiff!(outputs_to_satisfy, satisfied_indices)
+        end
+
         # If none found, invent new property and add to library
-        if !found_library_property
+        if invent_new_property
             property = find_property!(
                 benchmark = iterator.benchmark,
                 problem = iterator.problem,

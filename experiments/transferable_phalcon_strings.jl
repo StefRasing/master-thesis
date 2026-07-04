@@ -9,13 +9,15 @@ using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3,
 include("io.jl")
 include("../src/lazy_cost_based_bus.jl")
 include("../src/genetic_iterator.jl")
-include("../src/property_synthesizer.jl")
+include("../src/property_synthesizer_playground.jl")
 include("../src/transferable_phalcon.jl")
 
 repetitions = 1
 run = ARGS[1]
-path =          "data/transferable_phalcon_strings/transferable_phalcon_strings$(run).json"
-property_path = "data/transferable_phalcon_strings/properties/properties$(run).jld2"
+# path =          "data/transferable_phalcon_strings/transferable_phalcon_strings$(run).json"
+# property_path = "data/transferable_phalcon_strings/properties/properties$(run).jld2"
+path =          "data/strict_transferable_phalcon_strings/strict_transferable_phalcon_strings$(run).json"
+property_path = "data/strict_transferable_phalcon_strings/properties/properties$(run).jld2"
 store = true
 
 benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
@@ -50,6 +52,7 @@ for (problem, grammar) in zip(problems, grammars)
         max_generations_without_improvement = 10,
         max_extension_size = 1,
         max_initial_population_size = 1,
+        max_size = 50,
         rule_costs = rule_costs,
         prune_node_by_output = (io, y) -> length(y) > max_length,
     )

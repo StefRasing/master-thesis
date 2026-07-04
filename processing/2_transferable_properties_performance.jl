@@ -248,12 +248,12 @@ function strings_time_vs_acc()
     series_kwargs = [
         (label = "Phalcon", color = RGB(0.00, 0.45, 0.70)),
         (label = "Phalcon transferable properties", color = RGB(0.84, 0.37, 0.00)),
-        (label = "Phalcon transferable properties repeated", color = RGB(0.84, 0.37, 0.80)),
+        (label = "Strict Phalcon", color = RGB(0.24, 0.77, 0.22)),
     ]
     names = [
         "phalcon_strings", 
-        "transferable_phalcon_strings_test",
-        "transferable_phalcon_strings_repeat",
+        "transferable_phalcon_strings",
+        "strict_phalcon_strings",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :execution_time, plot_kwargs, series_kwargs)
@@ -273,12 +273,12 @@ function strings_enum_vs_acc()
     series_kwargs = [
         (label = "Phalcon", color = RGB(0.00, 0.45, 0.70)),
         (label = "Phalcon transferable properties", color = RGB(0.84, 0.37, 0.00)),
-        (label = "Phalcon transferable properties repeated", color = RGB(0.84, 0.37, 0.80)),
+        (label = "Strict Phalcon", color = RGB(0.24, 0.77, 0.22)),
     ]
     names = [
         "phalcon_strings", 
-        "transferable_phalcon_strings_test",
-        "transferable_phalcon_strings_repeat",
+        "transferable_phalcon_strings",
+        "strict_phalcon_strings",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :programs_enumerated, plot_kwargs, series_kwargs)
@@ -307,7 +307,6 @@ function bitvectors_time_vs_acc()
     savefig("plots/transferable_bitvectors_time_vs_acc.png")
 end
 
-
 function bitvectors_enum_vs_acc()
     plot_kwargs = (
         xticks = (r = 2:7; ([10.0^n for n in r], ["10e$n" for n in r])),
@@ -323,7 +322,7 @@ function bitvectors_enum_vs_acc()
     ]
     names = [
         "phalcon_bitvectors", 
-        "domain_phalcon_bitvectors",
+        "transferable_phalcon_bitvectors",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :programs_enumerated, plot_kwargs, series_kwargs)
@@ -344,8 +343,8 @@ function arc_time_vs_acc()
         (label = "Phalcon transferable properties", color = RGB(0.84, 0.37, 0.00)),
     ]
     names = [
-        "phalcon_bitvectors", 
-        "transferable_phalcon_bitvectors",
+        "phalcon_arc", 
+        "transferable_phalcon_arc",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :execution_time, plot_kwargs, series_kwargs)
@@ -377,7 +376,7 @@ end
 
 # strings_time_vs_acc()
 # strings_enum_vs_acc()
-bitvectors_time_vs_acc()
-bitvectors_enum_vs_acc()
-# arc_time_vs_acc()
-# arc_enum_vs_acc()
+# bitvectors_time_vs_acc()
+# bitvectors_enum_vs_acc()
+arc_time_vs_acc()
+arc_enum_vs_acc()

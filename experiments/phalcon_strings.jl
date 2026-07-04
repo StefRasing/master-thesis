@@ -10,11 +10,13 @@ include("io.jl")
 include("../src/lazy_cost_based_bus.jl")
 include("../src/genetic_iterator.jl")
 include("../src/property_synthesizer.jl")
-include("../src/phalcon.jl")
+# include("../src/phalcon.jl")
+include("../src/strict_phalcon.jl")
 
 repetitions = 1
 run = ARGS[1]
-path = "data/phalcon_strings/phalcon_strings$(run).json"
+# path = "data/phalcon_strings/phalcon_strings$(run).json"
+path = "data/strict_phalcon_strings/strict_phalcon_strings$(run).json"
 store = true
 
 benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
@@ -25,12 +27,6 @@ RuntimeGeneratedFunctions.init(benchmark)
 task_names = [String(s)[9:end] for s in names(benchmark; all=true) if startswith(String(s), "problem_") && all(f -> !occursin(f, String(s)), ["short", "long", "repeat", "small"])]
 problems = [getfield(benchmark, Symbol("problem_", name)) for name in task_names]
 grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names]
-
-id = 2
-problems = problems[id:id]
-grammars = grammars[id:id]
-store = false
-
 
 for (problem, grammar) in zip(problems, grammars)
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
@@ -61,8 +57,7 @@ for (problem, grammar) in zip(problems, grammars)
             max_property_cost = 3,
             rule_cost_func = rule_cost_func,
             prune_node_by_output = y -> length(y) > max_length,
-            # verbose = false,
-            verbose = true,
+            verbose = false,
             timeout = 60*30,
         )
 

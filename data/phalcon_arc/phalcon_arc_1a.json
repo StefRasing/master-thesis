@@ -1,6 +1,6 @@
 [
     {
-        "execution_time": 1237.0930111408234,
+        "execution_time": 2849.563143968582,
         "problem_name": "problem_007bbfb7",
         "heuristic": [
             [
@@ -8,35 +8,43 @@
                 0.95
             ],
             [
-                "extract(objects(_arg_out, false, true, 7), vline)",
+                "mapply(corners, objects(_arg_out, false, false, 4))",
                 0.95
             ],
             [
-                "extract(objects(_arg_out, true, false, 2), square)",
+                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 3), vline)",
+                "mapply(corners, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 1))",
+                "valmin(objects(_arg_out, true, true, 1), hperiod)",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 4))",
+                "valmax(objects(_arg_out, false, true, 7), leastcolor)",
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_out, true, false, 6), height))",
+                "valmax(objects(_arg_out, true, true, 0), rightmost)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 6), vline)",
+                "argmax_by(objects(_arg_out, true, true, 7), lowermost)",
+                0.95
+            ],
+            [
+                "mapply(backdrop, objects(_arg_out, true, false, 2))",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, true, true, 7), vperiod)",
                 0.95
             ]
         ],
-        "solution": "fill_loc(repeat_item(_arg_1, three_by_three), colorcount(mfilter(objects(_arg_1, true, true, 1), portrait), 3), ofcolor(vupscale(hupscale(_arg_1, 3), valmax(objects(_arg_1, true, false, 1), uppermost)), 0))",
+        "solution": null,
         "population_costs": [
             0,
             0,
@@ -45,13 +53,15 @@
             0,
             0,
             0,
-            0
+            0,
+            140,
+            120
         ],
-        "programs_enumerated": 381178,
-        "solved": true
+        "programs_enumerated": 579434,
+        "solved": false
     },
     {
-        "execution_time": 1434.0875771045685,
+        "execution_time": 762.6587750911713,
         "problem_name": "problem_00d62c1b",
         "heuristic": [
             [
@@ -63,23 +73,23 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 4), leftmost)",
+                "mfilter(objects(_arg_out, false, false, 0), square)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, false, 0), lowermost)",
+                "argmax_by(objects(_arg_out, true, false, 0), uppermost)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, false, 3), leftmost)",
+                "argmax_by(objects(_arg_out, false, true, 3), leftmost)",
                 0.95
             ],
             [
-                "centerofmass(merge_containers(objects(_arg_out, true, true, 0)))",
+                "mfilter(objects(_arg_out, true, false, 1), hline)",
                 0.95
             ]
         ],
-        "solution": "asgrid(combine(mfilter(objects(replace_color(_arg_1, 0, 4), false, false, 3), disjunct(square, hline)), combine(mfilter(objects(replace_color(_arg_1, 0, 4), false, false, 3), disjunct(portrait, square)), combine(mfilter(objects(replace_color(_arg_1, 0, 4), false, false, 3), vline), combine(argmax_by(objects(_arg_1, true, true, 1), lowermost), argmin_by(objects(replace_color(_arg_1, 0, 4), false, true, 1), rightmost))))), 3)",
+        "solution": "paint(asgrid(combine(argmax_by(objects(_arg_1, true, false, 1), lowermost), argmin_by(sfilter(objects(_arg_1, true, false, 1), negate(square)), vperiod)), 4), merge_containers(objects(_arg_1, false, false, 0)))",
         "population_costs": [
             0,
             0,
@@ -88,11 +98,11 @@
             0,
             0
         ],
-        "programs_enumerated": 182618,
+        "programs_enumerated": 210822,
         "solved": true
     },
     {
-        "execution_time": 862.1049098968506,
+        "execution_time": 818.2616159915924,
         "problem_name": "problem_017c7c7b",
         "heuristic": [
             [
@@ -108,27 +118,23 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 1))",
+                "extract(order_by(objects(_arg_out, true, false, 1), height), portrait)",
                 0.95
             ],
             [
-                "apply_obj_to_int(uppermost, objects(_arg_out, true, true, 0))",
+                "frontiers(_arg_out)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 1), numcolors)",
+                "apply_obj_to_int(vperiod, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
                 "apply_obj_to_int(size_of, objects(_arg_out, true, true, 0))",
                 0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, false, true, 2), rightmost)",
-                0.95
             ]
         ],
-        "solution": "replace_color(vconcat(_arg_1, paint(tophalf(_arg_1), argmax_by(combine(objects(asgrid(merge_containers(objects(_arg_1, false, false, 1)), 2), false, false, multiply(2, valmax(objects(bottomhalf(_arg_1), false, false, true), hperiod))), apply_obj_to_obj(vmirror, objects(_arg_1, false, false, false))), size_of))), 1, 2)",
+        "solution": "replace_color(vconcat(_arg_1, tophalf(move(_arg_1, intersection(argmax_by(objects(_arg_1, false, true, true), lowermost), argmax_by(objects(_arg_1, true, true, 2), rightmost)), add(up, up)))), 1, 2)",
         "population_costs": [
             0,
             0,
@@ -136,14 +142,13 @@
             0,
             0,
             0,
-            0,
-            19
+            16
         ],
-        "programs_enumerated": 529290,
+        "programs_enumerated": 581672,
         "solved": true
     },
     {
-        "execution_time": 599.0199649333954,
+        "execution_time": 1124.0302448272705,
         "problem_name": "problem_025d127b",
         "heuristic": [
             [
@@ -155,7 +160,11 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), portrait)",
+                "valmax(objects(_arg_out, true, false, 6), leftmost)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
@@ -163,33 +172,44 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, false, 2))",
+                "apply_obj_to_int(leftmost, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 0), height)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 0))",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, false, 6), uppermost)",
+                "apply_obj_to_int(hperiod, objects(_arg_out, true, false, 0))",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, false, false, 6), hperiod)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, false, 0), color)",
                 0.95
             ]
         ],
-        "solution": "move(_arg_1, combine(combine(argmin_by(objects(_arg_1, true, false, 1), lowermost), argmax_by(objects(_arg_1, true, false, 6), color)), mfilter(objects(_arg_1, false, false, 0), square)), right)",
+        "solution": "replace_color(move(_arg_1, combine(mfilter(objects(_arg_1, false, false, 0), square), combine(argmax_by(objects(_arg_1, false, false, 0), color), argmax_by(objects(_arg_1, true, false, 6), color))), add(1, up)), valmax(objects(_arg_1, false, false, 4), hperiod), 5)",
         "population_costs": [
             0,
             0,
             0,
             0,
             0,
-            40,
+            0,
+            20,
+            0,
+            120,
             0
         ],
-        "programs_enumerated": 343668,
+        "programs_enumerated": 642181,
         "solved": true
     },
     {
-        "execution_time": 3484.127494096756,
+        "execution_time": 2299.4138050079346,
         "problem_name": "problem_045e512c",
         "heuristic": [
             [
@@ -201,27 +221,23 @@
                 0.95
             ],
             [
-                "mapply(backdrop, objects(_arg_out, true, true, 1))",
+                "apply_obj_to_int(color, objects(_arg_out, false, false, 6))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(lowermost, objects(_arg_out, false, true, 4))",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, false, 5), vline)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 5))",
                 0.95
             ],
             [
                 "valmin(objects(_arg_out, true, true, 2), hperiod)",
-                0.95
-            ],
-            [
-                "mfilter(partition(_arg_out), vline)",
-                0.95
-            ],
-            [
-                "valmin(objects(_arg_out, false, false, 1), lowermost)",
-                0.95
-            ],
-            [
-                "palette(argmin_by(objects(_arg_out, true, true, 6), size_of))",
-                0.95
-            ],
-            [
-                "palette(lastof(objects(_arg_out, true, true, 1)))",
                 0.95
             ]
         ],
@@ -231,16 +247,15 @@
             0,
             0,
             0,
-            0,
-            0,
-            0,
+            20,
+            20,
             20
         ],
-        "programs_enumerated": 367304,
+        "programs_enumerated": 481956,
         "solved": false
     },
     {
-        "execution_time": 1863.6370599269867,
+        "execution_time": 273.64079308509827,
         "problem_name": "problem_0520fde7",
         "heuristic": [
             [
@@ -252,51 +267,41 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, false, 0), portrait)",
+                "mfilter(objects(_arg_out, true, true, 2), portrait)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 2), vline)",
+                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 2), square)",
+                "index(_arg_out, two_by_two)",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 1))",
+                "mfilter(objects(_arg_out, false, false, 0), portrait)",
                 0.95
             ],
             [
-                "shape(argmax_by(objects(_arg_out, true, false, 4), color))",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, true, 3), portrait)",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, true, 1), portrait)",
+                "toindices(argmin_by(objects(_arg_out, true, false, 0), size_of))",
                 0.95
             ]
         ],
-        "solution": null,
+        "solution": "paint(asgrid(merge_containers(objects(righthalf(_arg_1), true, true, 1)), size_of(objects(_arg_1, false, true, valmin(objects(_arg_1, false, true, 0), leastcolor)))), merge_containers(objects(_arg_1, true, true, 1)))",
         "population_costs": [
             0,
             0,
             0,
             0,
             0,
-            20,
-            20,
-            20,
-            20
+            0,
+            0
         ],
-        "programs_enumerated": 581976,
-        "solved": false
+        "programs_enumerated": 173376,
+        "solved": true
     },
     {
-        "execution_time": 6063.8013298511505,
+        "execution_time": 2123.218504190445,
         "problem_name": "problem_05269061",
         "heuristic": [
             [
@@ -308,39 +313,47 @@
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, true, false, 2))",
+                "mfilter(objects(_arg_out, false, false, true), square)",
                 0.95
             ],
             [
-                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, true))",
+                "mapply(delta, objects(_arg_out, true, false, 7))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 0), vline)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, false, 0))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, false, 8), lowermost)",
+                "valmax(objects(_arg_out, false, true, 7), leftmost)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, false, 4), lowermost))",
+                "valmax(objects(_arg_out, false, false, 3), numcolors)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 8), rightmost)",
+                "mfilter(objects(_arg_out, false, false, true), hline)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 2), portrait)",
+                "valmax(objects(_arg_out, false, false, 3), leastcolor)",
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_out, true, true, true), lowermost))",
+                "valmin(objects(_arg_out, true, true, 0), hperiod)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 0), lowermost))",
+                "delta(extract(objects(_arg_out, false, true, 4), square))",
+                0.95
+            ],
+            [
+                "colorcount(argmax_by(objects(_arg_out, true, true, 8), rightmost), 7)",
+                0.95
+            ],
+            [
+                "ulcorner(argmax_by(objects(_arg_out, true, false, true), color))",
                 0.95
             ]
         ],
@@ -352,17 +365,19 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
             20,
-            0,
-            0,
-            0,
-            0
+            20
         ],
-        "programs_enumerated": 724212,
+        "programs_enumerated": 1036596,
         "solved": false
     },
     {
-        "execution_time": 2289.130392074585,
+        "execution_time": 2379.568678855896,
         "problem_name": "problem_05f2a901",
         "heuristic": [
             [
@@ -374,15 +389,31 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 0))",
+                "apply_obj_to_int(hperiod, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 5), size_of)",
+                "inbox(mfilter(objects(_arg_out, true, true, 1), portrait))",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 2), lowermost)",
+                "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), leftmost)",
+                0.95
+            ],
+            [
+                "index(_arg_out, three_by_three)",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, false, 2), vperiod)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(hperiod, objects(_arg_out, true, true, 0))",
                 0.95
             ]
         ],
@@ -392,13 +423,17 @@
             0,
             0,
             0,
-            20
+            0,
+            0,
+            0,
+            40,
+            40
         ],
-        "programs_enumerated": 207626,
+        "programs_enumerated": 816378,
         "solved": false
     },
     {
-        "execution_time": 4211.09481883049,
+        "execution_time": 2635.8841059207916,
         "problem_name": "problem_06df4c85",
         "heuristic": [
             [
@@ -414,15 +449,15 @@
                 0.95
             ],
             [
-                "mapply(delta, fgpartition(_arg_out))",
+                "mapply(corners, partition(_arg_out))",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
+                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "occurrences(_arg_1, mfilter(objects(_arg_out, true, true, 0), square))",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, true, 1), hperiod))",
                 0.95
             ]
         ],
@@ -435,11 +470,11 @@
             0,
             0
         ],
-        "programs_enumerated": 256481,
+        "programs_enumerated": 240625,
         "solved": false
     },
     {
-        "execution_time": 2218.4720799922943,
+        "execution_time": 1538.7740108966827,
         "problem_name": "problem_08ed6ac7",
         "heuristic": [
             [
@@ -451,11 +486,7 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, true, 2), square)",
+                "mfilter(objects(_arg_out, false, true, 3), square)",
                 0.95
             ],
             [
@@ -463,15 +494,23 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 4), square)",
+                "extract(objects(_arg_out, false, true, 1), portrait)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 1), portrait)",
+                "argmin_by(objects(_arg_out, true, true, 1), hperiod)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 4), color)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
                 0.95
             ]
         ],
-        "solution": null,
+        "solution": "replace_color(paint(replace_color(paint(paint(replace_color(_arg_1, 5, 2), leastcommon(objects(move(_arg_1, argmax_by(objects(_arg_1, false, false, 0), lowermost), multiply(5, left)), false, false, 0))), argmax_by(objects(replace_color(_arg_1, 5, 4), false, false, 0), uppermost)), 5, 3), argmax_by(objects(_arg_1, false, false, 0), width)), 5, 1)",
         "population_costs": [
             0,
             0,
@@ -479,13 +518,14 @@
             0,
             0,
             0,
-            0
+            0,
+            36
         ],
-        "programs_enumerated": 231856,
-        "solved": false
+        "programs_enumerated": 777015,
+        "solved": true
     },
     {
-        "execution_time": 1972.250252008438,
+        "execution_time": 2383.1312839984894,
         "problem_name": "problem_09629e4f",
         "heuristic": [
             [
@@ -501,15 +541,27 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 3), hperiod)",
+                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 4))",
+                "mfilter(objects(_arg_out, false, true, 0), portrait)",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 1))",
+                "mfilter(objects(_arg_out, true, true, 5), portrait)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 4))",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, false, 1), portrait)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, true, 5), portrait)",
                 0.95
             ]
         ],
@@ -520,13 +572,16 @@
             0,
             0,
             0,
-            0
+            0,
+            0,
+            0,
+            80
         ],
-        "programs_enumerated": 86396,
+        "programs_enumerated": 327552,
         "solved": false
     },
     {
-        "execution_time": 2669.0821120738983,
+        "execution_time": 2133.4318821430206,
         "problem_name": "problem_0962bcdd",
         "heuristic": [
             [
@@ -542,7 +597,11 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), hline)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, false, 3))",
+                0.95
+            ],
+            [
+                "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
@@ -550,11 +609,23 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 6))",
+                "valmax(objects(_arg_out, true, false, 2), leftmost)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), portrait)",
+                "mfilter(objects(_arg_out, true, true, 2), portrait)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 4))",
+                0.95
+            ],
+            [
+                "valmin(objects(_arg_out, false, true, 0), rightmost)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(lowermost, objects(_arg_out, false, true, 0))",
                 0.95
             ]
         ],
@@ -565,14 +636,18 @@
             0,
             0,
             0,
+            20,
             0,
-            60
+            0,
+            0,
+            0,
+            20
         ],
-        "programs_enumerated": 207856,
+        "programs_enumerated": 629368,
         "solved": false
     },
     {
-        "execution_time": 2743.813810110092,
+        "execution_time": 2459.1672670841217,
         "problem_name": "problem_0a938d79",
         "heuristic": [
             [
@@ -584,15 +659,27 @@
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, true, true, 0))",
+                "mapply(delta, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
-                "toindices(mfilter(objects(_arg_out, false, true, 5), portrait))",
+                "mfilter(objects(_arg_out, true, true, 0), square)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, 5))",
+                "palette(argmax_by(objects(_arg_out, true, true, 4), uppermost))",
+                0.95
+            ],
+            [
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 2), color))",
+                0.95
+            ],
+            [
+                "even(height(_arg_out))",
+                0.95
+            ],
+            [
+                "vline(argmax_by(objects(_arg_out, true, true, 8), rightmost))",
                 0.95
             ]
         ],
@@ -602,13 +689,16 @@
             0,
             0,
             0,
+            0,
+            20,
+            20,
             0
         ],
-        "programs_enumerated": 147304,
+        "programs_enumerated": 594000,
         "solved": false
     },
     {
-        "execution_time": 945.4402339458466,
+        "execution_time": 1772.3510971069336,
         "problem_name": "problem_0b148d64",
         "heuristic": [
             [
@@ -620,26 +710,36 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 2), portrait)",
+                "mfilter(objects(_arg_out, true, true, 1), portrait)",
                 0.95
             ],
             [
                 "argmax_by(objects(_arg_out, false, true, 0), lowermost)",
                 0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 4), uppermost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
+                0.95
             ]
         ],
-        "solution": "asgrid(argmax_by(fgpartition(compress(asgrid(argmax_by(objects(_arg_1, false, false, 8), lowermost), 3))), color), 0)",
+        "solution": "asgrid(combine(mfilter(objects(asgrid(argmax_by(objects(compress(_arg_1), false, true, true), vperiod), 0), true, true, 8), square), argmax_by(objects(asgrid(argmax_by(objects(compress(_arg_1), false, true, true), vperiod), 0), true, true, 8), color)), 0)",
         "population_costs": [
             0,
             0,
             0,
-            0
+            0,
+            19,
+            19
         ],
-        "programs_enumerated": 81665,
+        "programs_enumerated": 650755,
         "solved": true
     },
     {
-        "execution_time": 2362.495091199875,
+        "execution_time": 2414.580766916275,
         "problem_name": "problem_0ca9ddb6",
         "heuristic": [
             [
@@ -655,15 +755,27 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 4))",
-                0.95
-            ],
-            [
                 "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 4))",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, true, 4), vperiod)",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, true, 4), lowermost)",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, false, true, true), size_of)",
+                0.95
+            ],
+            [
+                "argmax_by(partition(_arg_out), uppermost)",
+                0.95
+            ],
+            [
+                "argmin_by(partition(_arg_out), hperiod)",
                 0.95
             ]
         ],
@@ -674,13 +786,16 @@
             0,
             0,
             0,
-            0
+            20,
+            20,
+            0,
+            20
         ],
-        "programs_enumerated": 119348,
+        "programs_enumerated": 778296,
         "solved": false
     },
     {
-        "execution_time": 2440.08780503273,
+        "execution_time": 167.0808448791504,
         "problem_name": "problem_0d3d703e",
         "heuristic": [
             [
@@ -692,29 +807,24 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 8), vline)",
-                0.95
-            ],
-            [
                 "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leftmost, objects(_arg_out, false, true, 2))",
+                "mapply(corners, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 4))",
+                "argmin_by(objects(_arg_out, true, true, 2), color)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 6), color)",
+                "argmin_by(objects(_arg_out, true, true, 1), color)",
                 0.95
             ]
         ],
-        "solution": null,
+        "solution": "switch(switch(switch(switch(_arg_1, 6, 2), 4, 3), 9, 8), 5, 1)",
         "population_costs": [
-            0,
             0,
             0,
             0,
@@ -722,11 +832,11 @@
             0,
             0
         ],
-        "programs_enumerated": 72064,
-        "solved": false
+        "programs_enumerated": 89244,
+        "solved": true
     },
     {
-        "execution_time": 2298.427838087082,
+        "execution_time": 2083.9161660671234,
         "problem_name": "problem_0dfd9992",
         "heuristic": [
             [
@@ -742,19 +852,15 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 7), color)",
+                "argmax_by(objects(_arg_out, true, false, 0), lowermost)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 1), lowermost)",
+                "argmax_by(objects(_arg_out, true, true, 9), numcolors)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 0), size_of)",
-                0.95
-            ],
-            [
-                "mostcolor(_arg_out)",
+                "valmax(objects(_arg_out, false, false, 1), leastcolor)",
                 0.95
             ]
         ],
@@ -765,14 +871,13 @@
             0,
             0,
             0,
-            0,
             20
         ],
-        "programs_enumerated": 179220,
+        "programs_enumerated": 143160,
         "solved": false
     },
     {
-        "execution_time": 1860.3507449626923,
+        "execution_time": 1810.872554063797,
         "problem_name": "problem_0e206a2e",
         "heuristic": [
             [
@@ -784,27 +889,19 @@
                 0.95
             ],
             [
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 2))",
+                0.95
+            ],
+            [
                 "apply_obj_to_int(color, objects(_arg_out, false, false, 8))",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 1))",
+                "argmax_by(objects(_arg_out, true, true, 1), leftmost)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, false, 5))",
-                0.95
-            ],
-            [
-                "argmin_by(order_by(objects(_arg_out, true, true, 0), rightmost), color)",
-                0.95
-            ],
-            [
-                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, true, 0), color))",
-                0.95
-            ],
-            [
-                "toindices(mfilter(objects(_arg_out, false, true, 4), portrait))",
+                "inbox(mfilter(objects(_arg_out, true, true, 5), portrait))",
                 0.95
             ]
         ],
@@ -815,15 +912,13 @@
             0,
             0,
             0,
-            0,
-            0,
-            0
+            20
         ],
-        "programs_enumerated": 195476,
+        "programs_enumerated": 220076,
         "solved": false
     },
     {
-        "execution_time": 1946.8727321624756,
+        "execution_time": 2055.069125175476,
         "problem_name": "problem_10fcaaa3",
         "heuristic": [
             [
@@ -831,7 +926,19 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 1))",
+                "mfilter(objects(_arg_out, false, true, 8), square)",
+                0.95
+            ],
+            [
+                "mapply(delta, objects(_arg_out, false, true, 3))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 4))",
+                0.95
+            ],
+            [
+                "mapply(delta, objects(_arg_out, false, true, 5))",
                 0.95
             ],
             [
@@ -839,39 +946,23 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 8), square)",
+                "valmin(objects(_arg_out, true, true, 6), hperiod)",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 6))",
+                "argmin_by(order_by(objects(_arg_out, true, true, 0), rightmost), color)",
                 0.95
             ],
             [
-                "occurrences(_arg_out, extract(objects(_arg_1, true, true, 2), square))",
+                "valmax(objects(_arg_out, true, true, 1), hperiod)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 5), vperiod)",
+                "occurrences(_arg_1, argmin_by(objects(_arg_out, false, false, 0), mostcolor))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 1))",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, true, 8), rightmost)",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 0), lowermost)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 8), leftmost)",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, true, 8), size_of)",
+                "centerofmass(mapply(inbox, objects(_arg_out, true, true, 1)))",
                 0.95
             ]
         ],
@@ -887,14 +978,13 @@
             0,
             0,
             0,
-            0,
-            0
+            20
         ],
-        "programs_enumerated": 650254,
+        "programs_enumerated": 561572,
         "solved": false
     },
     {
-        "execution_time": 2290.292948961258,
+        "execution_time": 2616.813730955124,
         "problem_name": "problem_11852cab",
         "heuristic": [
             [
@@ -906,11 +996,11 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 1))",
+                "argmax_by(objects(_arg_out, true, true, 0), color)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 0), color)",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, true, 2), lowermost))",
                 0.95
             ],
             [
@@ -918,23 +1008,23 @@
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 4), uppermost))",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, true, 0), height))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 1))",
+                "argmax_by(objects(_arg_out, false, false, 0), color)",
                 0.95
             ],
             [
-                "argmax_by(frontiers(_arg_out), uppermost)",
+                "palette(mfilter(objects(_arg_out, false, true, 2), square))",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 2))",
+                "occurrences(_arg_1, argmin_by(objects(_arg_out, true, true, 8), lowermost))",
                 0.95
             ],
             [
-                "leastcommon(mapply(outbox, objects(_arg_out, true, false, 4)))",
+                "argmin_by(objects(_arg_out, false, false, 0), color)",
                 0.95
             ]
         ],
@@ -946,16 +1036,16 @@
             0,
             0,
             0,
+            0,
             20,
             20,
-            80,
-            80
+            0
         ],
-        "programs_enumerated": 857491,
+        "programs_enumerated": 795219,
         "solved": false
     },
     {
-        "execution_time": 845.8461999893188,
+        "execution_time": 10246.36561512947,
         "problem_name": "problem_1190e5a7",
         "heuristic": [
             [
@@ -971,32 +1061,32 @@
                 0.95
             ],
             [
-                "objects(_arg_out, true, true, 3)",
+                "apply_obj_to_int(rightmost, objects(_arg_out, true, true, 3))",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, frontiers(_arg_out))",
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, true, 5), rightmost))",
                 0.95
             ],
             [
-                "objects(_arg_out, true, true, 1)",
+                "center(argmax_by(frontiers(_arg_out), rightmost))",
                 0.95
             ]
         ],
-        "solution": "asgrid(argmax_by(objects(argmax_by(hsplit(asgrid(combine(argmax_by(objects(argmax_by(hsplit(repeat_item(downscale(_arg_1, 5), add(zero_by_two, unity)), 4), height), true, false, 0), numcolors), leastcommon(objects(_arg_1, false, false, 1))), 0), crement(increment(minimum_of(apply_obj_to_int(lowermost, objects(_arg_1, true, false, 7)))))), (g->begin\n                        colorcount(g, 3)\n                    end)), true, false, 0), numcolors), 0)",
+        "solution": null,
         "population_costs": [
             0,
             0,
             0,
             0,
             0,
-            38
+            0
         ],
-        "programs_enumerated": 449080,
-        "solved": true
+        "programs_enumerated": 97656,
+        "solved": false
     },
     {
-        "execution_time": 2064.2856619358063,
+        "execution_time": 1874.2219140529633,
         "problem_name": "problem_137eaa0f",
         "heuristic": [
             [
@@ -1008,39 +1098,27 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, false, true))",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 3), width)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, false, false, 0))",
-                0.95
-            ],
-            [
-                "argmin_by(order_by(objects(_arg_out, true, true, 0), color), size_of)",
-                0.95
-            ],
-            [
-                "argmin_by(order_by(objects(_arg_out, true, true, 1), color), size_of)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 4), hperiod)",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, false, 6), rightmost)",
-                0.95
-            ],
-            [
                 "argmax_by(objects(_arg_out, true, true, 1), hperiod)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, false, 0), hperiod)",
+                0.95
+            ],
+            [
+                "minimum_of(_arg_out)",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, true, 0), size_of)",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, true, 6), rightmost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 3), size_of)",
                 0.95
             ]
         ],
@@ -1051,18 +1129,15 @@
             0,
             0,
             0,
-            20,
-            20,
-            37,
-            56,
-            72,
-            97
+            0,
+            0,
+            20
         ],
-        "programs_enumerated": 1404048,
+        "programs_enumerated": 720508,
         "solved": false
     },
     {
-        "execution_time": 2314.9644141197205,
+        "execution_time": 2302.349931001663,
         "problem_name": "problem_150deff5",
         "heuristic": [
             [
@@ -1074,39 +1149,31 @@
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, false, 0), lowermost)",
+                "mapply(toindices, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 5))",
+                "apply_obj_to_int(color, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 0))",
+                "colorcount(argmax_by(objects(_arg_out, true, false, 0), vperiod), 2)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 8), square)",
+                "mfilter(objects(_arg_out, true, true, 2), portrait)",
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, false, false, 8))",
+                "mfilter(objects(_arg_out, true, false, 2), hline)",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 1))",
+                "mapply(corners, objects(_arg_out, false, true, 8))",
                 0.95
             ],
             [
-                "delta(argmin_by(objects(_arg_out, true, true, 0), hperiod))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 2))",
-                0.95
-            ],
-            [
-                "delta(mfilter(objects(_arg_out, true, false, 8), square))",
+                "occurrences(_arg_1, argmin_by(objects(_arg_out, true, false, 8), height))",
                 0.95
             ]
         ],
@@ -1119,16 +1186,14 @@
             0,
             0,
             0,
-            20,
-            0,
-            0,
-            0
+            7,
+            20
         ],
-        "programs_enumerated": 1057928,
+        "programs_enumerated": 1133136,
         "solved": false
     },
     {
-        "execution_time": 1829.9862139225006,
+        "execution_time": 2181.3393540382385,
         "problem_name": "problem_178fcbfb",
         "heuristic": [
             [
@@ -1136,7 +1201,7 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 3), portrait)",
+                "mapply(delta, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
@@ -1144,19 +1209,11 @@
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, false, true, 1))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 4))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 2), square)",
-                0.95
-            ],
-            [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 0), leftmost))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 0))",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, true), hperiod))",
                 0.95
             ],
             [
@@ -1164,15 +1221,19 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 0))",
+                "occurrences(_arg_1, argmin_by(objects(_arg_out, true, true, 0), rightmost))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 8), color)",
+                "leastcommon(mapply(backdrop, objects(_arg_out, true, true, 7)))",
                 0.95
             ],
             [
-                "centerofmass(argmax_by(objects(_arg_out, false, true, 8), lowermost))",
+                "leftmost(mapply(inbox, objects(_arg_out, true, true, 1)))",
+                0.95
+            ],
+            [
+                "rightmost(mapply(inbox, objects(_arg_out, true, true, 0)))",
                 0.95
             ]
         ],
@@ -1184,17 +1245,16 @@
             0,
             0,
             0,
-            20,
             0,
-            20,
+            0,
             0,
             0
         ],
-        "programs_enumerated": 533492,
+        "programs_enumerated": 527080,
         "solved": false
     },
     {
-        "execution_time": 2567.443244934082,
+        "execution_time": 1801.8616881370544,
         "problem_name": "problem_1a07d186",
         "heuristic": [
             [
@@ -1206,27 +1266,27 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), square)",
+                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 4), vline)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 1), hline)",
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, true, 2), lowermost))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 0), vline)",
+                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 8))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, 4), width)",
+                "occurrences(_arg_1, mfilter(objects(_arg_out, true, true, 0), portrait))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 2), width)",
+                "toindices(argmax_by(objects(_arg_out, false, true, 1), lowermost))",
                 0.95
             ]
         ],
@@ -1241,11 +1301,11 @@
             0,
             0
         ],
-        "programs_enumerated": 381409,
+        "programs_enumerated": 181845,
         "solved": false
     },
     {
-        "execution_time": 2886.9871587753296,
+        "execution_time": 1145.556667804718,
         "problem_name": "problem_1b2d62fb",
         "heuristic": [
             [
@@ -1257,43 +1317,39 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 9))",
-                0.95
-            ],
-            [
                 "apply_obj_to_int(color, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, false, 8), width)",
+                "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, false, 8), leftmost)",
+                "apply_obj_to_int(mostcolor, objects(_arg_out, false, false, 5))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 0), hperiod)",
+                "mfilter(objects(_arg_out, true, true, 8), vline)",
                 0.95
             ],
             [
-                "delta(argmax_by(objects(_arg_out, false, false, true), numcolors))",
+                "shape(argmax_by(objects(_arg_out, true, true, 1), hperiod))",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 2))",
+                "mapply(toindices, objects(_arg_out, true, true, 9))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), portrait)",
+                "valmin(objects(_arg_out, true, true, 3), hperiod)",
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, true, true), uppermost))",
+                "mfilter(objects(_arg_out, true, false, 8), square)",
                 0.95
             ]
         ],
-        "solution": null,
+        "solution": "asgrid(argmax_by(apply_obj_to_obj((o->begin\n                    recolor(0, o)\n                end), objects(paint(underpaint(asgrid(argmax_by(objects(_arg_1, false, true, true), hperiod), 0), argmin_by(objects(asgrid(argmax_by(objects(_arg_1, true, true, false), rightmost), 0), false, false, false), hperiod)), argmax_by(objects(_arg_1, true, true, 0), color)), true, true, 1)), (g->begin\n                colorcount(g, 1)\n            end)), 8)",
         "population_costs": [
             0,
             0,
@@ -1302,16 +1358,15 @@
             0,
             0,
             0,
-            40,
-            40,
             0,
-            40
+            0,
+            0
         ],
-        "programs_enumerated": 1007276,
-        "solved": false
+        "programs_enumerated": 504117,
+        "solved": true
     },
     {
-        "execution_time": 2305.8399999141693,
+        "execution_time": 1932.4521729946136,
         "problem_name": "problem_1b60fb0c",
         "heuristic": [
             [
@@ -1319,11 +1374,7 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 2), leftmost)",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, false, 0), portrait)",
+                "valmax(objects(_arg_out, true, true, 1), leftmost)",
                 0.95
             ],
             [
@@ -1331,27 +1382,27 @@
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 1), rightmost)",
+                "argmax_by(objects(_arg_out, true, true, 0), size_of)",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, false, 2))",
+                "mfilter(objects(_arg_out, false, false, 2), square)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), leftmost)",
+                "mfilter(objects(_arg_out, true, true, 1), vline)",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 1))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 3))",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 1), uppermost)",
+                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, false, 1))",
+                "argmax_by(objects(_arg_out, true, true, 0), numcolors)",
                 0.95
             ]
         ],
@@ -1363,16 +1414,15 @@
             0,
             0,
             0,
+            20,
             0,
-            0,
-            0,
-            40
+            0
         ],
-        "programs_enumerated": 656040,
+        "programs_enumerated": 481492,
         "solved": false
     },
     {
-        "execution_time": 1978.2630140781403,
+        "execution_time": 2404.3661971092224,
         "problem_name": "problem_1bfc4729",
         "heuristic": [
             [
@@ -1384,51 +1434,43 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(leftmost, objects(_arg_out, true, true, 0))",
+                "mfilter(objects(_arg_out, true, true, 0), vline)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 0), portrait)",
+                "apply_obj_to_int(lowermost, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 6), lowermost)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "apply_obj_to_int(rightmost, objects(_arg_out, true, true, 0))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "delta(extract(objects(_arg_out, false, false, 6), hline))",
+                "valmin(objects(_arg_out, true, true, 4), hperiod)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, true))",
+                "delta(argmax_by(objects(_arg_out, true, true, 3), size_of))",
                 0.95
             ],
             [
-                "palette(argmax_by(objects(_arg_out, true, false, 0), rightmost))",
+                "mfilter(objects(_arg_out, true, true, 0), portrait)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, 5))",
+                "lowermost(argmax_by(objects(_arg_out, true, true, 7), color))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, 1), width)",
+                "apply_obj_to_int(leftmost, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 4), leastcolor)",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 7), color)",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, false, true, 1), uppermost)",
+                "mapply(toindices, objects(_arg_out, true, true, 3))",
                 0.95
             ]
         ],
@@ -1444,16 +1486,14 @@
             0,
             0,
             0,
-            19,
-            60,
-            79,
-            56
+            0,
+            20
         ],
-        "programs_enumerated": 1355007,
+        "programs_enumerated": 552509,
         "solved": false
     },
     {
-        "execution_time": 1146.8927700519562,
+        "execution_time": 1976.4150760173798,
         "problem_name": "problem_1c786137",
         "heuristic": [
             [
@@ -1469,37 +1509,37 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 6), square)",
+                "apply_obj_to_int(color, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "frontiers(_arg_out)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, false, 5), color)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, false, 5), mostcolor)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, false, 5))",
                 0.95
             ]
         ],
-        "solution": "asgrid(argmax_by(objects(_arg_1, false, true, maximum_of(asgrid(argmax_by(objects(argmin_by(hsplit(_arg_1, 2), (g->begin\n                                        colorcount(g, 7)\n                                    end)), true, false, 2), width), 2))), uppermost), 1)",
+        "solution": null,
         "population_costs": [
             0,
             0,
             0,
             0,
-            20,
             0,
-            0
+            0,
+            20
         ],
-        "programs_enumerated": 197760,
-        "solved": true
+        "programs_enumerated": 233072,
+        "solved": false
     },
     {
-        "execution_time": 1887.2419300079346,
+        "execution_time": 2125.389678955078,
         "problem_name": "problem_1caeab9d",
         "heuristic": [
             [
@@ -1507,39 +1547,35 @@
                 0.95
             ],
             [
+                "extract(objects(_arg_out, true, false, 4), hline)",
+                0.95
+            ],
+            [
+                "mapply(delta, objects(_arg_out, true, false, 0))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(hperiod, objects(_arg_out, true, true, 0))",
+                0.95
+            ],
+            [
                 "apply_obj_to_int(size_of, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
-                "occurrences(_arg_1, extract(objects(_arg_out, true, true, 5), portrait))",
+                "extract(objects(_arg_out, true, true, 2), portrait)",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, order_by(objects(_arg_out, true, true, 1), color))",
+                "apply_obj_to_int(color, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, objects(_arg_out, true, false, 4))",
+                "apply_obj_to_int(color, objects(_arg_out, true, true, 4))",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 2))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, true, false, 2))",
-                0.95
-            ],
-            [
-                "extract(objects(_arg_out, true, true, 2), square)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, order_by(objects(_arg_out, true, true, 2), lowermost))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, true, false, 4))",
+                "mfilter(objects(_arg_out, true, true, 2), portrait)",
                 0.95
             ]
         ],
@@ -1552,15 +1588,14 @@
             0,
             20,
             20,
-            40,
-            40,
-            58
+            31,
+            40
         ],
-        "programs_enumerated": 794834,
+        "programs_enumerated": 1037308,
         "solved": false
     },
     {
-        "execution_time": 3.5052831172943115,
+        "execution_time": 3.7141411304473877,
         "problem_name": "problem_1cf80156",
         "heuristic": [
         ],
@@ -1571,7 +1606,7 @@
         "solved": true
     },
     {
-        "execution_time": 1826.4421119689941,
+        "execution_time": 2019.0735738277435,
         "problem_name": "problem_1e0a9b12",
         "heuristic": [
             [
@@ -1583,39 +1618,43 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 3))",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 4), lowermost))",
                 0.95
             ],
             [
-                "mapply(backdrop, objects(_arg_out, true, false, 1))",
+                "valmax(objects(_arg_out, true, true, 9), color)",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 2))",
+                "valmax(objects(_arg_out, false, true, 6), leastcolor)",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 3))",
+                "mfilter(objects(_arg_out, false, true, 6), vline)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, false, 0), color)",
+                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 9))",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, true, true, 0))",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, false, 1), lowermost))",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 3))",
+                "valmin(objects(_arg_out, false, true, 0), color)",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 4))",
+                "centerofmass(merge_containers(objects(_arg_out, true, true, 5)))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 6))",
+                "mfilter(objects(_arg_out, false, true, 4), portrait)",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, true, true, 9), uppermost)",
                 0.95
             ]
         ],
@@ -1625,19 +1664,20 @@
             0,
             0,
             0,
+            0,
+            0,
+            20,
+            20,
             20,
             0,
-            40,
-            40,
-            40,
-            20,
-            20
+            0,
+            0
         ],
-        "programs_enumerated": 1264040,
+        "programs_enumerated": 939599,
         "solved": false
     },
     {
-        "execution_time": 1958.3767521381378,
+        "execution_time": 2723.311513900757,
         "problem_name": "problem_1e32b0e9",
         "heuristic": [
             [
@@ -1649,19 +1689,23 @@
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, false, 9), rightmost)",
+                "argmin_by(objects(_arg_out, true, true, 0), color)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 0), size_of)",
+                "apply_obj_to_int(color, objects(_arg_out, false, false, 3))",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, false, true, 0), rightmost)",
+                "valmax(objects(_arg_out, true, false, 9), uppermost)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, false, 4), lowermost)",
+                "argmax_by(objects(_arg_out, true, true, 8), rightmost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 2), rightmost)",
                 0.95
             ]
         ],
@@ -1670,15 +1714,16 @@
             0,
             0,
             20,
+            0,
             20,
             20,
             20
         ],
-        "programs_enumerated": 529162,
+        "programs_enumerated": 569268,
         "solved": false
     },
     {
-        "execution_time": 1891.1449961662292,
+        "execution_time": 2114.9005138874054,
         "problem_name": "problem_1f0c79e5",
         "heuristic": [
             [
@@ -1694,39 +1739,35 @@
                 0.95
             ],
             [
-                "delta(extract(objects(_arg_out, true, true, 1), vline))",
+                "apply_obj_to_int(uppermost, objects(_arg_out, false, false, 6))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 6), numcolors)",
+                "colorcount(_arg_out, 6)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, false, 0))",
+                "mfilter(objects(_arg_out, false, true, 4), hline)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, false, 6))",
+                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 6), portrait)",
+                "apply_obj_to_int(lowermost, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
+                "ulcorner(mapply(delta, objects(_arg_out, false, true, 3)))",
                 0.95
             ],
             [
-                "apply_obj_to_int(uppermost, objects(_arg_out, true, true, 0))",
+                "mfilter(objects(_arg_out, true, false, 4), square)",
                 0.95
             ],
             [
-                "ulcorner(mapply(delta, objects(_arg_out, false, true, 8)))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, false, false, 6))",
+                "colorcount(argmax_by(objects(_arg_out, true, true, 1), uppermost), 4)",
                 0.95
             ]
         ],
@@ -1739,17 +1780,16 @@
             0,
             0,
             0,
-            0,
             40,
-            20,
+            40,
             40,
             40
         ],
-        "programs_enumerated": 927850,
+        "programs_enumerated": 643088,
         "solved": false
     },
     {
-        "execution_time": 1825.2875051498413,
+        "execution_time": 1814.502287864685,
         "problem_name": "problem_1f642eb9",
         "heuristic": [
             [
@@ -1761,11 +1801,11 @@
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_out, true, true, 0), vperiod))",
+                "argmax_by(order_by(objects(_arg_out, false, true, 0), hperiod), rightmost)",
                 0.95
             ],
             [
-                "mapply(box, objects(_arg_out, true, true, 1))",
+                "palette(argmax_by(objects(_arg_out, false, false, 2), lowermost))",
                 0.95
             ],
             [
@@ -1773,23 +1813,15 @@
                 0.95
             ],
             [
-                "centerofmass(mapply(delta, objects(_arg_out, true, false, 8)))",
+                "delta(argmax_by(objects(_arg_out, false, true, 0), vperiod))",
                 0.95
             ],
             [
-                "centerofmass(mapply(corners, objects(_arg_out, true, false, 6)))",
+                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "mapply(box, objects(_arg_out, true, false, 1))",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, false, true, 0), leastcolor)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 1))",
+                "argmin_by(objects(_arg_out, true, true, 9), hperiod)",
                 0.95
             ]
         ],
@@ -1798,19 +1830,17 @@
             0,
             0,
             0,
+            31,
             0,
             0,
             0,
-            0,
-            0,
-            0,
-            60
+            0
         ],
-        "programs_enumerated": 682717,
+        "programs_enumerated": 696327,
         "solved": false
     },
     {
-        "execution_time": 79.79953598976135,
+        "execution_time": 84.93877816200256,
         "problem_name": "problem_1f85a75f",
         "heuristic": [
         ],
@@ -1821,7 +1851,7 @@
         "solved": true
     },
     {
-        "execution_time": 1997.9848029613495,
+        "execution_time": 2254.1003680229187,
         "problem_name": "problem_1f876c06",
         "heuristic": [
             [
@@ -1829,11 +1859,15 @@
                 0.95
             ],
             [
-                "index(_arg_out, three_by_three)",
+                "palette(_arg_out)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, false, 0), portrait)",
+                "mfilter(objects(_arg_out, true, true, 0), hline)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, true, 0), portrait)",
                 0.95
             ],
             [
@@ -1841,35 +1875,23 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 3), vline)",
+                "palette(argmax_by(objects(_arg_out, true, true, 0), leftmost))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 1))",
+                "palette(argmin_by(objects(_arg_out, true, true, 6), vperiod))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
+                "palette(argmax_by(objects(_arg_out, true, true, 0), uppermost))",
                 0.95
             ],
             [
-                "mfilter(partition(_arg_out), portrait)",
+                "apply_obj_to_int(color, objects(_arg_out, false, false, 2))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, 0), leastcolor)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 9))",
-                0.95
-            ],
-            [
-                "mapply(delta, objects(_arg_out, true, false, 0))",
-                0.95
-            ],
-            [
-                "occurrences(_arg_1, argmin_by(objects(_arg_out, true, false, 0), rightmost))",
+                "uppermost(argmax_by(objects(_arg_out, false, false, 0), leastcolor))",
                 0.95
             ]
         ],
@@ -1881,18 +1903,16 @@
             0,
             0,
             0,
-            20,
-            20,
-            20,
+            0,
             20,
             20,
             20
         ],
-        "programs_enumerated": 1134869,
+        "programs_enumerated": 748779,
         "solved": false
     },
     {
-        "execution_time": 1298.0795669555664,
+        "execution_time": 666.7482721805573,
         "problem_name": "problem_1fad071e",
         "heuristic": [
             [
@@ -1900,15 +1920,11 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(uppermost, objects(_arg_out, true, true, 0))",
+                "valmin(objects(_arg_out, true, true, 0), height)",
                 0.95
             ],
             [
-                "apply_obj_to_int(rightmost, objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
-                "contained(5, apply_obj_to_int(width, objects(_arg_out, true, true, 3)))",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
@@ -1916,39 +1932,28 @@
                 0.95
             ],
             [
-                "contained(extract(objects(_arg_out, false, true, 2), hline), objects(_arg_out, true, true, 3))",
+                "argmax_by(objects(_arg_1, true, true, 1), (g->begin\n            colorcount(g, leastcolor(_arg_out))\n        end))",
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, true, 0), rightmost))",
-                0.95
-            ],
-            [
-                "lrcorner(argmin_by(objects(_arg_out, true, true, 2), color))",
-                0.95
-            ],
-            [
-                "contained(5, apply_obj_to_int(size_of, objects(_arg_out, true, true, 3)))",
+                "mfilter(objects(_arg_out, true, true, 1), square)",
                 0.95
             ]
         ],
-        "solution": "paint(paint(hupscale(canvas(lowermost(dneighbors(neg_unity)), unity), 5), leastcommon(apply_obj_to_obj((o->begin\n                        recolor(1, o)\n                    end), objects(firstof(hsplit(hupscale(_arg_1, 2), crement(leastcommon(apply_obj_to_int(rightmost, objects(_arg_1, true, false, 2)))))), false, false, 1)))), leastcommon(apply_obj_to_obj((o->begin\n                    recolor(1, o)\n                end), objects(firstof(hsplit(hupscale(_arg_1, 2), 5)), true, true, 0))))",
+        "solution": "rot180deg(underfill(hupscale(canvas(1, unity), 5), 0, normalize(argmin_by(objects(underfill(hupscale(switch(canvas(1, unity), index(_arg_1, three_by_three), 3), 5), index(_arg_1, three_by_three), normalize(argmin_by(objects(_arg_1, true, false, 1), size_of))), true, false, 1), size_of))))",
         "population_costs": [
             0,
             0,
             0,
             0,
             0,
-            19,
-            0,
-            77,
-            78
+            0
         ],
-        "programs_enumerated": 1068230,
+        "programs_enumerated": 294073,
         "solved": true
     },
     {
-        "execution_time": 22.458795070648193,
+        "execution_time": 34.11523389816284,
         "problem_name": "problem_2013d3e2",
         "heuristic": [
             [
@@ -1956,20 +1961,20 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
+                "argmax_by(objects(_arg_out, true, true, 0), hperiod)",
                 0.95
             ]
         ],
-        "solution": "crop(rot180deg(_arg_1), divide(size_of(objects(_arg_1, true, false, 6)), three_by_three), three_by_three)",
+        "solution": "crop(compress(tophalf(_arg_1)), signof(three_by_three), three_by_three)",
         "population_costs": [
             0,
             0
         ],
-        "programs_enumerated": 22874,
+        "programs_enumerated": 32290,
         "solved": true
     },
     {
-        "execution_time": 2436.6941800117493,
+        "execution_time": 2391.9763610363007,
         "problem_name": "problem_2204b7a8",
         "heuristic": [
             [
@@ -1981,19 +1986,7 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
-                "valmin(objects(_arg_out, true, true, 0), color)",
-                0.95
-            ],
-            [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 3), color))",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, true, 1), rightmost)",
+                "argmin_by(objects(_arg_out, true, true, 0), rightmost)",
                 0.95
             ],
             [
@@ -2001,11 +1994,23 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, true, true, 8))",
+                "valmin(objects(_arg_out, true, true, 5), hperiod)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 7), leftmost)",
+                "argmin_by(order_by(objects(_arg_out, true, true, 1), color), size_of)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), leftmost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 5), lowermost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 7), uppermost)",
                 0.95
             ],
             [
@@ -2024,13 +2029,13 @@
             0,
             0,
             0,
-            20
+            0
         ],
-        "programs_enumerated": 915571,
+        "programs_enumerated": 905223,
         "solved": false
     },
     {
-        "execution_time": 1894.9376730918884,
+        "execution_time": 1986.133130788803,
         "problem_name": "problem_22168020",
         "heuristic": [
             [
@@ -2042,35 +2047,31 @@
                 0.95
             ],
             [
-                "equality(_arg_out, _arg_1)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, false, 6))",
                 0.95
             ],
             [
-                "colorcount(_arg_out, 6)",
+                "centerofmass(argmin_by(objects(_arg_out, true, true, 0), size_of))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 6))",
+                "valmax(objects(_arg_out, true, false, 0), vperiod)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 7), color))",
+                "uppermost(argmin_by(objects(_arg_out, true, false, 4), rightmost))",
                 0.95
             ],
             [
-                "centerofmass(mapply(corners, objects(_arg_out, true, false, 8)))",
+                "delta(mfilter(objects(_arg_out, false, false, 0), portrait))",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 3))",
+                "occurrences(_arg_out, argmin_by(objects(_arg_out, true, false, 1), leftmost))",
                 0.95
             ],
             [
-                "leftmost(argmax_by(objects(_arg_out, false, false, 0), numcolors))",
-                0.95
-            ],
-            [
-                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, false, 1), size_of))",
+                "palette(argmax_by(objects(_arg_out, true, false, 0), height))",
                 0.95
             ]
         ],
@@ -2078,20 +2079,19 @@
         "population_costs": [
             0,
             0,
-            0,
-            0,
-            0,
+            16,
             0,
             0,
             0,
             40,
-            20
+            40,
+            60
         ],
-        "programs_enumerated": 815144,
+        "programs_enumerated": 994992,
         "solved": false
     },
     {
-        "execution_time": 2264.11190199852,
+        "execution_time": 1946.2367429733276,
         "problem_name": "problem_22233c11",
         "heuristic": [
             [
@@ -2103,7 +2103,7 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 7))",
+                "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
@@ -2111,31 +2111,23 @@
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 0), size_of)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, false, true, 0), size_of)",
-                0.95
-            ],
-            [
-                "argmin_by(partition(_arg_out), vperiod)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), hperiod)",
-                0.95
-            ],
-            [
-                "leastcommon(mapply(corners, objects(_arg_out, true, false, 1)))",
-                0.95
-            ],
-            [
                 "argmin_by(partition(_arg_out), hperiod)",
                 0.95
             ],
             [
-                "argmin_by(partition(_arg_out), hperiod)",
+                "mapply(delta, objects(_arg_out, true, true, 0))",
+                0.95
+            ],
+            [
+                "index(_arg_out, two_by_two)",
+                0.95
+            ],
+            [
+                "mapply(toindices, objects(_arg_out, true, true, 1))",
+                0.95
+            ],
+            [
+                "argmin_by(partition(_arg_out), lowermost)",
                 0.95
             ]
         ],
@@ -2146,18 +2138,16 @@
             0,
             0,
             0,
-            0,
-            0,
-            137,
-            40,
-            40,
-            118
+            38,
+            19,
+            39,
+            20
         ],
-        "programs_enumerated": 889612,
+        "programs_enumerated": 884240,
         "solved": false
     },
     {
-        "execution_time": 1905.8101420402527,
+        "execution_time": 2173.800076007843,
         "problem_name": "problem_2281f1f4",
         "heuristic": [
             [
@@ -2165,15 +2155,7 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 2), uppermost)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 2))",
-                0.95
-            ],
-            [
-                "mapply(toindices, objects(_arg_out, true, true, 5))",
+                "argmax_by(objects(_arg_out, true, true, 0), width)",
                 0.95
             ],
             [
@@ -2181,7 +2163,19 @@
                 0.95
             ],
             [
-                "delta(extract(objects(_arg_out, true, true, 5), portrait))",
+                "argmax_by(objects(_arg_out, true, true, 2), uppermost)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, true, 2), square)",
+                0.95
+            ],
+            [
+                "frontiers(_arg_out)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, true, 2), hline)",
                 0.95
             ],
             [
@@ -2189,31 +2183,32 @@
                 0.95
             ],
             [
-                "argmax_by(partition(_arg_out), leftmost)",
+                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 5), uppermost)",
+                "square(argmin_by(objects(_arg_out, true, true, 5), lowermost))",
                 0.95
             ]
         ],
-        "solution": "asgrid(merge_containers(combine(combine(objects(_arg_1, false, false, 0), frontiers(_arg_1)), objects(argmax_by(vsplit(_arg_1, 8), mostcolor), true, false, 1))), 2)",
+        "solution": null,
         "population_costs": [
             0,
             0,
             0,
-            19,
             0,
             0,
+            80,
+            40,
+            62,
             0,
-            0,
-            40
+            0
         ],
-        "programs_enumerated": 810956,
-        "solved": true
+        "programs_enumerated": 926876,
+        "solved": false
     },
     {
-        "execution_time": 2037.400978088379,
+        "execution_time": 2183.7523472309113,
         "problem_name": "problem_228f6490",
         "heuristic": [
             [
@@ -2233,11 +2228,7 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(leftmost, objects(_arg_out, false, true, 0))",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, true, 1), hperiod)",
+                "argmax_by(objects(_arg_out, false, true, 5), lowermost)",
                 0.95
             ],
             [
@@ -2245,7 +2236,15 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), vperiod)",
+                "argmax_by(objects(_arg_out, false, false, 0), rightmost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 1), lowermost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 6), leftmost)",
                 0.95
             ],
             [
@@ -2253,11 +2252,7 @@
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, false, true, 0), lowermost)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
+                "argmin_by(objects(_arg_out, false, true, 0), rightmost)",
                 0.95
             ]
         ],
@@ -2270,16 +2265,16 @@
             0,
             0,
             0,
+            39,
             0,
-            0,
-            0,
+            78,
             20
         ],
-        "programs_enumerated": 691484,
+        "programs_enumerated": 793704,
         "solved": false
     },
     {
-        "execution_time": 1905.534390926361,
+        "execution_time": 2100.083916902542,
         "problem_name": "problem_22eb0ac0",
         "heuristic": [
             [
@@ -2291,35 +2286,27 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 6), leftmost)",
+                "mapply(corners, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "equality(_arg_out, _arg_1)",
+                "mapply(toindices, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, true, 0), leftmost)",
+                "valmax(objects(_arg_out, false, true, 1), leastcolor)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 2), leftmost)",
+                "argmax_by(objects(_arg_out, true, true, 1), leftmost)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
+                "occurrences(_arg_out, mfilter(objects(_arg_1, true, true, 1), square))",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 8), color)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
-                0.95
-            ],
-            [
-                "mapply(delta, objects(_arg_out, false, true, 4))",
+                "argmin_by(objects(_arg_out, true, true, 1), lowermost)",
                 0.95
             ]
         ],
@@ -2330,17 +2317,15 @@
             0,
             0,
             0,
-            0,
-            0,
-            0,
-            0,
-            0
+            40,
+            40,
+            20
         ],
-        "programs_enumerated": 1077235,
+        "programs_enumerated": 990465,
         "solved": false
     },
     {
-        "execution_time": 2208.164258956909,
+        "execution_time": 1937.5628941059113,
         "problem_name": "problem_234bbc79",
         "heuristic": [
             [
@@ -2348,31 +2333,43 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 5))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(leftmost, objects(_arg_out, false, true, 2))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, 0))",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, true, 1), size_of)",
-                0.95
-            ],
-            [
                 "mfilter(objects(_arg_out, true, true, 1), portrait)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, true, 2), rightmost))",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 8))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, 3), size_of)",
+                "apply_obj_to_int(uppermost, objects(_arg_out, false, false, 1))",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, false, 3), size_of)",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, false, false, 3), leastcolor)",
+                0.95
+            ],
+            [
+                "valmin(objects(_arg_out, false, true, 0), mostcolor)",
+                0.95
+            ],
+            [
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, true, 2), lowermost))",
+                0.95
+            ],
+            [
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 1), size_of))",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, true, true, 0), rightmost)",
+                0.95
+            ],
+            [
+                "mapply(toindices, objects(_arg_out, true, true, 5))",
                 0.95
             ]
         ],
@@ -2383,15 +2380,18 @@
             0,
             0,
             0,
-            20,
-            20,
-            20
+            0,
+            0,
+            0,
+            40,
+            40,
+            40
         ],
-        "programs_enumerated": 657949,
+        "programs_enumerated": 924476,
         "solved": false
     },
     {
-        "execution_time": 2215.431617975235,
+        "execution_time": 2222.62255191803,
         "problem_name": "problem_23581191",
         "heuristic": [
             [
@@ -2399,51 +2399,43 @@
                 0.95
             ],
             [
-                "extract(objects(_arg_out, false, false, true), square)",
-                0.95
-            ],
-            [
                 "apply_obj_to_int(color, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 0), leftmost)",
+                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 0))",
+                "delta(extract(objects(_arg_out, true, true, 8), portrait))",
                 0.95
             ],
             [
-                "palette(argmax_by(objects(_arg_out, true, false, 5), lowermost))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 4))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 0), lowermost)",
+                "ulcorner(argmin_by(objects(_arg_out, true, true, 3), lowermost))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, true))",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "delta(argmax_by(objects(_arg_out, true, true, 8), color))",
+                "leastcommon(mapply(inbox, objects(_arg_out, true, true, 0)))",
                 0.95
             ],
             [
-                "apply_obj_to_int(uppermost, objects(_arg_out, false, false, true))",
+                "palette(argmax_by(objects(_arg_out, true, false, 7), lowermost))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 2))",
+                "colorcount(_arg_out, 7)",
                 0.95
             ],
             [
-                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, true))",
-                0.95
-            ],
-            [
-                "leastcommon(mapply(toindices, objects(_arg_out, false, false, 4)))",
+                "square(_arg_out)",
                 0.95
             ]
         ],
@@ -2455,19 +2447,17 @@
             0,
             0,
             0,
-            20,
-            20,
-            60,
             60,
             0,
-            100,
-            60
+            31,
+            0,
+            20
         ],
-        "programs_enumerated": 1662860,
+        "programs_enumerated": 1830884,
         "solved": false
     },
     {
-        "execution_time": 175.8296549320221,
+        "execution_time": 137.57343792915344,
         "problem_name": "problem_239be575",
         "heuristic": [
             [
@@ -2483,27 +2473,22 @@
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, false, 8), uppermost))",
-                0.95
-            ],
-            [
-                "mapply(toindices, objects(_arg_out, true, true, 0))",
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, false, 8), uppermost))",
                 0.95
             ]
         ],
-        "solution": "crop(fill_loc(_arg_1, valmax(objects(_arg_1, true, true, 0), size_of), mfilter(objects(_arg_1, false, false, 0), portrait)), divide(crement(two_by_two), valmin(objects(_arg_1, true, true, 8), height)), unity)",
+        "solution": "crop(_arg_1, divide(increment(size_of(objects(_arg_1, true, portrait(_arg_1), 2))), two_by_two), unity)",
         "population_costs": [
-            0,
             0,
             0,
             0,
             0
         ],
-        "programs_enumerated": 59120,
+        "programs_enumerated": 41592,
         "solved": true
     },
     {
-        "execution_time": 24.18844699859619,
+        "execution_time": 26.28516387939453,
         "problem_name": "problem_23b5c85d",
         "heuristic": [
         ],
@@ -2514,7 +2499,7 @@
         "solved": true
     },
     {
-        "execution_time": 2309.7348749637604,
+        "execution_time": 1937.9660439491272,
         "problem_name": "problem_253bf280",
         "heuristic": [
             [
@@ -2526,19 +2511,7 @@
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, true, true, 3))",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
-                0.95
-            ],
-            [
-                "mapply(outbox, objects(_arg_out, true, true, 3))",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), rightmost)",
+                "mapply(toindices, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
@@ -2546,7 +2519,19 @@
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 1))",
+                "mfilter(objects(_arg_out, true, true, 3), vline)",
+                0.95
+            ],
+            [
+                "mapply(corners, objects(_arg_out, false, true, 0))",
+                0.95
+            ],
+            [
+                "centerofmass(mapply(corners, objects(_arg_out, true, true, 2)))",
+                0.95
+            ],
+            [
+                "argmax_by(frontiers(_arg_out), lowermost)",
                 0.95
             ]
         ],
@@ -2555,17 +2540,17 @@
             0,
             0,
             0,
-            19,
-            19,
-            19,
             0,
-            38
+            0,
+            0,
+            19,
+            54
         ],
-        "programs_enumerated": 681512,
+        "programs_enumerated": 477248,
         "solved": false
     },
     {
-        "execution_time": 2847.6244390010834,
+        "execution_time": 1801.8839449882507,
         "problem_name": "problem_25d487eb",
         "heuristic": [
             [
@@ -2581,15 +2566,15 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 2), uppermost)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 1))",
-                0.95
-            ],
-            [
                 "palette(_arg_out)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), hperiod)",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, true, 0), size_of)",
                 0.95
             ],
             [
@@ -2597,15 +2582,15 @@
                 0.95
             ],
             [
-                "argmax_by(order_by(objects(_arg_out, true, true, 3), size_of), color)",
+                "apply_obj_to_int(leftmost, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
+                "palette(_arg_out)",
                 0.95
             ],
             [
-                "delta(mfilter(objects(_arg_out, true, true, 0), portrait))",
+                "argmax_by(objects(_arg_out, true, true, 0), hperiod)",
                 0.95
             ]
         ],
@@ -2614,19 +2599,19 @@
             0,
             0,
             0,
+            19,
+            19,
+            38,
             0,
             19,
-            37,
-            20,
-            39,
-            69,
-            20
+            57,
+            38
         ],
-        "programs_enumerated": 948029,
+        "programs_enumerated": 1093897,
         "solved": false
     },
     {
-        "execution_time": 329.8242619037628,
+        "execution_time": 146.14621901512146,
         "problem_name": "problem_25d8a9c8",
         "heuristic": [
             [
@@ -2638,23 +2623,23 @@
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, true, true, 1))",
+                "mfilter(objects(_arg_out, false, true, 5), square)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 0), lowermost)",
+                "mapply(corners, objects(_arg_out, true, true, 6))",
                 0.95
             ],
             [
-                "apply_obj_to_int(rightmost, objects(_arg_out, true, true, 0))",
+                "mfilter(objects(_arg_out, false, true, 0), square)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 5), hline)",
+                "argmax_by(objects(_arg_out, true, true, 1), rightmost)",
                 0.95
             ]
         ],
-        "solution": "underfill(canvas(0, three_by_three), 5, combine(argmax_by(objects(_arg_1, true, false, 2), size_of), argmax_by(frontiers(_arg_1), lowermost)))",
+        "solution": "paint(paint(canvas(0, three_by_three), argmax_by(objects(replace_color(_arg_1, 4, 5), true, true, 9), width)), argmax_by(apply_obj_to_obj((o->begin\n                    recolor(5, o)\n                end), objects(_arg_1, true, false, size_of(objects(_arg_1, true, false, 4)))), size_of))",
         "population_costs": [
             0,
             0,
@@ -2663,11 +2648,11 @@
             0,
             0
         ],
-        "programs_enumerated": 178044,
+        "programs_enumerated": 140300,
         "solved": true
     },
     {
-        "execution_time": 352.84967398643494,
+        "execution_time": 26.28471088409424,
         "problem_name": "problem_25ff71a9",
         "heuristic": [
             [
@@ -2675,45 +2660,25 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 2), portrait)",
+                "mfilter(objects(_arg_out, true, true, 0), square)",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 0))",
-                0.95
-            ],
-            [
-                "delta(extract(objects(_arg_out, false, true, 0), portrait))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, 0))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 2))",
-                0.95
-            ],
-            [
-                "mapply(backdrop, objects(_arg_out, true, true, 2))",
+                "objects(_arg_out, true, true, 0)",
                 0.95
             ]
         ],
-        "solution": "move(_arg_1, lastof(objects(_arg_1, false, true, vperiod(merge_containers(objects(_arg_1, true, false, 2))))), signof(multiply(1, two_by_zero)))",
+        "solution": "subgrid(mapply(toindices, objects(_arg_1, true, false, 3)), vconcat(bottomhalf(_arg_1), _arg_1))",
         "population_costs": [
-            0,
-            0,
-            0,
-            0,
             0,
             0,
             0
         ],
-        "programs_enumerated": 283500,
+        "programs_enumerated": 65700,
         "solved": true
     },
     {
-        "execution_time": 3101.503814935684,
+        "execution_time": 4037.8729848861694,
         "problem_name": "problem_264363fd",
         "heuristic": [
             [
@@ -2725,23 +2690,23 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 3))",
+                "valmax(objects(_arg_out, false, true, 1), uppermost)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 1), vline)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 2), color)",
+                "extract(objects(_arg_out, true, true, 3), square)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 0), hperiod)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "maximum_of(_arg_out)",
+                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 5))",
                 0.95
             ]
         ],
@@ -2755,11 +2720,11 @@
             0,
             0
         ],
-        "programs_enumerated": 108500,
+        "programs_enumerated": 197140,
         "solved": false
     },
     {
-        "execution_time": 3168.216556072235,
+        "execution_time": 1962.9012529850006,
         "problem_name": "problem_272f95fa",
         "heuristic": [
             [
@@ -2771,19 +2736,27 @@
                 0.95
             ],
             [
+                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 0))",
+                0.95
+            ],
+            [
                 "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 8), hperiod)",
+                "argmax_by(objects(_arg_out, true, true, 8), rightmost)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 1), size_of)",
+                "extract(objects(_arg_out, true, true, 4), square)",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 0))",
+                "argmax_by(objects(_arg_out, true, true, 0), numcolors)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, true, 1), hline)",
                 0.95
             ]
         ],
@@ -2794,13 +2767,15 @@
             0,
             0,
             0,
+            0,
+            0,
             0
         ],
-        "programs_enumerated": 184332,
+        "programs_enumerated": 316788,
         "solved": false
     },
     {
-        "execution_time": 277.1565930843353,
+        "execution_time": 321.20571398735046,
         "problem_name": "problem_27a28665",
         "heuristic": [
             [
@@ -2812,26 +2787,31 @@
                 0.95
             ],
             [
-                "contained(merge_containers(objects(_arg_out, true, true, 6)), objects(_arg_out, true, true, 2))",
+                "ofcolor(_arg_out, 2)",
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 2))",
+                "mapply(toindices, objects(_arg_out, true, true, 8))",
+                0.95
+            ],
+            [
+                "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ]
         ],
-        "solution": "replace_color(canvas(multiply(vperiod(lastof(objects(_arg_1, false, true, 1))), valmax(objects(_arg_1, flip(false), true, 8), uppermost)), unity), valmax(objects(_arg_1, false, false, 0), leftmost), 1)",
+        "solution": "underfill(underfill(canvas(1, unity), valmax(difference(objects(asgrid(argmax_by(objects(_arg_1, true, true, 7), color), 6), false, false, 2), objects(_arg_1, false, true, 8)), color), argmin_by(objects(_arg_1, true, false, 1), lowermost)), valmin(objects(_arg_1, true, true, 7), hperiod), argmax_by(objects(_arg_1, true, true, 4), hperiod))",
         "population_costs": [
+            0,
             0,
             0,
             0,
             0
         ],
-        "programs_enumerated": 121374,
+        "programs_enumerated": 127304,
         "solved": true
     },
     {
-        "execution_time": 17.497169017791748,
+        "execution_time": 30.06666398048401,
         "problem_name": "problem_28bf18c6",
         "heuristic": [
             [
@@ -2839,20 +2819,20 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, true), lowermost)",
+                "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
                 0.95
             ]
         ],
-        "solution": "compress(hconcat(_arg_1, _arg_1))",
+        "solution": "compress(hconcat(replace_color(_arg_1, 8, valmin(objects(_arg_1, true, true, 8), rightmost)), _arg_1))",
         "population_costs": [
             0,
             0
         ],
-        "programs_enumerated": 21453,
+        "programs_enumerated": 41937,
         "solved": true
     },
     {
-        "execution_time": 2029.5861427783966,
+        "execution_time": 3000.939329147339,
         "problem_name": "problem_28e73c20",
         "heuristic": [
             [
@@ -2864,31 +2844,31 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(height, objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
                 "mfilter(objects(_arg_out, false, true, 3), square)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 3), uppermost)",
+                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, true))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 3), vperiod)",
+                "apply_obj_to_int(rightmost, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, false, true), square)",
+                "index(_arg_out, three_by_three)",
                 0.95
             ],
             [
-                "frontiers(_arg_out)",
+                "ulcorner(mapply(delta, objects(_arg_out, true, true, 3)))",
                 0.95
             ],
             [
-                "equality(7, width(mapply(delta, objects(_arg_out, true, true, 3))))",
+                "order_by(objects(_arg_1, true, true, 1), (g->begin\n            colorcount(g, valmax(objects(_arg_out, true, true, 3), vperiod))\n        end))",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, false, 0), square)",
                 0.95
             ]
         ],
@@ -2902,13 +2882,13 @@
             0,
             0,
             0,
-            0
+            120
         ],
-        "programs_enumerated": 453766,
+        "programs_enumerated": 512250,
         "solved": false
     },
     {
-        "execution_time": 2572.0564551353455,
+        "execution_time": 2481.378210067749,
         "problem_name": "problem_29623171",
         "heuristic": [
             [
@@ -2920,7 +2900,11 @@
                 0.95
             ],
             [
-                "mapply(inbox, objects(_arg_out, true, true, 5))",
+                "argmin_by(objects(_arg_out, false, true, 5), color)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
@@ -2928,23 +2912,15 @@
                 0.95
             ],
             [
+                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 2))",
+                0.95
+            ],
+            [
                 "argmax_by(objects(_arg_out, true, true, 5), hperiod)",
                 0.95
             ],
             [
-                "mapply(toindices, objects(_arg_out, true, true, 3))",
-                0.95
-            ],
-            [
-                "lastof(objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 2), leftmost)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 0))",
+                "mfilter(objects(_arg_out, true, true, 4), portrait)",
                 0.95
             ]
         ],
@@ -2957,14 +2933,13 @@
             0,
             0,
             0,
-            0,
-            19
+            60
         ],
-        "programs_enumerated": 666402,
+        "programs_enumerated": 462235,
         "solved": false
     },
     {
-        "execution_time": 1870.050789117813,
+        "execution_time": 1993.2205600738525,
         "problem_name": "problem_29c11459",
         "heuristic": [
             [
@@ -2980,7 +2955,7 @@
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, true, true, 0))",
+                "delta(argmax_by(objects(_arg_out, true, true, 7), leftmost))",
                 0.95
             ],
             [
@@ -2992,7 +2967,23 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 0))",
+                "palette(_arg_out)",
+                0.95
+            ],
+            [
+                "palette(_arg_out)",
+                0.95
+            ],
+            [
+                "occurrences(_arg_out, argmax_by(objects(_arg_out, true, true, 0), height))",
+                0.95
+            ],
+            [
+                "frontiers(_arg_out)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
@@ -3000,19 +2991,7 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 6), uppermost)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 1))",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 6), uppermost)",
+                "occurrences(_arg_out, merge_containers(objects(_arg_1, true, true, 0)))",
                 0.95
             ]
         ],
@@ -3021,21 +3000,22 @@
             0,
             0,
             19,
-            19,
-            38,
+            0,
+            39,
             0,
             0,
+            19,
+            60,
+            79,
             0,
-            19,
-            19,
-            58,
-            38
+            0,
+            378
         ],
-        "programs_enumerated": 1610147,
+        "programs_enumerated": 1696214,
         "solved": false
     },
     {
-        "execution_time": 2232.283839941025,
+        "execution_time": 3337.8651111125946,
         "problem_name": "problem_29ec7d0e",
         "heuristic": [
             [
@@ -3043,7 +3023,11 @@
                 0.95
             ],
             [
-                "lastof(objects(_arg_out, false, false, 1))",
+                "argmax_by(objects(_arg_out, true, true, 9), uppermost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, false, 1), rightmost)",
                 0.95
             ],
             [
@@ -3051,19 +3035,15 @@
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, 1), numcolors)",
+                "valmin(objects(_arg_out, false, false, 3), numcolors)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 1), rightmost)",
+                "mfilter(objects(_arg_out, false, true, 1), vline)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 1), vperiod)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, false, 0), (g->begin\n            colorcount(g, 2)\n        end))",
+                "valmax(objects(_arg_out, false, true, 1), size_of)",
                 0.95
             ]
         ],
@@ -3075,13 +3055,13 @@
             0,
             0,
             0,
-            0
+            20
         ],
-        "programs_enumerated": 152380,
+        "programs_enumerated": 251808,
         "solved": false
     },
     {
-        "execution_time": 1976.7824828624725,
+        "execution_time": 2046.6290528774261,
         "problem_name": "problem_2bcee788",
         "heuristic": [
             [
@@ -3097,7 +3077,15 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 2))",
+                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 8))",
+                0.95
+            ],
+            [
+                "centerofmass(argmin_by(objects(_arg_out, true, true, 2), color))",
+                0.95
+            ],
+            [
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, true, 0), lowermost))",
                 0.95
             ],
             [
@@ -3105,23 +3093,11 @@
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 0), uppermost))",
+                "mfilter(objects(_arg_out, true, true, 4), vline)",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 4))",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, true, true, 0), vline)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int((g->begin\n            colorcount(g, 7)\n        end), objects(_arg_out, true, true, 0))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 6))",
+                "height(mapply(inbox, objects(_arg_out, true, true, 3)))",
                 0.95
             ]
         ],
@@ -3134,15 +3110,14 @@
             0,
             0,
             0,
-            20,
             0,
-            0
+            14
         ],
-        "programs_enumerated": 496877,
+        "programs_enumerated": 460618,
         "solved": false
     },
     {
-        "execution_time": 2053.220021009445,
+        "execution_time": 1892.789253950119,
         "problem_name": "problem_2bee17df",
         "heuristic": [
             [
@@ -3150,31 +3125,35 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 3), size_of)",
+                "argmax_by(objects(_arg_out, true, true, true), rightmost)",
                 0.95
             ],
             [
-                "index(_arg_out, three_by_three)",
+                "argmin_by(objects(_arg_out, true, true, 0), color)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 2), hperiod)",
+                "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
+                "apply_obj_to_int(height, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), square)",
+                "argmax_by(objects(_arg_out, true, true, true), rightmost)",
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, true, true, 0))",
+                "argmin_by(order_by(objects(_arg_out, true, true, 2), lowermost), uppermost)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 3), leastcolor)",
+                "delta(extract(objects(_arg_out, true, true, 1), square))",
+                0.95
+            ],
+            [
+                "argmin_by(objects(_arg_out, true, true, 1), vperiod)",
                 0.95
             ]
         ],
@@ -3185,15 +3164,16 @@
             0,
             0,
             0,
-            0,
             20,
-            20
+            0,
+            0,
+            40
         ],
-        "programs_enumerated": 677548,
+        "programs_enumerated": 618060,
         "solved": false
     },
     {
-        "execution_time": 2288.950408220291,
+        "execution_time": 2012.9028770923615,
         "problem_name": "problem_2c608aff",
         "heuristic": [
             [
@@ -3205,23 +3185,23 @@
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 2), rightmost))",
+                "mfilter(objects(_arg_out, false, true, 8), square)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 8), rightmost))",
+                "mfilter(objects(_arg_out, false, false, 8), vline)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 2), leftmost)",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, false, true, 8), lowermost))",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
+                "equality(_arg_out, _arg_1)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 8), width)",
+                "argmax_by(objects(_arg_out, true, true, true), size_of)",
                 0.95
             ]
         ],
@@ -3232,14 +3212,14 @@
             0,
             0,
             0,
-            60,
-            79
+            0,
+            20
         ],
-        "programs_enumerated": 425504,
+        "programs_enumerated": 371760,
         "solved": false
     },
     {
-        "execution_time": 116.55131506919861,
+        "execution_time": 125.3993570804596,
         "problem_name": "problem_2dc579da",
         "heuristic": [
             [
@@ -3253,19 +3233,24 @@
             [
                 "mfilter(objects(_arg_out, false, true, 3), vline)",
                 0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, true, 4), square)",
+                0.95
             ]
         ],
-        "solution": "asgrid(argmax_by(objects(_arg_1, false, false, add(divide(minimum_of(interval(rightmost(argmax_by(objects(_arg_1, false, false, true), leftmost)), -2, -2)), valmin(objects(_arg_1, false, false, 3), height)), valmin(objects(_arg_1, true, false, 1), color))), hperiod), 0)",
+        "solution": "asgrid(argmax_by(objects(_arg_1, false, false, valmin(difference(objects(_arg_1, true, true, 5), objects(_arg_1, true, false, 4)), leastcolor)), hperiod), 5)",
         "population_costs": [
+            0,
             0,
             0,
             0
         ],
-        "programs_enumerated": 79960,
+        "programs_enumerated": 115773,
         "solved": true
     },
     {
-        "execution_time": 2548.1257178783417,
+        "execution_time": 2271.2623920440674,
         "problem_name": "problem_2dd70a9a",
         "heuristic": [
             [
@@ -3277,15 +3262,15 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, true))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 1), hline)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, 1), color)",
+                "argmin_by(objects(_arg_out, true, true, 1), (g->begin\n            colorcount(g, 0)\n        end))",
                 0.95
             ],
             [
@@ -3293,15 +3278,11 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 0), portrait)",
+                "mfilter(objects(_arg_out, true, true, 9), vline)",
                 0.95
             ],
             [
-                "delta(mfilter(objects(_arg_out, true, false, 8), square))",
-                0.95
-            ],
-            [
-                "mapply(inbox, objects(_arg_out, false, false, 8))",
+                "mfilter(objects(_arg_out, true, true, 2), hline)",
                 0.95
             ]
         ],
@@ -3314,30 +3295,64 @@
             0,
             0,
             40,
-            0,
             20
         ],
-        "programs_enumerated": 561512,
+        "programs_enumerated": 525942,
         "solved": false
     },
     {
-        "execution_time": 11.171974897384644,
+        "execution_time": 1140.9960579872131,
         "problem_name": "problem_2dee498d",
         "heuristic": [
             [
                 "mfilter(objects(_arg_out, false, true, 2), portrait)",
                 0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, true), hperiod)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 5), hperiod)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, true, 2), portrait)",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, false, true, true), leastcolor)",
+                0.95
+            ],
+            [
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, true, 1), lowermost))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
+                0.95
             ]
         ],
-        "solution": "lastof(hsplit(_arg_1, 3))",
+        "solution": "underpaint(replace_color(lefthalf(replace_color(lefthalf(hconcat(_arg_1, lefthalf(cover(_arg_1, ofcolor(_arg_1, valmax(objects(_arg_1, true, false, 4), height)))))), 0, maximum_of(_arg_1))), 0, 1), argmax_by(objects(_arg_1, false, false, 5), rightmost))",
         "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            20,
+            0,
+            0,
             0
         ],
-        "programs_enumerated": 2414,
+        "programs_enumerated": 445059,
         "solved": true
     },
     {
-        "execution_time": 2159.7481639385223,
+        "execution_time": 2597.046966075897,
         "problem_name": "problem_31aa019c",
         "heuristic": [
             [
@@ -3349,35 +3364,39 @@
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, false, true, 1))",
+                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 0), hline)",
+                "mapply(delta, objects(_arg_out, false, true, 5))",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, 0))",
+                "mfilter(objects(_arg_out, false, true, 2), portrait)",
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, false, false, true))",
+                "ulcorner(mapply(inbox, objects(_arg_out, true, true, 4)))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 4), vperiod)",
+                "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 1))",
+                "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
                 0.95
             ],
             [
-                "delta(argmin_by(objects(_arg_out, true, false, 6), size_of))",
+                "argmax_by(objects(_arg_out, false, true, 2), leftmost)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 5), color)",
+                "argmin_by(objects(_arg_out, true, false, 0), lowermost)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, true, false, 1), square)",
                 0.95
             ]
         ],
@@ -3386,19 +3405,20 @@
             0,
             0,
             0,
-            20,
-            20,
-            20,
-            20,
             0,
             20,
-            20
+            20,
+            40,
+            0,
+            0,
+            0,
+            0
         ],
-        "programs_enumerated": 1134039,
+        "programs_enumerated": 1031260,
         "solved": false
     },
     {
-        "execution_time": 2553.2959909439087,
+        "execution_time": 2102.1704540252686,
         "problem_name": "problem_321b1fc6",
         "heuristic": [
             [
@@ -3410,39 +3430,31 @@
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 0), uppermost)",
+                "palette(_arg_out)",
                 0.95
             ],
             [
-                "delta(argmax_by(objects(_arg_out, true, true, 4), uppermost))",
+                "apply_obj_to_int(size_of, objects(_arg_out, false, false, 0))",
                 0.95
             ],
             [
-                "toindices(argmin_by(objects(_arg_out, false, false, 0), mostcolor))",
+                "apply_obj_to_int(color, objects(_arg_out, false, false, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 3))",
+                "apply_obj_to_int(color, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 0), leastcolor)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 6))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 7), rightmost)",
+                "toindices(argmax_by(objects(_arg_out, false, true, 0), mostcolor))",
                 0.95
             ],
             [
-                "toindices(mfilter(objects(_arg_out, false, false, 0), square))",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, true, 0), hline)",
-                0.95
-            ],
-            [
-                "delta(argmax_by(objects(_arg_out, false, true, 0), hperiod))",
+                "llcorner(mapply(delta, objects(_arg_out, false, true, 3)))",
                 0.95
             ]
         ],
@@ -3453,18 +3465,16 @@
             0,
             0,
             0,
-            0,
-            0,
-            0,
-            0,
+            15,
             17,
-            20
+            32,
+            55
         ],
-        "programs_enumerated": 707520,
+        "programs_enumerated": 1052442,
         "solved": false
     },
     {
-        "execution_time": 3185.783390045166,
+        "execution_time": 2555.9689979553223,
         "problem_name": "problem_32597951",
         "heuristic": [
             [
@@ -3476,31 +3486,31 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 2), uppermost)",
+                "argmax_by(objects(_arg_out, true, false, 0), lowermost)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 1), lowermost)",
+                "argmax_by(objects(_arg_out, true, false, true), lowermost)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 0), hperiod)",
+                "argmax_by(objects(_arg_out, true, false, 4), hperiod)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), leftmost)",
+                "argmax_by(objects(_arg_out, true, true, 0), color)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 5), lowermost)",
+                "argmax_by(objects(_arg_out, true, true, 2), vperiod)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 0), vperiod)",
+                "argmax_by(objects(_arg_out, true, true, 2), numcolors)",
                 0.95
             ],
             [
-                "mostcommon(mapply(outbox, objects(_arg_out, true, true, 2)))",
+                "argmin_by(objects(_arg_out, true, true, 3), vperiod)",
                 0.95
             ]
         ],
@@ -3511,16 +3521,16 @@
             0,
             0,
             0,
+            40,
             0,
             0,
-            20,
             0
         ],
-        "programs_enumerated": 398170,
+        "programs_enumerated": 335382,
         "solved": false
     },
     {
-        "execution_time": 2969.269693136215,
+        "execution_time": 1966.8473649024963,
         "problem_name": "problem_3345333e",
         "heuristic": [
             [
@@ -3540,27 +3550,23 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 1))",
+                "mfilter(objects(_arg_out, true, true, 1), hline)",
                 0.95
             ],
             [
-                "centerofmass(mapply(delta, objects(_arg_out, false, true, 2)))",
+                "valmax(objects(_arg_out, true, false, 0), uppermost)",
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, false, false, 2))",
+                "palette(lastof(objects(_arg_out, true, false, 2)))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 2), size_of)",
+                "mapply(corners, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
-                "apply_obj_to_int(width, objects(_arg_out, true, true, 5))",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, true, false, 5), hline)",
+                "valmin(objects(_arg_out, true, false, 0), lowermost)",
                 0.95
             ]
         ],
@@ -3573,15 +3579,14 @@
             0,
             0,
             0,
-            0,
-            0,
+            20,
             20
         ],
-        "programs_enumerated": 606220,
+        "programs_enumerated": 459100,
         "solved": false
     },
     {
-        "execution_time": 2057.5442368984222,
+        "execution_time": 2716.6581950187683,
         "problem_name": "problem_3428a4f5",
         "heuristic": [
             [
@@ -3601,7 +3606,11 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 1))",
+                "valmin(objects(_arg_out, true, false, 0), hperiod)",
+                0.95
+            ],
+            [
+                "valmin(objects(_arg_out, true, false, 0), rightmost)",
                 0.95
             ],
             [
@@ -3609,23 +3618,19 @@
                 0.95
             ],
             [
-                "index(_arg_out, two_by_two)",
+                "valmin(objects(_arg_out, true, false, 3), hperiod)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 0), rightmost)",
+                "valmin(objects(_arg_out, false, true, true), vperiod)",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 2))",
+                "valmin(objects(_arg_out, true, true, true), width)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, true, true), hperiod)",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 0), hperiod)",
+                "valmax(objects(_arg_out, false, false, 0), leastcolor)",
                 0.95
             ]
         ],
@@ -3641,13 +3646,13 @@
             0,
             0,
             0,
-            0
+            20
         ],
-        "programs_enumerated": 388628,
+        "programs_enumerated": 467180,
         "solved": false
     },
     {
-        "execution_time": 58.58687496185303,
+        "execution_time": 15.683088064193726,
         "problem_name": "problem_3618c87e",
         "heuristic": [
             [
@@ -3655,25 +3660,20 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, false, 5), rightmost)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
+                "argmax_by(objects(_arg_out, true, true, 1), rightmost)",
                 0.95
             ]
         ],
-        "solution": "move(_arg_1, combine(argmax_by(objects(_arg_1, true, false, 5), uppermost), argmax_by(objects(_arg_1, true, false, 0), leftmost)), two_by_zero)",
+        "solution": "move(_arg_1, mfilter(objects(_arg_1, true, false, 0), square), two_by_zero)",
         "population_costs": [
-            0,
             0,
             0
         ],
-        "programs_enumerated": 111640,
+        "programs_enumerated": 20836,
         "solved": true
     },
     {
-        "execution_time": 2195.0375361442566,
+        "execution_time": 2391.9073259830475,
         "problem_name": "problem_3631a71a",
         "heuristic": [
             [
@@ -3689,11 +3689,11 @@
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 2), hperiod)",
+                "mfilter(objects(_arg_out, false, false, 1), square)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, false, 0), uppermost)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, false, 3))",
                 0.95
             ]
         ],
@@ -3705,11 +3705,11 @@
             0,
             0
         ],
-        "programs_enumerated": 62322,
+        "programs_enumerated": 65366,
         "solved": false
     },
     {
-        "execution_time": 1870.1580460071564,
+        "execution_time": 2249.1743359565735,
         "problem_name": "problem_363442ee",
         "heuristic": [
             [
@@ -3721,82 +3721,31 @@
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 4), size_of)",
+                "argmax_by(objects(_arg_out, true, true, 0), color)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, false, true, 5), (g->begin\n            colorcount(g, 4)\n        end))",
+                "argmin_by(objects(_arg_out, false, true, 5), (g->begin\n            colorcount(g, 3)\n        end))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, false, 3), numcolors)",
+                "valmax(objects(_arg_out, true, true, 0), rightmost)",
                 0.95
             ],
             [
-                "palette(argmax_by(objects(_arg_out, false, true, 8), lowermost))",
+                "argmax_by(objects(_arg_out, false, true, 5), leastcolor)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 0), square)",
+                "valmax(objects(_arg_out, false, true, true), hperiod)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 0), vline)",
-                0.95
-            ]
-        ],
-        "solution": null,
-        "population_costs": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            20,
-            0,
-            0
-        ],
-        "programs_enumerated": 445172,
-        "solved": false
-    },
-    {
-        "execution_time": 3544.810961961746,
-        "problem_name": "problem_36d67576",
-        "heuristic": [
-            [
-                "mfilter(objects(_arg_out, true, true, 3), portrait)",
+                "valmax(objects(_arg_out, false, false, 0), color)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, true, 0), hperiod)",
-                0.95
-            ],
-            [
-                "mapply(toindices, objects(_arg_out, true, true, 2))",
-                0.95
-            ],
-            [
-                "mapply(toindices, objects(_arg_out, true, true, 4))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 1))",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, true, 0), square)",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, true, true, 9), lowermost)",
-                0.95
-            ],
-            [
-                "palette(argmax_by(objects(_arg_out, false, true, 1), lowermost))",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 1), vperiod)",
+                "valmax(objects(_arg_out, false, true, 3), mostcolor)",
                 0.95
             ]
         ],
@@ -3812,11 +3761,67 @@
             0,
             20
         ],
-        "programs_enumerated": 664132,
+        "programs_enumerated": 537468,
         "solved": false
     },
     {
-        "execution_time": 2894.504464864731,
+        "execution_time": 2497.5414910316467,
+        "problem_name": "problem_36d67576",
+        "heuristic": [
+            [
+                "mfilter(objects(_arg_out, true, true, 3), portrait)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, false, true, 0), hperiod)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 0))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 4))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 2))",
+                0.95
+            ],
+            [
+                "inbox(argmin_by(objects(_arg_out, false, false, 0), rightmost))",
+                0.95
+            ],
+            [
+                "valmin(objects(_arg_out, false, true, 0), color)",
+                0.95
+            ],
+            [
+                "occurrences(_arg_1, extract(objects(_arg_out, false, true, 0), portrait))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 1))",
+                0.95
+            ]
+        ],
+        "solution": null,
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            20,
+            20,
+            20
+        ],
+        "programs_enumerated": 622860,
+        "solved": false
+    },
+    {
+        "execution_time": 1943.4172549247742,
         "problem_name": "problem_36fdfd69",
         "heuristic": [
             [
@@ -3832,29 +3837,24 @@
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 0), rightmost)",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 3))",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 2))",
+                "argmin_by(objects(_arg_out, true, true, 1), rightmost)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 3), lowermost)",
+                "mapply(corners, objects(_arg_out, false, true, 9))",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, false, true, 0), lowermost)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 0), (g->begin\n            colorcount(g, 2)\n        end))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 2))",
                 0.95
             ]
         ],
         "solution": null,
         "population_costs": [
-            0,
             0,
             0,
             0,
@@ -3863,11 +3863,11 @@
             0,
             20
         ],
-        "programs_enumerated": 319947,
+        "programs_enumerated": 281188,
         "solved": false
     },
     {
-        "execution_time": 3125.408591032028,
+        "execution_time": 1948.2423329353333,
         "problem_name": "problem_3906de3d",
         "heuristic": [
             [
@@ -3875,19 +3875,7 @@
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, true, true, 2))",
-                0.95
-            ],
-            [
                 "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, false, 1), size_of)",
-                0.95
-            ],
-            [
-                "delta(argmax_by(objects(_arg_out, true, true, 0), lowermost))",
                 0.95
             ],
             [
@@ -3895,11 +3883,19 @@
                 0.95
             ],
             [
-                "leastcommon(apply_obj_to_int(width, objects(_arg_out, false, true, 0)))",
+                "mfilter(objects(_arg_out, true, true, 0), square)",
                 0.95
             ],
             [
-                "ulcorner(mapply(inbox, objects(_arg_out, true, true, 0)))",
+                "apply_obj_to_int(width, order_by(objects(_arg_out, true, true, 1), hperiod))",
+                0.95
+            ],
+            [
+                "delta(argmax_by(objects(_arg_out, true, true, 0), height))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 1))",
                 0.95
             ]
         ],
@@ -3910,15 +3906,14 @@
             0,
             0,
             0,
-            0,
-            0,
-            0
+            20,
+            20
         ],
-        "programs_enumerated": 693937,
+        "programs_enumerated": 562780,
         "solved": false
     },
     {
-        "execution_time": 44.89405298233032,
+        "execution_time": 58.242626905441284,
         "problem_name": "problem_39a8645d",
         "heuristic": [
             [
@@ -3928,18 +3923,23 @@
             [
                 "frontiers(_arg_out)",
                 0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), lowermost)",
+                0.95
             ]
         ],
-        "solution": "asgrid(argmin_by(objects(move(_arg_1, leastcommon(objects(_arg_1, false, true, 0)), add(valmax(objects(_arg_1, false, false, 0), lowermost), multiply(5, right))), true, true, 1), rightmost), 0)",
+        "solution": "asgrid(argmax_by(objects(move(_arg_1, mfilter(objects(_arg_1, false, false, 6), square), astuple(8, -1)), true, true, 6), leftmost), 0)",
         "population_costs": [
+            0,
             0,
             0
         ],
-        "programs_enumerated": 13405,
+        "programs_enumerated": 16088,
         "solved": true
     },
     {
-        "execution_time": 3671.38170003891,
+        "execution_time": 3222.0443501472473,
         "problem_name": "problem_39e1d7f9",
         "heuristic": [
             [
@@ -3955,7 +3955,7 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 4), hperiod)",
+                "argmax_by(objects(_arg_out, true, true, 8), rightmost)",
                 0.95
             ],
             [
@@ -3963,7 +3963,7 @@
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 3), leastcolor)",
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, true, 0), lowermost))",
                 0.95
             ]
         ],
@@ -3973,14 +3973,14 @@
             0,
             0,
             0,
-            20,
+            0,
             20
         ],
-        "programs_enumerated": 301573,
+        "programs_enumerated": 231501,
         "solved": false
     },
     {
-        "execution_time": 32.35793900489807,
+        "execution_time": 47.10345101356506,
         "problem_name": "problem_3aa6fb7a",
         "heuristic": [
             [
@@ -3992,21 +3992,26 @@
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 0), hperiod)",
+                "mfilter(objects(_arg_out, false, true, 1), square)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(uppermost, objects(_arg_out, false, true, 0))",
                 0.95
             ]
         ],
-        "solution": "underfill(_arg_1, 1, mapply(corners, objects(_arg_1, false, false, 0)))",
+        "solution": "underfill(_arg_1, 1, mapply(delta, objects(_arg_1, true, false, 1)))",
         "population_costs": [
+            0,
             0,
             0,
             0
         ],
-        "programs_enumerated": 64600,
+        "programs_enumerated": 86836,
         "solved": true
     },
     {
-        "execution_time": 2163.283047914505,
+        "execution_time": 2017.452290058136,
         "problem_name": "problem_3ac3eb23",
         "heuristic": [
             [
@@ -4014,43 +4019,47 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 0), lowermost)",
+                "valmax(objects(_arg_out, false, true, 0), color)",
                 0.95
             ],
             [
-                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 1))",
+                "mfilter(objects(_arg_out, true, true, 0), square)",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, true, true, 0))",
+                "apply_obj_to_int(uppermost, objects(_arg_out, true, true, 2))",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, false, false, 2), numcolors)",
+                "mostcolor(mfilter(objects(_arg_out, false, true, 0), portrait))",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, true), rightmost))",
+                "apply_obj_to_int(rightmost, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "index(_arg_out, two_by_two)",
+                "mfilter(objects(_arg_out, false, true, 1), portrait)",
                 0.95
             ],
             [
-                "apply_obj_to_int(hperiod, objects(_arg_out, false, true, 7))",
+                "colorcount(_arg_out, 4)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 1), vperiod)",
+                "center(argmax_by(objects(_arg_out, true, true, 4), color))",
                 0.95
             ],
             [
-                "apply_obj_to_int(size_of, objects(_arg_out, false, true, 2))",
+                "mfilter(objects(_arg_out, true, true, 0), vline)",
                 0.95
             ],
             [
-                "apply_obj_to_int((g->begin\n            colorcount(g, 3)\n        end), objects(_arg_out, true, true, 6))",
+                "mfilter(objects(_arg_out, false, true, 3), portrait)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 7))",
                 0.95
             ]
         ],
@@ -4060,19 +4069,20 @@
             0,
             0,
             0,
-            19,
-            60,
+            0,
+            0,
+            0,
+            0,
+            100,
             80,
-            57,
-            80,
-            120,
-            120
+            140,
+            160
         ],
-        "programs_enumerated": 1664764,
+        "programs_enumerated": 1495288,
         "solved": false
     },
     {
-        "execution_time": 1848.694564819336,
+        "execution_time": 2248.44646191597,
         "problem_name": "problem_3af2c5a8",
         "heuristic": [
             [
@@ -4080,15 +4090,11 @@
                 0.95
             ],
             [
+                "extract(objects(_arg_out, false, false, 8), portrait)",
+                0.95
+            ],
+            [
                 "extract(objects(_arg_out, true, false, 3), portrait)",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, true, true, 7), portrait)",
-                0.95
-            ],
-            [
-                "mapply(toindices, objects(_arg_out, true, true, 1))",
                 0.95
             ],
             [
@@ -4096,11 +4102,15 @@
                 0.95
             ],
             [
-                "extract(objects(_arg_out, false, false, 3), square)",
+                "mfilter(objects(_arg_out, true, false, 3), portrait)",
                 0.95
             ],
             [
-                "extract(objects(_arg_out, true, true, 2), hline)",
+                "mfilter(objects(_arg_out, false, false, true), portrait)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, true, 8), square)",
                 0.95
             ],
             [
@@ -4108,19 +4118,19 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, false, 2))",
+                "extract(objects(_arg_out, true, false, true), square)",
                 0.95
             ],
             [
-                "extract(objects(_arg_out, true, false, 8), square)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, true, false, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(color, objects(_arg_out, false, false, 3))",
+                "colorcount(_arg_out, 3)",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 6))",
+                "centerofmass(mapply(delta, objects(_arg_out, true, false, 3)))",
                 0.95
             ]
         ],
@@ -4129,21 +4139,21 @@
             0,
             0,
             0,
-            20,
             0,
             0,
             0,
+            40,
+            40,
             0,
             0,
-            20,
-            20,
-            20
+            60,
+            40
         ],
-        "programs_enumerated": 874023,
+        "programs_enumerated": 1167047,
         "solved": false
     },
     {
-        "execution_time": 2203.8790822029114,
+        "execution_time": 1180.0990040302277,
         "problem_name": "problem_3bd67248",
         "heuristic": [
             [
@@ -4151,11 +4161,23 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 4), color)",
+                "argmax_by(objects(_arg_out, true, true, 0), size_of)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, false, 6), height)",
+                "valmax(objects(_arg_out, true, true, 6), color)",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, true, false, 3), height)",
+                0.95
+            ],
+            [
+                "frontiers(_arg_out)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, false, true), hperiod)",
                 0.95
             ],
             [
@@ -4163,31 +4185,19 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 4), hline)",
+                "argmin_by(objects(_arg_out, true, false, 8), width)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 6), hperiod)",
+                "mapply(toindices, objects(_arg_out, true, true, 3))",
                 0.95
             ],
             [
-                "maximum_of(_arg_out)",
-                0.95
-            ],
-            [
-                "extract(objects(_arg_out, true, true, 8), portrait)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(color, objects(_arg_out, false, true, 5))",
-                0.95
-            ],
-            [
-                "delta(extract(objects(_arg_out, true, false, 1), square))",
+                "argmin_by(objects(_arg_out, true, false, 0), lowermost)",
                 0.95
             ]
         ],
-        "solution": null,
+        "solution": "underfill(paint(replace_color(_arg_1, 0, 4), argmax_by(apply_obj_to_obj(dmirror, objects(_arg_1, true, false, 5)), lowermost)), 2, mapply((t->begin\n                shoot(t, up_right)\n            end), mapply(corners, objects(_arg_1, false, false, 1))))",
         "population_costs": [
             0,
             0,
@@ -4195,16 +4205,16 @@
             0,
             0,
             0,
-            20,
-            20,
-            40,
-            40
+            0,
+            0,
+            0,
+            0
         ],
-        "programs_enumerated": 846227,
-        "solved": false
+        "programs_enumerated": 482211,
+        "solved": true
     },
     {
-        "execution_time": 2196.531548976898,
+        "execution_time": 2318.221514940262,
         "problem_name": "problem_3bdb4ada",
         "heuristic": [
             [
@@ -4220,27 +4230,31 @@
                 0.95
             ],
             [
-                "extract(objects(_arg_out, false, false, 4), square)",
+                "colorcount(_arg_out, 5)",
                 0.95
             ],
             [
-                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, true, 1), lowermost))",
+                "index(_arg_out, three_by_three)",
                 0.95
             ],
             [
-                "extract(objects(_arg_out, false, true, 7), square)",
+                "mfilter(objects(_arg_out, false, true, 5), square)",
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, true, true, 1), lowermost)",
+                "valmax(objects(_arg_out, false, true, 1), leftmost)",
                 0.95
             ],
             [
-                "colorcount(_arg_out, 1)",
+                "inbox(mfilter(objects(_arg_out, false, true, 5), square))",
                 0.95
             ],
             [
-                "apply_obj_to_int((g->begin\n            colorcount(g, 7)\n        end), objects(_arg_out, true, false, 0))",
+                "valmax(objects(_arg_out, false, true, 4), leftmost)",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, true, 1), square)",
                 0.95
             ]
         ],
@@ -4251,16 +4265,17 @@
             0,
             0,
             0,
+            0,
+            0,
             20,
-            0,
-            0,
-            0
+            40,
+            20
         ],
-        "programs_enumerated": 611006,
+        "programs_enumerated": 932969,
         "solved": false
     },
     {
-        "execution_time": 2706.23530292511,
+        "execution_time": 2170.98139500618,
         "problem_name": "problem_3befdf3e",
         "heuristic": [
             [
@@ -4272,27 +4287,39 @@
                 0.95
             ],
             [
-                "mapply(delta, objects(_arg_out, true, false, 0))",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, true, 4), vline)",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 4))",
-                0.95
-            ],
-            [
                 "apply_obj_to_int(numcolors, objects(_arg_out, false, false, 2))",
                 0.95
             ],
             [
-                "delta(argmin_by(objects(_arg_out, true, true, 6), lowermost))",
+                "mapply(box, objects(_arg_out, false, true, 2))",
                 0.95
             ],
             [
-                "mfilter(partition(_arg_out), square)",
+                "valmax(objects(_arg_out, false, true, 8), leftmost)",
+                0.95
+            ],
+            [
+                "mapply(corners, objects(_arg_out, false, true, 2))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(color, objects(_arg_out, false, false, 0))",
+                0.95
+            ],
+            [
+                "valmax(objects(_arg_out, true, false, 0), hperiod)",
+                0.95
+            ],
+            [
+                "valmin(objects(_arg_out, true, true, 6), size_of)",
+                0.95
+            ],
+            [
+                "mapply(delta, objects(_arg_out, true, false, 0))",
+                0.95
+            ],
+            [
+                "colorcount(argmin_by(objects(_arg_out, true, false, 1), rightmost), 2)",
                 0.95
             ]
         ],
@@ -4304,14 +4331,17 @@
             0,
             0,
             0,
+            0,
+            0,
             20,
+            0,
             20
         ],
-        "programs_enumerated": 364997,
+        "programs_enumerated": 538608,
         "solved": false
     },
     {
-        "execution_time": 12.165106058120728,
+        "execution_time": 9.863395929336548,
         "problem_name": "problem_3c9b0459",
         "heuristic": [
         ],
@@ -4322,7 +4352,7 @@
         "solved": true
     },
     {
-        "execution_time": 2237.6104159355164,
+        "execution_time": 1889.762365102768,
         "problem_name": "problem_3de23699",
         "heuristic": [
             [
@@ -4330,27 +4360,31 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 1))",
+                "valmin(objects(_arg_out, true, false, 1), width)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 1), hline)",
+                "delta(extract(objects(_arg_out, true, true, true), square))",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 2))",
+                "delta(mfilter(objects(_arg_out, true, true, 2), square))",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 0), hperiod)",
+                "valmin(objects(_arg_out, true, false, 4), size_of)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 2), uppermost)",
+                "valmin(objects(_arg_out, true, false, 6), hperiod)",
                 0.95
             ],
             [
-                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 1))",
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, true, 0), hperiod))",
+                0.95
+            ],
+            [
+                "occurrences(_arg_out, mfilter(objects(_arg_1, true, true, 4), square))",
                 0.95
             ]
         ],
@@ -4360,15 +4394,16 @@
             0,
             0,
             0,
-            40,
-            0,
-            40
+            20,
+            20,
+            20,
+            20
         ],
-        "programs_enumerated": 474296,
+        "programs_enumerated": 753309,
         "solved": false
     },
     {
-        "execution_time": 1904.6564140319824,
+        "execution_time": 2396.091789960861,
         "problem_name": "problem_3e980e27",
         "heuristic": [
             [
@@ -4380,23 +4415,31 @@
                 0.95
             ],
             [
+                "valmax(objects(_arg_out, false, true, 0), height)",
+                0.95
+            ],
+            [
+                "delta(argmax_by(objects(_arg_out, true, false, 9), leftmost))",
+                0.95
+            ],
+            [
                 "argmin_by(objects(_arg_out, true, true, 2), size_of)",
                 0.95
             ],
             [
-                "centerofmass(mapply(inbox, objects(_arg_out, true, false, 1)))",
+                "maximum_of(_arg_out)",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 2))",
+                "contained(argmax_by(objects(_arg_1, true, false, 2), leftmost), objects(_arg_out, true, false, 0))",
                 0.95
             ],
             [
-                "center(argmin_by(objects(_arg_out, true, true, 7), vperiod))",
+                "valmax(objects(_arg_out, true, true, 1), vperiod)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 2), rightmost)",
+                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 0), color))",
                 0.95
             ]
         ],
@@ -4407,14 +4450,16 @@
             0,
             0,
             0,
-            20,
-            0
+            0,
+            0,
+            0,
+            20
         ],
-        "programs_enumerated": 323400,
+        "programs_enumerated": 353524,
         "solved": false
     },
     {
-        "execution_time": 2529.710052013397,
+        "execution_time": 2223.4328711032867,
         "problem_name": "problem_3eda0437",
         "heuristic": [
             [
@@ -4422,7 +4467,11 @@
                 0.95
             ],
             [
-                "argmin_by(objects(_arg_out, false, false, 0), height)",
+                "mfilter(objects(_arg_out, true, false, 0), vline)",
+                0.95
+            ],
+            [
+                "delta(argmin_by(objects(_arg_out, false, true, 1), hperiod))",
                 0.95
             ],
             [
@@ -4430,27 +4479,23 @@
                 0.95
             ],
             [
+                "argmin_by(objects(_arg_out, false, true, 1), size_of)",
+                0.95
+            ],
+            [
+                "occurrences(_arg_out, argmin_by(objects(_arg_1, false, false, 0), rightmost))",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), hperiod)",
+                0.95
+            ],
+            [
                 "argmax_by(objects(_arg_out, true, true, 6), color)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, false, false, 1), uppermost)",
-                0.95
-            ],
-            [
-                "argmin_by(objects(_arg_out, false, true, 1), hperiod)",
-                0.95
-            ],
-            [
-                "mfilter(objects(_arg_out, false, false, 1), square)",
-                0.95
-            ],
-            [
-                "valmin(objects(_arg_out, true, true, 0), width)",
-                0.95
-            ],
-            [
-                "argmin_by(order_by(objects(_arg_out, false, false, 0), numcolors), lowermost)",
+                "argmax_by(order_by(objects(_arg_out, false, false, 1), hperiod), lowermost)",
                 0.95
             ]
         ],
@@ -4461,16 +4506,16 @@
             0,
             0,
             0,
-            20,
             0,
-            20,
-            20
+            0,
+            0,
+            34
         ],
-        "programs_enumerated": 729854,
+        "programs_enumerated": 631974,
         "solved": false
     },
     {
-        "execution_time": 2030.4479749202728,
+        "execution_time": 2155.7929940223694,
         "problem_name": "problem_3f7978a0",
         "heuristic": [
             [
@@ -4478,15 +4523,23 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, 0), vperiod)",
+                "argmax_by(objects(_arg_out, true, false, 0), color)",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, false, true), color)",
+                "argmax_by(objects(_arg_out, true, true, 0), hperiod)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 8), square)",
+                "valmax(objects(_arg_out, true, true, true), width)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 0), uppermost)",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, true), lowermost)",
                 0.95
             ],
             [
@@ -4494,11 +4547,19 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 8), uppermost)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 5))",
                 0.95
             ],
             [
-                "extract(objects(_arg_out, false, true, 0), vline)",
+                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 1))",
+                0.95
+            ],
+            [
+                "argmax_by(objects(_arg_out, true, true, 8), color)",
+                0.95
+            ],
+            [
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, true, true, 1), numcolors))",
                 0.95
             ]
         ],
@@ -4509,14 +4570,18 @@
             0,
             0,
             0,
-            0,
-            0
+            20,
+            20,
+            20,
+            20,
+            20,
+            20
         ],
-        "programs_enumerated": 280564,
+        "programs_enumerated": 1052132,
         "solved": false
     },
     {
-        "execution_time": 3319.7902779579163,
+        "execution_time": 2195.552993774414,
         "problem_name": "problem_40853293",
         "heuristic": [
             [
@@ -4524,27 +4589,35 @@
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, true, true, 0), uppermost)",
+                "valmax(objects(_arg_out, false, true, 0), color)",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 2))",
+                "mfilter(objects(_arg_out, false, true, 0), square)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmin_by(objects(_arg_out, true, true, 4), lowermost))",
+                "valmin(objects(_arg_out, true, true, 0), height)",
                 0.95
             ],
             [
-                "ulcorner(mapply(inbox, objects(_arg_out, true, true, 1)))",
+                "apply_obj_to_int(vperiod, fgpartition(_arg_out))",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 4), uppermost))",
+                "index(_arg_out, three_by_three)",
                 0.95
             ],
             [
-                "occurrences(_arg_1, argmax_by(objects(_arg_out, true, true, 7), color))",
+                "palette(argmax_by(objects(_arg_out, true, true, 8), leftmost))",
+                0.95
+            ],
+            [
+                "leftmost(argmin_by(objects(_arg_out, true, true, 7), hperiod))",
+                0.95
+            ],
+            [
+                "leastcommon(mapply(toindices, objects(_arg_out, false, false, 1)))",
                 0.95
             ]
         ],
@@ -4556,13 +4629,15 @@
             0,
             0,
             0,
-            0
+            0,
+            0,
+            60
         ],
-        "programs_enumerated": 402252,
+        "programs_enumerated": 461658,
         "solved": false
     },
     {
-        "execution_time": 1929.4603350162506,
+        "execution_time": 2286.0836610794067,
         "problem_name": "problem_4093f84a",
         "heuristic": [
             [
@@ -4578,7 +4653,15 @@
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, 1), lowermost)",
+                "llcorner(mfilter(objects(_arg_out, true, true, 1), portrait))",
+                0.95
+            ],
+            [
+                "mfilter(objects(_arg_out, false, true, 1), portrait)",
+                0.95
+            ],
+            [
+                "leastcommon(mapply(outbox, objects(_arg_out, false, true, 1)))",
                 0.95
             ],
             [
@@ -4586,19 +4669,15 @@
                 0.95
             ],
             [
+                "valmax(objects(_arg_out, true, true, 1), width)",
+                0.95
+            ],
+            [
                 "apply_obj_to_int(lowermost, objects(_arg_out, true, true, 0))",
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 1))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(leftmost, objects(_arg_out, true, true, 0))",
-                0.95
-            ],
-            [
-                "apply_obj_to_int(uppermost, objects(_arg_out, true, true, 0))",
+                "mfilter(objects(_arg_out, true, false, 0), square)",
                 0.95
             ]
         ],
@@ -4609,16 +4688,17 @@
             0,
             0,
             0,
+            40,
             0,
             0,
             0,
             0
         ],
-        "programs_enumerated": 362816,
+        "programs_enumerated": 443770,
         "solved": false
     },
     {
-        "execution_time": 2494.99284696579,
+        "execution_time": 2104.752666950226,
         "problem_name": "problem_41e4d17e",
         "heuristic": [
             [
@@ -4626,15 +4706,27 @@
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 6), square)",
+                "mfilter(objects(_arg_out, false, false, 6), square)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 8), square)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 8))",
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 8), size_of)",
+                "apply_obj_to_int(uppermost, objects(_arg_out, false, true, true))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 0))",
+                0.95
+            ],
+            [
+                "valmin(objects(_arg_out, true, true, 8), size_of)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
@@ -4642,11 +4734,11 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 0))",
+                "index(_arg_out, two_by_two)",
                 0.95
             ],
             [
-                "apply_obj_to_int(mostcolor, objects(_arg_out, false, true, 1))",
+                "inbox(argmax_by(objects(_arg_out, false, false, 8), color))",
                 0.95
             ],
             [
@@ -4654,15 +4746,7 @@
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, false, false, 8))",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, false, false, 6), leastcolor)",
-                0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 8), width)",
+                "apply_obj_to_int(width, objects(_arg_out, false, true, 1))",
                 0.95
             ]
         ],
@@ -4675,16 +4759,17 @@
             0,
             0,
             0,
+            60,
+            60,
             0,
             0,
-            40,
-            0
+            120
         ],
-        "programs_enumerated": 727760,
+        "programs_enumerated": 872918,
         "solved": false
     },
     {
-        "execution_time": 69.42609190940857,
+        "execution_time": 14.78590202331543,
         "problem_name": "problem_4258a5f9",
         "heuristic": [
             [
@@ -4694,28 +4779,18 @@
             [
                 "argmax_by(objects(_arg_out, false, true, 1), uppermost)",
                 0.95
-            ],
-            [
-                "valmax(objects(_arg_out, true, true, 1), rightmost)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, false, 0), leftmost)",
-                0.95
             ]
         ],
-        "solution": "underfill(_arg_1, 1, combine(neighbors(tojvec(multiply(9, -2))), mapply(outbox, objects(_arg_1, false, false, 0))))",
+        "solution": "underfill(_arg_1, valmin(objects(_arg_1, false, false, 0), hperiod), mapply(outbox, objects(_arg_1, false, false, 0)))",
         "population_costs": [
-            0,
-            0,
             0,
             0
         ],
-        "programs_enumerated": 87943,
+        "programs_enumerated": 22549,
         "solved": true
     },
     {
-        "execution_time": 2085.273404121399,
+        "execution_time": 2130.1297821998596,
         "problem_name": "problem_4290ef0e",
         "heuristic": [
             [
@@ -4723,15 +4798,15 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(uppermost, objects(_arg_out, false, true, 7))",
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 6))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 1), portrait)",
+                "mapply(delta, objects(_arg_out, false, true, 0))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 3), portrait)",
+                "mfilter(objects(_arg_out, false, true, 1), square)",
                 0.95
             ],
             [
@@ -4739,23 +4814,19 @@
                 0.95
             ],
             [
-                "square(argmax_by(objects(_arg_out, true, false, 3), uppermost))",
+                "valmax(objects(_arg_out, false, false, 3), leastcolor)",
                 0.95
             ],
             [
-                "valmin(objects(_arg_out, true, true, true), height)",
+                "valmax(objects(_arg_out, false, true, 2), uppermost)",
                 0.95
             ],
             [
-                "valmax(objects(_arg_out, false, true, 1), leftmost)",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "leftmost(argmax_by(objects(_arg_out, true, true, 4), lowermost))",
-                0.95
-            ],
-            [
-                "leftmost(argmax_by(objects(_arg_out, true, true, 3), lowermost))",
+                "valmin(objects(_arg_out, true, true, 0), size_of)",
                 0.95
             ]
         ],
@@ -4764,19 +4835,18 @@
             0,
             0,
             0,
-            0,
-            0,
             20,
             0,
             0,
-            20,
-            40
+            0,
+            0,
+            20
         ],
-        "programs_enumerated": 703202,
+        "programs_enumerated": 680744,
         "solved": false
     },
     {
-        "execution_time": 195.25180411338806,
+        "execution_time": 349.70623898506165,
         "problem_name": "problem_42a50994",
         "heuristic": [
             [
@@ -4784,25 +4854,20 @@
                 0.95
             ],
             [
-                "argmax_by(objects(_arg_out, true, true, 0), color)",
-                0.95
-            ],
-            [
-                "argmax_by(objects(_arg_out, true, true, 3), color)",
+                "occurrences(_arg_out, argmax_by(objects(_arg_1, false, true, 1), lowermost))",
                 0.95
             ]
         ],
-        "solution": "cover(_arg_1, mfilter(objects(_arg_1, true, true, 9), square))",
+        "solution": "asgrid(mfilter(objects(_arg_1, true, true, 1), negate(square)), 0)",
         "population_costs": [
-            0,
             0,
             0
         ],
-        "programs_enumerated": 57956,
+        "programs_enumerated": 9707,
         "solved": true
     },
     {
-        "execution_time": 570.1877210140228,
+        "execution_time": 2496.688355922699,
         "problem_name": "problem_4347f46a",
         "heuristic": [
             [
@@ -4818,32 +4883,42 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(leftmost, objects(_arg_out, false, false, 8))",
+                "mapply(delta, objects(_arg_out, true, true, 5))",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, false, 8), square)",
+                "mfilter(objects(_arg_out, true, true, 1), square)",
                 0.95
             ],
             [
-                "mapply(corners, objects(_arg_out, false, false, 2))",
+                "palette(argmax_by(objects(_arg_out, false, true, 3), lowermost))",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(lowermost, objects(_arg_out, false, false, 2))",
+                0.95
+            ],
+            [
+                "leastcommon(mapply(toindices, objects(_arg_out, false, true, 2)))",
                 0.95
             ]
         ],
-        "solution": "cover(_arg_1, mapply(delta, objects(replace_color(cover(fill_loc(_arg_1, valmax(objects(_arg_1, true, false, 2), color), pair(three_by_three, three_by_three)), mapply(inbox, objects(_arg_1, false, false, 0))), 7, crement(4)), true, false, 0)))",
+        "solution": null,
         "population_costs": [
             0,
             0,
             0,
             0,
             0,
+            20,
+            20,
             0
         ],
-        "programs_enumerated": 250653,
-        "solved": true
+        "programs_enumerated": 586159,
+        "solved": false
     },
     {
-        "execution_time": 2241.2531971931458,
+        "execution_time": 1998.8427550792694,
         "problem_name": "problem_444801d8",
         "heuristic": [
             [
@@ -4859,31 +4934,31 @@
                 0.95
             ],
             [
-                "apply_obj_to_int(vperiod, objects(_arg_out, false, true, 2))",
+                "mfilter(objects(_arg_out, false, true, true), hline)",
                 0.95
             ],
             [
-                "apply_obj_to_int(numcolors, objects(_arg_out, true, true, 7))",
+                "mfilter(objects(_arg_out, true, true, 3), hline)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, false, true, 0), hline)",
+                "mfilter(objects(_arg_out, false, true, 1), portrait)",
                 0.95
             ],
             [
-                "delta(mfilter(objects(_arg_out, true, true, 8), hline))",
+                "valmin(objects(_arg_out, true, false, 8), lowermost)",
                 0.95
             ],
             [
-                "mfilter(objects(_arg_out, true, true, 8), hline)",
+                "mfilter(objects(_arg_out, false, false, 8), portrait)",
                 0.95
             ],
             [
-                "lastof(objects(_arg_out, true, true, 0))",
+                "apply_obj_to_int(numcolors, objects(_arg_out, false, true, 1))",
                 0.95
             ],
             [
-                "palette(argmax_by(objects(_arg_out, true, true, true), size_of))",
+                "portrait(argmax_by(objects(_arg_out, true, true, 9), color))",
                 0.95
             ]
         ],
@@ -4897,18 +4972,18 @@
             0,
             0,
             0,
-            0,
-            100
+            20,
+            60
         ],
-        "programs_enumerated": 569578,
+        "programs_enumerated": 614910,
         "solved": false
     },
     {
         "problem_name": "problem_445eab21",
         "solved": true,
         "solution": "canvas(maximum_of(lefthalf(_arg_1)), two_by_two)",
-        "programs_enumerated": 9372,
-        "execution_time": 26.667882919311523,
+        "programs_enumerated": 25844,
+        "execution_time": 86.95866298675537,
         "heuristic": [
             [
                 "mfilter(objects(_arg_out, true, true, 0), portrait)",
@@ -4919,11 +4994,16 @@
                 0.95
             ],
             [
-                "objects(_arg_out, true, true, true)",
+                "mfilter(objects(_arg_out, true, true, 1), hline)",
+                0.95
+            ],
+            [
+                "apply_obj_to_int(leastcolor, objects(_arg_out, false, true, 5))",
                 0.95
             ]
         ],
         "population_costs": [
+            0,
             0,
             0,
             0

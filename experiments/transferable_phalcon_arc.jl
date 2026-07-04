@@ -49,6 +49,7 @@ for problem in problems
         max_generations_without_improvement = 10,
         max_extension_size = 1,
         max_initial_population_size = 1,
+        max_size = 50,
         rule_costs = rule_costs,
         prune_node_by_output = (io, y) -> length(y) > max_length,
     )
