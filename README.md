@@ -36,7 +36,7 @@ For custom verbose output, pass `display_outputs` to `phalcon` (for example,
 an experiment-specific adapter, outside the search module.
 
 Run the regression tests with `julia --project=. test/runtests.jl`. The tests use
-the sibling `HerbInterpret.jl` checkout.
+the dependencies pinned in `Manifest.toml`; no sibling checkout is required. CI instantiates that environment and runs the same entry point.
 
 Experiments share `experiments/src/Experiments.jl`, with benchmark adapters for strings,
 bitvectors, and ARC. Instantiate the environment once before running jobs:

@@ -1,13 +1,3 @@
-# Run with julia --project=. test/typed_output_storage.jl.
-# Use the sibling checkout without changing the thesis Manifest.toml.
-pushfirst!(LOAD_PATH, normpath(joinpath(@__DIR__, "..", "..", "HerbInterpret.jl")))
-using Test, SparseArrays, DataStructures, StatsBase
-using HerbCore, HerbGrammar, HerbConstraints, HerbSearch, HerbSpecification, HerbInterpret
-include("../src/PhalconModule.jl")
-using .Phalcon
-using .Phalcon: CachedRuleNode, RuleNodeWithRuleCounts, Individual,
-    get_programs, assemble, _hash_outputs, interp, outputs_to_cost
-
 module TypedStorageDSL
     maybe(x::Int) = x < 0 ? nothing : x
 end

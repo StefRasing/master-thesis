@@ -499,7 +499,8 @@ function add_to_population!(iter::GeneticIterator, new_individual::Individual)::
             # Ccheck if the outputs are equal; keep the shortest program in that case
             if iter.population[i].program.outputs == new_individual.program.outputs
                 if new_individual < iter.population[i]
-                    iter.population[i] = new_individual
+                    deleteat!(iter.population, i)
+                    insert!(iter.population, searchsortedlast(iter.population, new_individual) + 1, new_individual)
                 end
 
                 return nothing

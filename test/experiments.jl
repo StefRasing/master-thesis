@@ -176,3 +176,27 @@ end
         @test length(readdir(joinpath(path, "provenance"))) == 1
     end
 end
+
+@testset "Search result JSON round trip" begin
+    iter = contract_iterator()
+    options = (property_types=[:Start], max_property_cost=1, rule_cost_func=_ -> 1)
+    # Use actual search results, including an absent solution and empty traces.
+    _, result = phalcon(; iterator=iter, options..., timeout=0)
+    parsed = Experiments.JSON3.read(Experiments.JSON3.write(result))
+    @test Set(string.(keys(parsed))) == Set(keys(result))
+    @test parsed["solution"] === nothing
+    @test parsed["solved_train_examples"] === false
+    @test parsed["problem_name"] == "contracts"
+    @test parsed["programs_enumerated"] == result["programs_enumerated"]
+    @test parsed["execution_time"] >= 0
+    for key in ("heuristic", "population_costs", "program_synthesis_durations", "property_invention_durations")
+        @test isempty(parsed[key])
+    end
+    mktempdir() do dir
+        identity = Dict("problem"=>"contracts", "seed"=>"42", "repetition"=>1)
+        record = Dict("schema_version"=>2, "identity"=>identity, "result"=>result)
+        Experiments.append_result(dir, record)
+        @test Experiments.completed_run(dir, identity)
+        @test only(Experiments.load_results(dir))["result"] == parsed
+    end
+end
