@@ -1,7 +1,7 @@
 
 struct Property
     program::AbstractRuleNode
-    target_values::Vector{Any}
+    target_values::Vector
     reduction_rate::Number
 end
 
@@ -9,7 +9,7 @@ function find_property!(;
     benchmark,
     problem,
     grammar::AbstractGrammar,
-    local_optimum_outputs::Vector{Vector{Any}}, 
+    local_optimum_outputs::AbstractVector{<:AbstractVector},
     property_types::Vector{Symbol},
     max_cost::Int64,
     rule_costs::Vector{Int},

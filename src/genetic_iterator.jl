@@ -35,7 +35,7 @@ struct RuleNodeWithRuleCounts <: AbstractRuleNode
     rule::Int
     children::Vector{RuleNodeWithRuleCounts}
     rule_counts::SparseVector{Int,Int}
-    outputs::Vector{Any}
+    outputs::Vector # Preserve each program's concrete output element type.
 end
 
 # Implement the AbstractRuleNode interface
@@ -331,12 +331,12 @@ function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
 end
 
 """
-    local_optimum_outputs(iter::GeneticIterator)::Vector{Vector{Any}}
+    local_optimum_outputs(iter::GeneticIterator)::Vector
 
 Function needed by the Phalcon interface. Returns the outputs of the current local optimum, which is the
 population in the case of genetic search.
 """
-local_optimum_outputs(iter::GeneticIterator)::Vector{Vector{Any}} = [individual.program.outputs for individual in iter.population]
+local_optimum_outputs(iter::GeneticIterator)::Vector = [individual.program.outputs for individual in iter.population]
 
 """
     function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
@@ -430,9 +430,16 @@ function initialize!(iter::GeneticIterator)::Nothing
     return nothing
 end
 
-Base.length(x) = 1
+"""
+    value_length(x)
 
-function interp(iter::GeneticIterator, rule_id::Int, children_outputs::Vector{Vector{Any}})
+Size proxy for output pruning: collection length, or one for scalar values and
+`nothing`. This counts elements (characters for strings), not memory in bytes.
+"""
+value_length(x) = length(x)
+value_length(::Nothing) = 1
+
+function interp(iter::GeneticIterator, rule_id::Int, children_outputs::AbstractVector)
     # Interp rule on outputs
     res = iter.interpreter(rule_id, children_outputs, iter.problem.spec)
 

@@ -29,7 +29,7 @@ end
         - find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
             drain the iterator until a solution is found, or return nothing
 
-        - local_optimum_outputs(iter::GeneticIterator)::Vector{Vector{Any}}
+        - local_optimum_outputs(iter::GeneticIterator)::Vector
             returns the outputs of programs in the last local optimum
 
 =#

@@ -12,7 +12,7 @@ end
 struct CachedRuleNode <: AbstractRuleNode
     rule::Int
     children::Vector{CachedRuleNode}
-    outputs::Vector{Any}
+    outputs::Vector # Preserve each program's concrete output element type.
 end
 
 
