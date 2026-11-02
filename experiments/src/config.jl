@@ -4,6 +4,7 @@ Base.@kwdef struct ExperimentConfig
     run::String = "1"
     shard::Union{Nothing,String} = nothing
     repetitions::Int = 1
+    seed::Int = 1
     output::Union{Nothing,String} = nothing
     store::Bool = true
     task_names::Union{Nothing,Vector{String}} = nothing

@@ -2,6 +2,7 @@
 module Experiments
 using HerbCore, HerbSearch, HerbSpecification, HerbBenchmarks, HerbGrammar, HerbInterpret
 using RuntimeGeneratedFunctions, DataStructures, JSON3
+using Random, SHA, Dates
 include("../../src/PhalconModule.jl")
 using .Phalcon
 include("io.jl")

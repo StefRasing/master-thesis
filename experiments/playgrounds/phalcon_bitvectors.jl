@@ -1,7 +1,11 @@
 using Pkg
 Pkg.activate(joinpath(@__DIR__, "..", ".."))
-include("../src/Experiments.jl")
-using .Experiments
+if !isdefined(@__MODULE__, :Experiments)
+    include("../src/Experiments.jl")
+end
 
-run_experiment(ExperimentConfig(algorithm=:phalcon, benchmark=:bitvectors,
+playground_results = Experiments.run_experiment(Experiments.ExperimentConfig(algorithm=:phalcon, benchmark=:bitvectors,
     store=false, problem_indices=1:1))
+
+# Keep results available for inspection without the REPL dumping the return value.
+nothing

@@ -51,7 +51,7 @@ bash exe/submit.sh phalcon strings 6 --mem=48G
 
 Named experiment clients live in `experiments/presets/`; interactive examples
 live in `experiments/playgrounds/`. See `experiments/README.md` for the layout.
-Non-ARC heuristic runs perform five repetitions in a single output file;
+Non-ARC heuristic runs perform five repetitions in a single output directory;
 Phalcon runs and ARC shards perform one. ARC arrays map each run to four
 100-problem shards (a–d). Array tasks have separate result files. The launcher
 uses an already instantiated Julia depot, including any `JULIA_DEPOT_PATH` set
@@ -86,6 +86,6 @@ largest admissible reduction (all but one local optimum); pass
 The rate must be strictly between zero and one. Properties rejecting every local
 optimum remain inadmissible in both modes.
 
-Stored runs resume by counting existing results per problem, as before. Use a
-fresh output path when changing settings; configuration-aware persistence is
-outside this runner refactor.
+Stored runs use version 3 records in `.runs/` directories. Resume matches exact
+run identities, including configuration, seed, repetition, code and environment.
+See `experiments/README.md` for the schema and legacy export.

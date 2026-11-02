@@ -6,6 +6,7 @@ Benchmark DSL modules and problem specifications are supplied by callers.
 """
 module Phalcon
 
+using Random
 using SparseArrays
 using DataStructures: DefaultDict, OrderedDict
 using StatsBase: sample, Weights

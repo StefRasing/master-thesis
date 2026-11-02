@@ -119,7 +119,7 @@ function random_subtree(iter::ProgramIterator, program::RuleNodeWithRuleCounts, 
     child_weights = [sum(c.rule_counts[allowed_rules]) for c in cs]
 
     # Sample an index according to the weights. Index 0 indicates that the current program is selected
-    index = sample(0:length(cs), Weights([program_weight; child_weights]))
+    index = sample(iter.rng, 0:length(cs), Weights([program_weight; child_weights]))
 
     # If the index was 0, return the current program and an empty path
     index == 0 && return program, Int64[]
@@ -240,6 +240,8 @@ end
     # Problem specification
     benchmark = nothing,
     problem = nothing,
+
+    rng::AbstractRNG = Random.default_rng(),
 
     # Hyperparemeters
     cost::Function = nothing,
@@ -574,7 +576,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
         push!(operations, :insert)
     end
 
-    operation = rand(operations)
+    operation = rand(iter.rng, operations)
 
     if operation == :replace
         # Select a random subprogram to replace. Every node is allowed in this case
@@ -582,10 +584,10 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
 
         # Obtain type and select a random rule of that type and fill with random extensions
         replacement_type = types[old_node.rule]
-        replacement_rule = rand([rule_id for (rule_id, type) in enumerate(grammar.types) if type == replacement_type])
-        children = [rand(iter.extensions[child_type]) for child_type in grammar.childtypes[replacement_rule]]
+        replacement_rule = rand(iter.rng, [rule_id for (rule_id, type) in enumerate(grammar.types) if type == replacement_type])
+        children = [rand(iter.rng, iter.extensions[child_type]) for child_type in grammar.childtypes[replacement_rule]]
         replacement = RuleNodeWithRuleCounts(iter, replacement_rule, children)
-        replacement = rand(iter.extensions[replacement_type])
+        replacement = rand(iter.rng, iter.extensions[replacement_type])
 
         # Replace and return
         return replace_at_path(iter, individual, replacement_path, replacement), :replace
@@ -596,13 +598,13 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
 
         # Select a random recurisve rule of the correct type
         node_type = types[node.rule]
-        rule_id = rand([rule_id for (rule_id, type) in enumerate(types) if iter.recursive_rules[rule_id] && type == node_type])
+        rule_id = rand(iter.rng, [rule_id for (rule_id, type) in enumerate(types) if iter.recursive_rules[rule_id] && type == node_type])
 
         # Select a random index where the old node will be placed
-        node_index = rand([index for (index, type) in enumerate(grammar.childtypes[rule_id]) if type == node_type])
+        node_index = rand(iter.rng, [index for (index, type) in enumerate(grammar.childtypes[rule_id]) if type == node_type])
 
         # Fill the other places of the rule with random expressions from the extensions
-        children = [index == node_index ? node : rand(iter.extensions[type]) for (index, type) in enumerate(grammar.childtypes[rule_id])]
+        children = [index == node_index ? node : rand(iter.rng, iter.extensions[type]) for (index, type) in enumerate(grammar.childtypes[rule_id])]
 
         # Build the replacement
         replacement = RuleNodeWithRuleCounts(iter, rule_id, children)
@@ -618,7 +620,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
         type = types[node.rule]
 
         # Replace and return
-        replacement = rand([c for c in node.children if types[c.rule] == type])
+        replacement = rand(iter.rng, [c for c in node.children if types[c.rule] == type])
         return replace_at_path(iter, individual, replacement_path, replacement), :delete
     end
 end
@@ -644,8 +646,8 @@ function combine!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
     for _ in 1:4:iter.candidate_pool_size
         _check_deadline(deadline)
         # Select parents using tournament selection
-        parent_1 = rand(selection_pool)
-        parent_2 = rand(selection_pool)
+        parent_1 = rand(iter.rng, selection_pool)
+        parent_2 = rand(iter.rng, selection_pool)
         program_1 = parent_1.program
         program_2 = parent_2.program
 
