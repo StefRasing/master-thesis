@@ -7,9 +7,8 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/heuristics.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
 
 repetitions = 5
 path = "data/heuristic_strings_20.json"
@@ -49,7 +48,6 @@ for (problem, grammar) in zip(problems, grammars)
     end
 
     for _ in 1:repetitions_to_perform
-        max_length = maximum([max(maximum(length, values(io.in)), length(io.out)) for io in train_problem.spec])
         rule_costs = Int[rule isa Expr for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
@@ -63,7 +61,7 @@ for (problem, grammar) in zip(problems, grammars)
             max_initial_population_size = 1,
             max_size = 50,
             rule_costs = rule_costs,
-            prune_node_by_output = (io, y) -> length(y) > 3*max(maximum(length, values(io.in)), length(io.out))
+            max_output_bytes = 1024^2,
         )
 
         start = time()
@@ -77,7 +75,7 @@ for (problem, grammar) in zip(problems, grammars)
         result = OrderedDict(
             "problem_name" => iterator.problem.name,
             "solved_train_examples" => !isnothing(solution),
-            "solved_test_examples" => "",
+            "solved_test_examples" => solved_test_examples,
             "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
             "programs_enumerated" => iterator.programs_evaluated,
             "execution_time" => end_time - start,

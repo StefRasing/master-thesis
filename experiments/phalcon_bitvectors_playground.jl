@@ -7,10 +7,8 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/property_synthesizer.jl")
-include("../src/phalcon.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
 
 repetitions = 1
 # run = ARGS[1]
@@ -68,7 +66,6 @@ for (problem, grammar) in zip(problems, grammars)
 
         result["train_test_split"] = (train_spec, test_spec)
         result["solved_test_examples"] = solved_test_examples
-
         if store
             append_result(path, result)
         else
@@ -77,8 +74,3 @@ for (problem, grammar) in zip(problems, grammars)
         end
     end
 end
-
-
-
-# Execution times: 68s, 13s, 28s
-

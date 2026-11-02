@@ -7,9 +7,8 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/heuristics.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
 
 benchmark = HerbBenchmarks.PBE_SLIA_Track_2019
 RuntimeGeneratedFunctions.init(benchmark)
@@ -47,7 +46,6 @@ for (problem, grammar) in zip(problems, grammars)
     end
 
     for _ in 1:repetitions_to_perform
-        max_length = maximum([max(maximum(length, values(io.in)), length(io.out)) for io in train_problem.spec])
         rule_costs = Int[rule isa Expr for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
@@ -61,7 +59,7 @@ for (problem, grammar) in zip(problems, grammars)
             max_initial_population_size = 1,
             max_size = 50,
             rule_costs = rule_costs,
-            prune_node_by_output = (io, y) -> length(y) > 3*max(maximum(length, values(io.in)), length(io.out))
+            max_output_bytes = 1024^2,
         )
 
         start = time()

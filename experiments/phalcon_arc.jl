@@ -7,10 +7,8 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/property_synthesizer.jl")
-include("../src/phalcon.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
 include("../src/ARC_property_grammar.jl")
 
 repetitions = 1
@@ -44,7 +42,6 @@ for problem in problems
     test_problem = Problem(problem.name, problem.spec[test_spec])
 
     for _ in 1:repetitions_to_perform
-        max_length = 2 * maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
         rule_cost_func = r -> r isa Expr && !(r.args[1] in [:objects, :asgrid])
         rule_costs = Int[rule_cost_func(r) for r in grammar.rules]
 
@@ -59,17 +56,18 @@ for problem in problems
             max_initial_population_size = 1,
             max_size = 50,
             rule_costs = rule_costs,
-            prune_node_by_output = (io, y) -> length(y) > max_length,
+            max_output_bytes = 1024^2,
         )
 
         solution, result = phalcon(
+            display_outputs = benchmark.visualize,
             iterator = iterator,
             max_number_of_properties = 20,
             property_types = [:Grid, :Objects, :Object, :Indices, :IntContainer, :IntegerTuple, :Integer, :Boolean],
             max_property_cost = 3,
             grammar_to_property_grammar = _ -> _grammar_to_property_grammar(property_grammar_hodel),
             rule_cost_func = rule_cost_func,
-            prune_node_by_output = y -> length(y) > max_length,
+            max_output_bytes = 21 * 1024^2,
             verbose = false,
             timeout = 60*30,
         )

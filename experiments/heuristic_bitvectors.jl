@@ -7,9 +7,8 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/heuristics.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
 
 
 repetitions = 5
@@ -60,7 +59,7 @@ for (problem, grammar) in zip(problems, grammars)
         result = OrderedDict(
             "problem_name" => iterator.problem.name,
             "solved_train_examples" => !isnothing(solution),
-            "solved_test_examples" => "",
+            "solved_test_examples" => solved_test_examples,
             "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
             "programs_enumerated" => iterator.programs_evaluated,
             "execution_time" => end_time - start,

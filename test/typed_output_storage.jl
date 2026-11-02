@@ -3,9 +3,10 @@
 pushfirst!(LOAD_PATH, normpath(joinpath(@__DIR__, "..", "..", "HerbInterpret.jl")))
 using Test, SparseArrays, DataStructures, StatsBase
 using HerbCore, HerbGrammar, HerbConstraints, HerbSearch, HerbSpecification, HerbInterpret
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/property_synthesizer.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
+using .Phalcon: CachedRuleNode, RuleNodeWithRuleCounts, Individual,
+    get_programs, assemble, _hash_outputs, interp, outputs_to_cost
 
 module TypedStorageDSL
     maybe(x::Int) = x < 0 ? nothing : x
@@ -87,4 +88,52 @@ end
     @test only(get_programs(bus2, :N, 1)).outputs isa Vector{Int}
     @test only(get_programs(bus2, :S, 2)).outputs isa Vector{String}
     @test only(get_programs(bus2, :B, 2)).outputs isa Vector{Bool}
+end
+
+@testset "Complete node output byte limit" begin
+    g = @csgrammar begin
+        Start = 1
+    end
+    examples = [IOExample(Dict{Symbol,Any}(), 1) for _ in 1:3]
+    shared = collect(1:32)
+    outputs = [shared, shared, shared]
+    bytes = Base.summarysize(outputs)
+    @test all(Base.summarysize(y) < bytes for y in outputs)
+    @test bytes < sum(Base.summarysize, outputs) # shared contents counted once
+
+    iter = GeneticIterator(g, :Start; problem=(spec=examples,),
+        cost=_ -> 0, rule_costs=[1], max_output_bytes=bytes)
+    iter.interpreter = (r, c, spec) -> outputs
+    @test interp(iter, 1, Any[]) === outputs # equality is allowed
+    iter.max_output_bytes = bytes - 1
+    @test interp(iter, 1, Any[]) == fill(nothing, 3)
+    iter.max_output_bytes = typemax(Int)
+    @test interp(iter, 1, Any[]) === outputs
+
+    bus = LazyCostBasedBus(g, [:Start], 1, [1], (r,c) -> outputs,
+        _ -> error("Oversized outputs must be rejected before callbacks");
+        max_output_bytes=bytes - 1)
+    @test assemble(bus, 1, CachedRuleNode[]) === nothing
+    @test isempty(bus.seen_outputs_hashes)
+    accepted = LazyCostBasedBus(g, [:Start], 1, [1], (r,c) -> outputs,
+        _ -> false; max_output_bytes=bytes)
+    @test assemble(accepted, 1, CachedRuleNode[]).outputs === outputs
+end
+
+@testset "Phalcon uses the iterator's DSL module" begin
+    # There is deliberately no global `benchmark` in the calling scope.
+    g = @csgrammar begin
+        Start = _arg_1
+        Start = maybe(Start)
+    end
+    examples = [IOExample(Dict{Symbol,Any}(:_arg_1 => 2), 3)]
+    iter = GeneticIterator(g, :Start;
+        benchmark=TypedStorageDSL, problem=(name="module smoke test", spec=examples),
+        cost=_ -> 0, rule_costs=[1, 1])
+    solution, result = phalcon(iterator=iter, property_types=[:Start],
+        max_property_cost=1, rule_cost_func=_ -> 1, timeout=0)
+    @test solution === nothing
+    @test result["problem_name"] == "module smoke test"
+    @test result["solved_train_examples"] == false
+    @test parentmodule(GeneticIterator) === Phalcon
 end

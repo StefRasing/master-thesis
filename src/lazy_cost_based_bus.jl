@@ -33,17 +33,19 @@ struct LazyCostBasedBus
     rule_costs::Vector{Int}
     program_to_outputs
     prune_by_output
+    max_output_bytes::Int
     bank::DefaultDict{Symbol,Dict{Int,Vector{CachedRuleNode}}}
     seen_outputs_hashes::DefaultDict{Symbol,Set{UInt64}}
 end
 
-LazyCostBasedBus(grammar::AbstractGrammar, types::Vector{Symbol}, max_cost::Int, rule_costs::Vector{Int}, program_to_outputs, prune_by_output) = LazyCostBasedBus(
+LazyCostBasedBus(grammar::AbstractGrammar, types::Vector{Symbol}, max_cost::Int, rule_costs::Vector{Int}, program_to_outputs, prune_by_output; max_output_bytes::Int = 1024^2) = LazyCostBasedBus(
     grammar, 
     types, 
     max_cost,
     rule_costs, 
     program_to_outputs, 
     prune_by_output,
+    max_output_bytes,
     DefaultDict{Symbol,DefaultDict{Int,Vector{CachedRuleNode}}}(() -> Dict()), 
     DefaultDict{Symbol,Set{UInt64}}(() -> Set{UInt64}()),
 )
@@ -82,9 +84,10 @@ function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRule
     type = iter.grammar.types[rule]
     child_outputs = [c.outputs for c in children]
     outputs = iter.program_to_outputs(rule, child_outputs)
-    outputs_hash = _hash_outputs(outputs)
-
+    # Check the complete output vector before hashing or caching it.
+    iter.max_output_bytes != typemax(Int) && Base.summarysize(outputs) > iter.max_output_bytes && return nothing
     any(iter.prune_by_output, outputs) && return nothing
+    outputs_hash = _hash_outputs(outputs)
     outputs_hash in iter.seen_outputs_hashes[type] && return nothing
 
     push!(iter.seen_outputs_hashes[type], outputs_hash)

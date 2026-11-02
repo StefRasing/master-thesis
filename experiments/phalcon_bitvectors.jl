@@ -7,10 +7,8 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/lazy_cost_based_bus.jl")
-include("../src/genetic_iterator.jl")
-include("../src/property_synthesizer.jl")
-include("../src/phalcon.jl")
+include("../src/Phalcon.jl")
+using .Phalcon
 
 repetitions = 1
 run = ARGS[1]

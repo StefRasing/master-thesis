@@ -13,7 +13,8 @@ function find_property!(;
     property_types::Vector{Symbol},
     max_cost::Int64,
     rule_costs::Vector{Int},
-    prune_node_by_output::Function,
+    prune_node_by_output::Function = _ -> false,
+    max_output_bytes::Int = 21 * 1024^2,
 )
     target_outputs = [io.out for io in problem.spec]
 
@@ -32,7 +33,8 @@ function find_property!(;
         max_cost,
         rule_costs,
         interp_all,
-        prune_node_by_output,
+        prune_node_by_output;
+        max_output_bytes = max_output_bytes,
     )
 
     for property in properties

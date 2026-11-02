@@ -250,6 +250,8 @@ end
     max_initial_population_size::Int = 2,
     rule_costs::Vector{Int} = [],
     prune_node_by_output::Union{Nothing,Function} = nothing,
+    # Maximum retained bytes for one node's complete output vector (1 MiB).
+    max_output_bytes::Int = 1024^2,
 
     # Internal structures
     population::Vector{Individual} = Individual[],
@@ -430,18 +432,13 @@ function initialize!(iter::GeneticIterator)::Nothing
     return nothing
 end
 
-"""
-    value_length(x)
-
-Size proxy for output pruning: collection length, or one for scalar values and
-`nothing`. This counts elements (characters for strings), not memory in bytes.
-"""
-value_length(x) = length(x)
-value_length(::Nothing) = 1
-
 function interp(iter::GeneticIterator, rule_id::Int, children_outputs::AbstractVector)
     # Interp rule on outputs
     res = iter.interpreter(rule_id, children_outputs, iter.problem.spec)
+
+    if iter.max_output_bytes != typemax(Int) && Base.summarysize(res) > iter.max_output_bytes
+        return fill(nothing, length(iter.problem.spec))
+    end
 
     # If program should be pruned by its output, return nothings
     !isnothing(iter.prune_node_by_output) && any(iter.prune_node_by_output(io, y) for (io, y) in zip(iter.problem.spec, res)) && return fill(nothing, length(iter.problem.spec))
