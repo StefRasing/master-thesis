@@ -30,13 +30,18 @@ grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names
 for (problem, grammar) in zip(problems, grammars)
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
+    test_spec = [1]
+    train_spec = setdiff(eachindex(problem.spec), test_spec)
+    train_problem = Problem(problem.name, problem.spec[train_spec])
+    test_problem = Problem(problem.name, problem.spec[test_spec])
+
     for _ in 1:repetitions_to_perform
         rule_cost_func = r -> r isa Expr
         rule_costs = Int[rule_cost_func(rule) for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
-            problem = problem,
+            problem = train_problem,
             cost = _ -> 0,
             population_size = 20,
             candidate_pool_size = 2000,
@@ -47,7 +52,7 @@ for (problem, grammar) in zip(problems, grammars)
             rule_costs = rule_costs,
         )
 
-        result = phalcon(
+        solution, result = phalcon(
             iterator = iterator,
             max_number_of_properties = 20,
             property_types = [:Start],
@@ -56,6 +61,12 @@ for (problem, grammar) in zip(problems, grammars)
             verbose = false,
             timeout = 60*30,
         )
+
+        interpreter = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+        solved_test_examples = interpreter(solution, test_problem.spec) == [io.out for io in test_problem.spec]
+
+        result["train_test_split"] = (train_spec, test_spec)
+        result["solved_test_examples"] = solved_test_examples
 
         if store
             append_result(path, result)

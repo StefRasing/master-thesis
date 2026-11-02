@@ -26,6 +26,11 @@ grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names
 for (problem, grammar) in zip(problems, grammars)
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
+    test_spec = [1]
+    train_spec = setdiff(eachindex(problem.spec), test_spec)
+    train_problem = Problem(problem.name, problem.spec[train_spec])
+    test_problem = Problem(problem.name, problem.spec[test_spec])
+    
     # Skip non-string output problems
     if grammar.rules[1] != :ntString
         result = OrderedDict(
@@ -44,12 +49,12 @@ for (problem, grammar) in zip(problems, grammars)
     end
 
     for _ in 1:repetitions_to_perform
-        max_length = maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
+        max_length = maximum([max(maximum(length, values(io.in)), length(io.out)) for io in train_problem.spec])
         rule_costs = Int[rule isa Expr for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
-            problem = problem,
+            problem = train_problem,
             cost = outputs_and_targets -> sum(levenshtein(output, target) for (output, target) in outputs_and_targets),
             population_size = 20,
             candidate_pool_size = 2000,
@@ -64,12 +69,18 @@ for (problem, grammar) in zip(problems, grammars)
         start = time()
         initialize!(iterator)
         solution = find_solution(iterator)
+        end_time = time()
+
+        interpreter = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+        solved_test_examples = interpreter(solution, test_problem.spec) == [io.out for io in test_problem.spec]
+
         result = OrderedDict(
             "problem_name" => iterator.problem.name,
-            "solved" => !isnothing(solution),
+            "solved_train_examples" => !isnothing(solution),
+            "solved_test_examples" => "",
             "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
             "programs_enumerated" => iterator.programs_evaluated,
-            "execution_time" => time() - start,
+            "execution_time" => end_time - start,
         )
 
         append_result(path, result)

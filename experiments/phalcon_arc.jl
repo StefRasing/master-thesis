@@ -38,6 +38,11 @@ problems = problems[Dict(
 for problem in problems
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
+    test_spec = [1]
+    train_spec = setdiff(eachindex(problem.spec), test_spec)
+    train_problem = Problem(problem.name, problem.spec[train_spec])
+    test_problem = Problem(problem.name, problem.spec[test_spec])
+
     for _ in 1:repetitions_to_perform
         max_length = 2 * maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
         rule_cost_func = r -> r isa Expr && !(r.args[1] in [:objects, :asgrid])
@@ -45,7 +50,7 @@ for problem in problems
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
-            problem = problem,
+            problem = train_problem,
             cost = _ -> 0,
             population_size = 20,
             candidate_pool_size = 10000,
@@ -57,7 +62,7 @@ for problem in problems
             prune_node_by_output = (io, y) -> length(y) > max_length,
         )
 
-        result = phalcon(
+        solution, result = phalcon(
             iterator = iterator,
             max_number_of_properties = 20,
             property_types = [:Grid, :Objects, :Object, :Indices, :IntContainer, :IntegerTuple, :Integer, :Boolean],
@@ -68,6 +73,12 @@ for problem in problems
             verbose = false,
             timeout = 60*30,
         )
+
+        interpreter = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+        solved_test_examples = interpreter(solution, test_problem.spec) == [io.out for io in test_problem.spec]
+
+        result["train_test_split"] = (train_spec, test_spec)
+        result["solved_test_examples"] = solved_test_examples
 
         if store
             append_result(path, result)

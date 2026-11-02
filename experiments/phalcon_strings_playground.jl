@@ -32,14 +32,19 @@ grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names
 for (problem, grammar) in zip(problems, grammars)
     repetitions_to_perform = repetitions - performed_repetitions(path, problem.name)
 
+    test_spec = [1]
+    train_spec = setdiff(eachindex(problem.spec), test_spec)
+    train_problem = Problem(problem.name, problem.spec[train_spec])
+    test_problem = Problem(problem.name, problem.spec[test_spec])
+
     for _ in 1:repetitions_to_perform
-        max_length = 2 * maximum([max(maximum(length, values(io.in)), length(io.out)) for io in problem.spec])
+        max_length = 2 * maximum([max(maximum(length, values(io.in)), length(io.out)) for io in train_problem.spec])
         rule_cost_func = r -> r isa Expr
         rule_costs = Int[rule_cost_func(rule) for rule in grammar.rules]
 
         iterator = GeneticIterator(grammar, :Start,
             benchmark = benchmark,
-            problem = problem,
+            problem = train_problem,
             cost = _ -> 0,
             population_size = 20,
             candidate_pool_size = 2000,
@@ -51,18 +56,22 @@ for (problem, grammar) in zip(problems, grammars)
             prune_node_by_output = (io, y) -> length(y) > max_length,
         )
 
-        result = phalcon(
+        solution, result = phalcon(
             iterator = iterator,
             max_number_of_properties = 20,
-            # max_number_of_properties = 1,
             property_types = [:ntString, :ntInt, :ntBool],
-            # max_property_cost = 3,
             max_property_cost = 2,
             rule_cost_func = rule_cost_func,
             prune_node_by_output = y -> length(y) > max_length,
             verbose = false,
             timeout = 60*30,
         )
+
+        interpreter = HerbInterpret.make_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+        solved_test_examples = interpreter(solution, test_problem.spec) == [io.out for io in test_problem.spec]
+
+        result["train_test_split"] = (train_spec, test_spec)
+        result["solved_test_examples"] = solved_test_examples
 
         if store
             append_result(path, result)

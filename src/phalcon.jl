@@ -137,9 +137,9 @@ function phalcon(;
         update_cost_function(iterator, cost)
     end
 
-    return OrderedDict(
+    return solution, OrderedDict(
         "problem_name" => iterator.problem.name,
-        "solved" => !isnothing(solution),
+        "solved_train_examples" => !isnothing(solution),
         "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
         "programs_enumerated" => iterator.programs_evaluated,
         "execution_time" => time() - start,
