@@ -15,7 +15,9 @@ function find_property!(;
     rule_costs::Vector{Int},
     prune_node_by_output::Function = _ -> false,
     max_output_bytes::Int = 21 * 1024^2,
+    deadline::Real = Inf,
 )
+    _check_deadline(deadline)
     target_outputs = [io.out for io in problem.spec]
 
     interp = HerbInterpret.make_output_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
@@ -35,9 +37,11 @@ function find_property!(;
         interp_all,
         prune_node_by_output;
         max_output_bytes = max_output_bytes,
+        deadline = deadline,
     )
 
     for property in properties
+        _check_deadline(deadline)
         all_values = property.outputs
         target_values = all_values[begin:length(problem.spec)]
         other_valuess = Iterators.partition(all_values[length(problem.spec)+1:end], length(problem.spec))

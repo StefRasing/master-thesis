@@ -34,6 +34,15 @@ end
 
 =#
 
+"""
+    phalcon(; iterator, timeout=typemax(Int), ...)
+
+Run synthesis with a shared timeout in seconds, including initialization.
+Cancellation is cooperative: enumeration and genetic search check a monotonic
+deadline between units of work. Individual DSL/interpreter calls cannot be
+interrupted, so this is not a hard execution limit. Deadline expiry returns the
+usual result and statistics; other exceptions propagate.
+"""
 function phalcon(;
     iterator::ProgramIterator,
     max_number_of_properties::Int = typemax(Int),
@@ -43,97 +52,106 @@ function phalcon(;
     rule_cost_func::Function,
     prune_node_by_output::Function = _ -> false,
     max_output_bytes::Int = typemax(Int),
-    timeout::Int = typemax(Int),
+    timeout::Real = typemax(Int),
     verbose::Bool = false,
     display_outputs::Function = println,
 )
     start = time()
+    deadline = _search_time() + timeout
     population_costs = []
 
-    initialize!(iterator)
-
-    property_grammar = grammar_to_property_grammar(iterator.solver.grammar)
-    rule_costs = Int[rule_cost_func(r) for r in property_grammar.rules]
     selected_properties = []
-
-    property_interpreter = HerbInterpret.make_interpreter(property_grammar, target_module=iterator.benchmark, cache_module=iterator.benchmark)
-    property_interp = (program, io, y) -> property_interpreter(program, (new_in = copy(io.in); new_in[:_arg_out] = y; new_in))
-
     solution = nothing
     program_synthesis_durations = []
     property_invention_durations = []
+    property_grammar = nothing
 
-    while time() - start < timeout
-        # Run search and return if it found the solution
-        start_time = time()
-        solution = find_solution(iterator)
-        push!(program_synthesis_durations, time() - start_time)
-        !isnothing(solution) && break
+    try
+        initialize!(iterator; deadline=deadline)
 
-        # Obtain local optimum
-        outputs = local_optimum_outputs(iterator)
+        property_grammar = grammar_to_property_grammar(iterator.solver.grammar)
+        rule_costs = Int[rule_cost_func(r) for r in property_grammar.rules]
 
-        # Select new property if limit not exceeded
-        if length(selected_properties) >= max_number_of_properties
-            break
-        end
+        property_interpreter = HerbInterpret.make_interpreter(property_grammar, target_module=iterator.benchmark, cache_module=iterator.benchmark)
+        property_interp = (program, io, y) -> property_interpreter(program, (new_in = copy(io.in); new_in[:_arg_out] = y; new_in))
 
-        population_cost = sum(ind.cost for ind in iterator.population)
-        push!(population_costs, population_cost)
+        while _search_time() < deadline
+            # Run search and return if it found the solution
+            start_time = time()
+            solution = find_solution(iterator; deadline=deadline)
+            push!(program_synthesis_durations, time() - start_time)
+            !isnothing(solution) && break
 
-        if verbose
-            best = iterator.population[begin]
-            expr = rulenode2expr(best.program, iterator.solver.grammar)
-            cost = best.cost
-            out = best.program.outputs
+            # Obtain local optimum
+            _check_deadline(deadline)
+            outputs = local_optimum_outputs(iterator)
 
-            println()
-            @show population_cost
-            @show expr
-            @show cost
-
-            display_outputs(out)
-        end
-
-        # Find new property
-        start_time = time()
-        property = find_property!(
-            benchmark = iterator.benchmark,
-            problem = iterator.problem,
-            grammar = property_grammar,
-            local_optimum_outputs = outputs,
-            property_types = property_types,
-            max_cost = max_property_cost,
-            rule_costs = rule_costs,
-            prune_node_by_output = prune_node_by_output,
-            max_output_bytes = max_output_bytes,
-        )
-        push!(property_invention_durations, time() - start_time)
-
-        if isnothing(property)
-            if verbose
-                println("Failed to find property...")
+            # Select new property if limit not exceeded
+            if length(selected_properties) >= max_number_of_properties
+                break
             end
-        else
+
+            population_cost = sum(ind.cost for ind in iterator.population)
+            push!(population_costs, population_cost)
+
             if verbose
-                expr = rulenode2expr(property.program, property_grammar)
+                best = iterator.population[begin]
+                expr = rulenode2expr(best.program, iterator.solver.grammar)
+                cost = best.cost
+                out = best.program.outputs
 
                 println()
+                @show population_cost
                 @show expr
-                @show property.target_values
-                @show property.reduction_rate
+                @show cost
+
+                display_outputs(out)
             end
+
+            # Find new property
+            start_time = time()
+            property = find_property!(
+                benchmark = iterator.benchmark,
+                problem = iterator.problem,
+                grammar = property_grammar,
+                local_optimum_outputs = outputs,
+                property_types = property_types,
+                max_cost = max_property_cost,
+                rule_costs = rule_costs,
+                prune_node_by_output = prune_node_by_output,
+                max_output_bytes = max_output_bytes,
+                deadline = deadline,
+            )
+            push!(property_invention_durations, time() - start_time)
+
+            if isnothing(property)
+                if verbose
+                    println("Failed to find property...")
+                end
+            else
+                if verbose
+                    expr = rulenode2expr(property.program, property_grammar)
+
+                    println()
+                    @show expr
+                    @show property.target_values
+                    @show property.reduction_rate
+                end
+            end
+
+            push!(selected_properties, property)
+
+            # Define new cost
+            cost(outputs_and_targets) = sum(
+                sum(property.target_values .!= [property_interp(property.program, io, y) for (io, (y, _)) in zip(iterator.problem.spec, outputs_and_targets)])
+                for property in selected_properties if !isnothing(property)
+            , init=0)
+
+            update_cost_function(iterator, cost; deadline=deadline)
         end
 
-        push!(selected_properties, property)
-
-        # Define new cost
-        cost(outputs_and_targets) = sum(
-            sum(property.target_values .!= [property_interp(property.program, io, y) for (io, (y, _)) in zip(iterator.problem.spec, outputs_and_targets)])
-            for property in selected_properties if !isnothing(property)
-        , init=0)
-
-        update_cost_function(iterator, cost)
+    catch err
+        err isa SearchTimeout || rethrow()
     end
 
     return solution, OrderedDict(

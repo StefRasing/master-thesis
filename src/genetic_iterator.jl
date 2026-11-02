@@ -280,16 +280,17 @@ Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts, parent::Indiv
 
 
 """
-    function update_cost_function(iter::GeneticIterator, cost::Function)::Nothing
+    function update_cost_function(iter::GeneticIterator, cost::Function; deadline::Real = Inf)::Nothing
 
 Function needed by the Phalcon interface. Changes the cost function and reset population.
 """
-function update_cost_function(iter::GeneticIterator, cost::Function)::Nothing
+function update_cost_function(iter::GeneticIterator, cost::Function; deadline::Real = Inf)::Nothing
     # Update cost
     iter.cost = cost
 
     empty!(iter.population)
     for program in iter.extensions[get_starting_symbol(iter)]
+        _check_deadline(deadline)
         add_to_population!(iter, Individual(iter, program))
     end
 
@@ -297,14 +298,19 @@ function update_cost_function(iter::GeneticIterator, cost::Function)::Nothing
 end
 
 """
-    function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
+    function find_solution(iter::GeneticIterator; deadline::Real = Inf)::Union{RuleNode,Nothing}
 
 Function needed by the Phalcon interface. Attempts to find a solution. Terminates if the total cost of the
 population hasn't improvded for N generation (max_generations_without_improvement).
 
 Returns a solution as RuleNode, or nothing if search failed.
 """
-function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
+function find_solution(iter::GeneticIterator; deadline::Real = Inf)::Union{RuleNode,Nothing}
+    _check_deadline(deadline)
+    if !isempty(iter.population) && iter.population[begin].cost == -Inf
+        return RuleNode(iter.population[begin].program)
+    end
+
     # Count number of stable populations and store the last seen cost
     stable_populations = 0
     population_cost = sum(individual.cost for individual in iter.population)
@@ -312,7 +318,7 @@ function find_solution(iter::GeneticIterator)::Union{RuleNode,Nothing}
 
     # Loop until stability critereon has been met
     while stable_populations < iter.max_generations_without_improvement
-        combine!(iter)
+        combine!(iter; deadline=deadline)
         iterations += 1
 
         # Cost if -Inf means a solution has been found. In that case convert program to RuleNode and return.
@@ -362,7 +368,7 @@ function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
 end
 
 """
-    function initialize!(iter::GeneticIterator)::Nothing
+    function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
 
 Initializes the GeneticIterator. This function performs the following:
     - Precompute which rules are suitable for deletion/insertion. These rules are called recursive rules as
@@ -373,7 +379,8 @@ Initializes the GeneticIterator. This function performs the following:
     - Fills the intial population with the N best extensions.
 
 """
-function initialize!(iter::GeneticIterator)::Nothing
+function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
+    _check_deadline(deadline)
     grammar = iter.solver.grammar
     types = grammar.types
 
@@ -400,11 +407,13 @@ function initialize!(iter::GeneticIterator)::Nothing
         iter.max_extension_size,
         iter.rule_costs,
         (r, o) -> interp(iter, r, o),
-        isnothing,
+        isnothing;
+        deadline=deadline,
     )
     
     # Iterate over all extensions and add to initial population if its of the correct starting symbol
     for extension in extensions
+        _check_deadline(deadline)
         type = grammar.types[get_rule(extension)]
         extension = RuleNodeWithRuleCounts(iter, extension)
         push!(iter.extensions[type], extension)
@@ -417,6 +426,7 @@ function initialize!(iter::GeneticIterator)::Nothing
     # Iterate over the extra programs of the initial population
     for size in (iter.max_extension_size+1):iter.max_initial_population_size
         for extension in get_programs(extensions, :Start, size)
+            _check_deadline(deadline)
             type = grammar.types[get_rule(extension)]
             extension = RuleNodeWithRuleCounts(iter, extension)
             push!(iter.extensions[type], extension)
@@ -614,7 +624,7 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
 end
 
 """
-    function combine!(iter::GeneticIterator)::Nothing
+    function combine!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
 
 Creates a new generation by creating M (candidate_pool_size) new individuals and selecting the N best ones:
     - Select two random parents 1 and 2
@@ -624,12 +634,15 @@ Creates a new generation by creating M (candidate_pool_size) new individuals and
         3. Crossover parent 1 and 2
         4. Mutate individual 3
 """
-function combine!(iter::GeneticIterator)::Nothing
+function combine!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
     # It does not make sense to select parents with size 1 as that will always create an already existing extension
     selection_pool = [ind for ind in iter.population if length(ind.program) > 1]
     
+    isempty(selection_pool) && throw(ArgumentError("Cannot select genetic parents: selection pool is empty (population contains no programs larger than one node)"))
+
     # Create candidates
     for _ in 1:4:iter.candidate_pool_size
+        _check_deadline(deadline)
         # Select parents using tournament selection
         parent_1 = rand(selection_pool)
         parent_2 = rand(selection_pool)
@@ -638,8 +651,11 @@ function combine!(iter::GeneticIterator)::Nothing
 
         # Crossover and mutate
         child_1, mutation_1 = mutate(iter, program_1)
+        _check_deadline(deadline)
         child_2, mutation_2 = mutate(iter, program_2)
+        _check_deadline(deadline)
         child_3, crossover_parts = crossover(iter, program_1, program_2)
+        _check_deadline(deadline)
         child_4, mutation_4 = mutate(iter, child_3)
 
         # Create individuals
