@@ -7,8 +7,7 @@ using JSON3
 # name = "transferable_phalcon_strings"
 # name = "transferable_phalcon_bitvectors"
 name = "transferable_phalcon_arc"
-# name = "strict_phalcon_strings"
-# name = "strict_phalcon_bitvectors"
+
 
 path = "data/$name.json"
 dir = "data/$name"

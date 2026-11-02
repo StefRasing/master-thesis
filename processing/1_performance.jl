@@ -186,7 +186,7 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
 
         annotate!(
             x_plot_max * 1.5,  # slightly to the right
-            y[end],
+            y[end] + [-1, 3][i],
             text(string(Int64(round(y[end]))), 9, series_kwargs[i].color)
         )
 
@@ -224,6 +224,22 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
             x_plot_max * 1.5,  # slightly to the right
             84,
             text("80", 9, RGB(0.50, 0.35, 0.70))
+        )
+    end
+
+    if occursin("arc", files[1]) 
+        hline!([90], linestyle = :dash, color = RGB(0.10, 0.65, 0.15), label = "BEN")
+        annotate!(
+            x_plot_max,  # slightly to the right
+            85,
+            text("90", 9, RGB(0.10, 0.65, 0.15))
+        )
+
+        hline!([60], linestyle = :dash, color = RGB(0.50, 0.35, 0.70), label = "DreamCoder")
+        annotate!(
+            x_plot_max * 1.5,  # slightly to the right
+            58,
+            text("60", 9, RGB(0.50, 0.35, 0.70))
         )
     end
 
@@ -379,9 +395,9 @@ function arc_enum_vs_acc()
     savefig("plots/arc_enum_vs_acc.png")
 end
 
-strings_time_vs_acc()
-strings_enum_vs_acc()
-bitvectors_time_vs_acc()
-bitvectors_enum_vs_acc()
+# strings_time_vs_acc()
+# strings_enum_vs_acc()
+# bitvectors_time_vs_acc()
+# bitvectors_enum_vs_acc()
 arc_time_vs_acc()
 arc_enum_vs_acc()

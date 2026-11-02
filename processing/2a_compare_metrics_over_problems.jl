@@ -16,11 +16,11 @@ function average_iterations(folder)
             !obj.solved && continue
 
             # iters = length(obj.population_costs)
-            # iters = obj.programs_enumerated
+            iters = obj.programs_enumerated
             # iters = round(obj.execution_time)
             # iters = length(obj.heuristic) + length(get(obj, :library_properties, []))
             # iters = length(obj.heuristic)
-            iters = length(obj.solution)
+            # iters = length(obj.solution)
             push!(get!(iterations, String(obj.problem_name), Int[]), iters)
         end
     end
@@ -28,10 +28,10 @@ function average_iterations(folder)
     Dict(name => mean(vals) for (name, vals) in iterations)
 end
 
-# avg1 = average_iterations("data/phalcon_strings")
-# avg2 = average_iterations("data/transferable_phalcon_strings")
-avg1 = average_iterations("data/phalcon_bitvectors")
-avg2 = average_iterations("data/transferable_phalcon_bitvectors")
+avg1 = average_iterations("data/phalcon_strings")
+avg2 = average_iterations("data/transferable_phalcon_strings")
+# avg1 = average_iterations("data/phalcon_bitvectors")
+# avg2 = average_iterations("data/transferable_phalcon_bitvectors")
 # avg1 = average_iterations("data/phalcon_arc")
 # avg2 = average_iterations("data/transferable_phalcon_arc")
 

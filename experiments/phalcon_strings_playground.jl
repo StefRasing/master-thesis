@@ -9,7 +9,7 @@ using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 include("io.jl")
 include("../src/lazy_cost_based_bus.jl")
 include("../src/genetic_iterator.jl")
-include("../src/property_synthesizer_playground.jl")
+include("../src/property_synthesizer.jl")
 include("../src/phalcon.jl")
 
 repetitions = 1
@@ -23,7 +23,7 @@ RuntimeGeneratedFunctions.init(benchmark)
 # Results in 124 problems
 task_names = [String(s)[9:end] for s in names(benchmark; all=true) if startswith(String(s), "problem_") && all(f -> !occursin(f, String(s)), ["short", "long", "repeat", "small"])]
 
-task_names = ["problem_strip_html_from_text_or_numbers"[9:end]]
+task_names = ["problem_2171308"[9:end]]
 
 problems = [getfield(benchmark, Symbol("problem_", name)) for name in task_names]
 grammars = [getfield(benchmark, Symbol("grammar_", name)) for name in task_names]

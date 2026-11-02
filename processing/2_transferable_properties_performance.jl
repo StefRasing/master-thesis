@@ -203,7 +203,7 @@ function make_plots(files, field, plot_kwargs, series_kwargs)
 
         annotate!(
             x_plot_max * 1.5,  # slightly to the right
-            y[end],
+            y[end] + [+0.5, -2.5][i],
             text(string(Int64(round(y[end]))), 9, series_kwargs[i].color)
         )
 
@@ -248,12 +248,10 @@ function strings_time_vs_acc()
     series_kwargs = [
         (label = "Phalcon", color = RGB(0.00, 0.45, 0.70)),
         (label = "Phalcon transferable properties", color = RGB(0.84, 0.37, 0.00)),
-        (label = "Strict Phalcon", color = RGB(0.24, 0.77, 0.22)),
     ]
     names = [
         "phalcon_strings", 
         "transferable_phalcon_strings",
-        "strict_phalcon_strings",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :execution_time, plot_kwargs, series_kwargs)
@@ -273,12 +271,10 @@ function strings_enum_vs_acc()
     series_kwargs = [
         (label = "Phalcon", color = RGB(0.00, 0.45, 0.70)),
         (label = "Phalcon transferable properties", color = RGB(0.84, 0.37, 0.00)),
-        (label = "Strict Phalcon", color = RGB(0.24, 0.77, 0.22)),
     ]
     names = [
         "phalcon_strings", 
         "transferable_phalcon_strings",
-        "strict_phalcon_strings",
     ]
     files = ["data/$(name).json" for name in names]
     make_plots(files, :programs_enumerated, plot_kwargs, series_kwargs)
@@ -333,8 +329,8 @@ function arc_time_vs_acc()
     plot_kwargs = (
         xticks = (r = -2:4; ([10.0^n for n in r], ["10e$n" for n in r])),
         xscale = :log10,
-        yticks = 0:10:100,
-        ylims = (0, 100),
+        yticks = 0:50:400,
+        ylims = (0, 400),
         right_margin = 10Plots.mm,
         title = "Comparing overall execution time",
     )
@@ -356,8 +352,8 @@ function arc_enum_vs_acc()
     plot_kwargs = (
         xticks = (r = 2:7; ([10.0^n for n in r], ["10e$n" for n in r])),
         xscale = :log10,
-        yticks = 0:10:100,
-        ylims = (0, 100),
+        yticks = 0:50:400,
+        ylims = (0, 400),
         right_margin = 10Plots.mm,
         title = "Comparing overall program evaluations",
     )

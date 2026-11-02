@@ -10,13 +10,11 @@ include("io.jl")
 include("../src/lazy_cost_based_bus.jl")
 include("../src/genetic_iterator.jl")
 include("../src/property_synthesizer.jl")
-# include("../src/phalcon.jl")
-include("../src/strict_phalcon.jl")
+include("../src/phalcon.jl")
 
 repetitions = 1
 run = ARGS[1]
-# path = "data/phalcon_strings/phalcon_strings$(run).json"
-path = "data/strict_phalcon_strings/strict_phalcon_strings$(run).json"
+path = "data/phalcon_strings/phalcon_strings$(run).json"
 store = true
 
 benchmark = HerbBenchmarks.PBE_SLIA_Track_2019

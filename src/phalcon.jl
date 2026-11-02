@@ -58,10 +58,14 @@ function phalcon(;
     property_interp = (program, io, y) -> property_interpreter(program, (new_in = copy(io.in); new_in[:_arg_out] = y; new_in))
 
     solution = nothing
+    program_synthesis_durations = []
+    property_invention_durations = []
 
     while time() - start < timeout
         # Run search and return if it found the solution
+        start_time = time()
         solution = find_solution(iterator)
+        push!(program_synthesis_durations, time() - start_time)
         !isnothing(solution) && break
 
         # Obtain local optimum
@@ -94,6 +98,7 @@ function phalcon(;
         end
 
         # Find new property
+        start_time = time()
         property = find_property!(
             benchmark = iterator.benchmark,
             problem = iterator.problem,
@@ -104,6 +109,7 @@ function phalcon(;
             rule_costs = rule_costs,
             prune_node_by_output = prune_node_by_output,
         )
+        push!(property_invention_durations, time() - start_time)
 
         if isnothing(property)
             if verbose
@@ -141,5 +147,7 @@ function phalcon(;
             isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.reduction_rate)
             for property in selected_properties],
         "population_costs" => population_costs,
+        "program_synthesis_durations" => program_synthesis_durations,
+        "property_invention_durations" => property_invention_durations,
     )
 end
