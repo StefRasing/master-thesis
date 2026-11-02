@@ -22,7 +22,7 @@ Search code is loaded through one module, which owns its dependencies and includ
 order:
 
 ```julia
-include("src/Phalcon.jl")
+include("src/PhalconModule.jl")
 using .Phalcon
 ```
 

@@ -3,7 +3,7 @@
 pushfirst!(LOAD_PATH, normpath(joinpath(@__DIR__, "..", "..", "HerbInterpret.jl")))
 using Test, SparseArrays, DataStructures, StatsBase
 using HerbCore, HerbGrammar, HerbConstraints, HerbSearch, HerbSpecification, HerbInterpret
-include("../src/Phalcon.jl")
+include("../src/PhalconModule.jl")
 using .Phalcon
 using .Phalcon: CachedRuleNode, RuleNodeWithRuleCounts, Individual,
     get_programs, assemble, _hash_outputs, interp, outputs_to_cost

@@ -7,7 +7,7 @@ using HerbCore, HerbSearch, HerbConstraints, HerbSpecification, HerbBenchmarks, 
 using StatsBase, RuntimeGeneratedFunctions, DataStructures, SparseArrays, JSON3
 
 include("io.jl")
-include("../src/Phalcon.jl")
+include("../src/PhalconModule.jl")
 using .Phalcon
 
 repetitions = 1
