@@ -1,5 +1,6 @@
 include("setup.jl")
 include("algorithm_contracts.jl")
+include("genetic_diagnostics.jl")
 include("typed_output_storage.jl")
 
 @testset "Search termination and deadlines" begin

@@ -11,7 +11,7 @@ using Random
 end
 
 # A small, typed grammar exercises operators without benchmark data or globals.
-function contract_iterator(; population_size=3)
+function contract_iterator(; population_size=3, kwargs...)
     grammar = @csgrammar begin
         Start = 1
         Start = 2
@@ -21,7 +21,7 @@ function contract_iterator(; population_size=3)
     end
     iter = GeneticIterator(grammar, :Start; rng=Xoshiro(42),
         problem=(name="contracts", spec=[IOExample(Dict{Symbol,Any}(), 99)],),
-        benchmark=Main, cost=_ -> 1, rule_costs=ones(Int, 5), population_size)
+        benchmark=Main, cost=_ -> 1, rule_costs=ones(Int, 5), population_size, kwargs...)
     initialize!(iter)
     empty!(iter.population)
     iter.programs_evaluated = 0

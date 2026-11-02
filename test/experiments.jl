@@ -200,3 +200,49 @@ end
         @test only(Experiments.load_results(dir))["result"] == parsed
     end
 end
+
+@testset "Experiment interpreter ownership" begin
+    adapter = benchmark_adapter(:strings)
+    task = only(Experiments.benchmark_tasks(ExperimentConfig(task_names=["2171308"]), adapter))
+    config = ExperimentConfig(store=false, phalcon_options=(timeout=0.1,))
+    shared = Ref{Any}(nothing)
+    Experiments.run_trial(config, adapter, task.problem, task.grammar; interpreter_ref=shared)
+    @test !isnothing(shared[])
+    first_interpreter = shared[]
+    Experiments.run_trial(config, adapter, task.problem, task.grammar; interpreter_ref=shared)
+    @test shared[] === first_interpreter
+    independent = Ref{Any}(nothing)
+    Experiments.run_trial(config, adapter, task.problem, task.grammar; interpreter_ref=independent)
+    @test independent[] !== first_interpreter
+    expired = Ref{Any}(nothing)
+    Experiments.run_trial(ExperimentConfig(store=false, phalcon_options=(timeout=0,)),
+        adapter, task.problem, task.grammar; interpreter_ref=expired)
+    @test isnothing(expired[])
+    @test ExperimentConfig().reuse_interpreter
+    @test !ExperimentConfig(reuse_interpreter=false).reuse_interpreter
+end
+
+@testset "ARC higher-order rule evaluators" begin
+    dsl = benchmark_adapter(:arc).benchmark
+    grammar = dsl.grammar_hodel
+    output = HerbInterpret.make_output_interpreter(grammar; target_module=dsl, cache_module=dsl)
+    predicate = findfirst(eachindex(grammar.rules)) do i
+        grammar.types[i] == :IntToBoolFunc && grammar.rules[i] isa Expr && grammar.rules[i].head == :->
+    end
+    negation = findfirst(eachindex(grammar.rules)) do i
+        grammar.types[i] == :IntToBoolFunc && grammar.rules[i] == :(negate(IntToBoolFunc))
+    end
+    @test !isnothing(predicate) && !isnothing(negation)
+    inputs = [Dict{Symbol,Any}() for _ in 1:3]
+    for thresholds in ([1, 3, 5], [5, 1, 3])
+        fs = output(predicate, [thresholds], inputs)
+        @test [f(4) for f in fs] == [dsl.greater(4, n) for n in thresholds]
+        ns = output(negation, [fs], inputs)
+        @test [f(4) for f in ns] == [!dsl.greater(4, n) for n in thresholds]
+    end
+    fs = output(predicate, [[1, nothing, 5]], inputs)
+    ns = output(negation, [fs], inputs)
+    @test ns[1](4) == false
+    @test isnothing(ns[2])
+    @test ns[3](4) == true
+end
