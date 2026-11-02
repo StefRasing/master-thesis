@@ -54,6 +54,7 @@ function phalcon(;
     max_output_bytes::Int = typemax(Int),
     timeout::Real = typemax(Int),
     verbose::Bool = false,
+    property_stop_reduction_rate::Union{Nothing,Real} = nothing,
     display_outputs::Function = println,
 )
     start = time()
@@ -121,6 +122,7 @@ function phalcon(;
                 prune_node_by_output = prune_node_by_output,
                 max_output_bytes = max_output_bytes,
                 deadline = deadline,
+                stop_reduction_rate = property_stop_reduction_rate,
             )
             push!(property_invention_durations, time() - start_time)
 

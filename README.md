@@ -36,6 +36,56 @@ For custom verbose output, pass `display_outputs` to `phalcon` (for example,
 an experiment-specific adapter, outside the search module.
 
 Run the regression tests with `julia --project=. test/runtests.jl`. The tests use
-the sibling `HerbInterpret.jl` checkout. The unused alternative property synthesis
-implementation in `src/property_synthesizer_playground.jl` is not loaded by the
-module; all experiment runners use the shared implementation.
+the sibling `HerbInterpret.jl` checkout.
+
+Experiments share `experiments/src/Experiments.jl`, with benchmark adapters for strings,
+bitvectors, and ARC. Instantiate the environment once before running jobs:
+
+```sh
+julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+julia --project=. experiments/run.jl phalcon strings 1
+julia --project=. experiments/run.jl heuristic arc 1 a
+bash exe/submit.sh phalcon arc 5
+bash exe/submit.sh phalcon strings 6 --mem=48G
+```
+
+Named experiment clients live in `experiments/presets/`; interactive examples
+live in `experiments/playgrounds/`. See `experiments/README.md` for the layout.
+Non-ARC heuristic runs perform five repetitions in a single output file;
+Phalcon runs and ARC shards perform one. ARC arrays map each run to four
+100-problem shards (a–d). Array tasks have separate result files. The launcher
+uses an already instantiated Julia depot, including any `JULIA_DEPOT_PATH` set
+before submission. Slurm logs go to `exe/out`. Resource defaults preserve the
+old settings and extra `sbatch` options can override them.
+
+For custom experiments or playgrounds:
+
+```julia
+include("experiments/src/Experiments.jl")
+using .Experiments
+run_experiment(ExperimentConfig(
+    algorithm=:phalcon, benchmark=:strings, store=false,
+    task_names=["2171308"],
+    iterator_options=(population_size=30,),
+    phalcon_options=(property_stop_reduction_rate=0.5, timeout=60,),
+))
+```
+
+`ExperimentConfig` also controls output path, repetitions, run label, ARC shard,
+problem indices, and held-out example indices. Default splitting holds out the
+first example. Benchmark adapters own selection filters, grammar choices, rule
+costs, distance metrics, and property settings. Keyword overrides in
+`iterator_options` and `phalcon_options` are passed to the shared algorithms.
+Playgrounds use the same runner with storage disabled. The strings playground
+explicitly retains its lower property cost budget of 2; production uses 3.
+
+Property synthesis has one implementation. Its default stopping rule seeks the
+largest admissible reduction (all but one local optimum); pass
+`property_stop_reduction_rate=0.5` to `phalcon`, or
+`stop_reduction_rate=0.5` to `find_property!`, for the former playground behavior.
+The rate must be strictly between zero and one. Properties rejecting every local
+optimum remain inadmissible in both modes.
+
+Stored runs resume by counting existing results per problem, as before. Use a
+fresh output path when changing settings; configuration-aware persistence is
+outside this runner refactor.

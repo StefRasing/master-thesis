@@ -33,3 +33,19 @@ include("typed_output_storage.jl")
     @test solution === nothing
     @test stats["programs_enumerated"] == 0
 end
+
+include("experiments.jl")
+
+@testset "Property stopping policies" begin
+    grammar = @csgrammar begin
+        Start = _arg_out > 2
+        Start = _arg_out > 1
+    end
+    options = (benchmark=TypedStorageDSL,
+        problem=(spec=[IOExample(Dict{Symbol,Any}(), 0)],), grammar=grammar,
+        local_optimum_outputs=[[1], [2], [3], [4]], property_types=[:Start],
+        max_cost=1, rule_costs=[1, 1])
+    @test find_property!(; options...).reduction_rate == 0.75
+    @test find_property!(; options..., stop_reduction_rate=0.5).reduction_rate == 0.5
+    @test_throws ArgumentError find_property!(; options..., stop_reduction_rate=1.0)
+end

@@ -16,7 +16,10 @@ function find_property!(;
     prune_node_by_output::Function = _ -> false,
     max_output_bytes::Int = 21 * 1024^2,
     deadline::Real = Inf,
+    stop_reduction_rate::Union{Nothing,Real} = nothing,
 )
+    isnothing(stop_reduction_rate) || 0 < stop_reduction_rate < 1 ||
+        throw(ArgumentError("stop_reduction_rate must be between 0 and 1"))
     _check_deadline(deadline)
     target_outputs = [io.out for io in problem.spec]
 
@@ -27,7 +30,8 @@ function find_property!(;
     best_property = nothing
     best_reduction_number = 0
     best_target_values = nothing
-    maximum_reduction_number = length(local_optimum_outputs) - 1
+    maximum_reduction_number = isnothing(stop_reduction_rate) ?
+        length(local_optimum_outputs) - 1 : ceil(Int, stop_reduction_rate * length(local_optimum_outputs))
 
     properties = LazyCostBasedBus(
         grammar, 
@@ -53,7 +57,7 @@ function find_property!(;
             best_target_values = target_values
             best_reduction_number = reduction_number
 
-            if reduction_number == maximum_reduction_number
+            if reduction_number >= maximum_reduction_number
                 break
             end
         end
