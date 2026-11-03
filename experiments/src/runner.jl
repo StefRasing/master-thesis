@@ -29,7 +29,7 @@ end
 
 function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing))
     train, test, train_indices = split_problem(problem, config.test_indices)
-    # Keep unsupported string problems in the results, as in the original runners.
+    # Non-string outputs are a baseline limitation: retain these tasks as unsolved.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
     solution = nothing
     result = OrderedDict{String,Any}("problem_name"=>problem.name, "solved_train_examples"=>false,
@@ -38,7 +38,7 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         options = merge((benchmark=adapter.benchmark, problem=train, interpreter=interpreter_ref[],
             cost=config.algorithm == :phalcon ? (_ -> 0) : (pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)),
             population_size=20, candidate_pool_size=adapter.candidate_pool_size,
-            max_generations_without_improvement=config.algorithm == :phalcon ? 10 : 4,
+            max_generations_without_improvement=10,
             max_extension_size=1, max_initial_population_size=1, max_size=50,
             rule_costs=Int[adapter.rule_cost(r) for r in grammar.rules]), config.iterator_options)
         iterator = GeneticIterator(grammar, :Start; options..., rng)
@@ -46,13 +46,18 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         effective_phalcon = nothing
         if config.algorithm == :phalcon
             options = merge((max_number_of_properties=20, rule_cost_func=adapter.rule_cost,
-                verbose=false, timeout=1800), adapter.property_options, config.phalcon_options)
+                verbose=false, timeout=config.timeout), adapter.property_options, config.phalcon_options)
             effective_phalcon = config.store ? json_value(options) : nothing
             solution, result = phalcon(; iterator, options...)
         else
             start = time()
-            initialize!(iterator)
-            solution = find_solution(iterator)
+            deadline = Phalcon._search_time() + config.timeout
+            try
+                initialize!(iterator; deadline)
+                solution = find_solution(iterator; deadline)
+            catch err
+                err isa Phalcon.SearchTimeout || rethrow()
+            end
             result["execution_time"] = time() - start
             result["programs_enumerated"] = iterator.programs_evaluated
             result["solved_train_examples"] = !isnothing(solution)
@@ -60,7 +65,9 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         end
         interpreter_ref[] = iterator.interpreter
     end
-    config.store && (result["effective_configuration"] = supported ? Dict("iterator"=>effective_iterator, "phalcon"=>effective_phalcon) : nothing)
+    config.store && (result["effective_configuration"] = supported ? Dict("iterator"=>effective_iterator,
+        "timeout"=>config.algorithm == :phalcon ? effective_phalcon["timeout"] : config.timeout,
+        "phalcon"=>effective_phalcon) : nothing)
     result["train_test_split"] = (train_indices, config.test_indices)
     result["solved_test_examples"] = !isnothing(solution) &&
         HerbInterpret.make_interpreter(grammar; target_module=adapter.benchmark, cache_module=adapter.benchmark)(solution, test.spec) == [io.out for io in test.spec]

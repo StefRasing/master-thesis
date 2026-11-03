@@ -16,6 +16,25 @@ using .Experiments
         if startswith(String(s), "problem_") && all(f -> !occursin(f, String(s)), ["short", "long", "repeat", "small"])]
     @test [t.problem for t in tasks] == [getfield(strings.benchmark, Symbol("problem_", n)) for n in expected_names]
     @test any(t -> t.grammar.rules[1] != :ntString, tasks)
+    @test ExperimentConfig().timeout == 1800
+    # A zero shared budget cancels both algorithms before interpreter creation.
+    supported = first(t for t in tasks if t.grammar.rules[1] == :ntString)
+    for algorithm in (:heuristic, :phalcon)
+        interpreter = Ref{Any}(nothing)
+        result = Experiments.run_trial(ExperimentConfig(; algorithm, timeout=0), strings,
+            supported.problem, supported.grammar; interpreter_ref=interpreter)
+        @test !result["solved_train_examples"] && !result["solved_test_examples"]
+        @test result["programs_enumerated"] == 0
+        @test isnothing(interpreter[])
+        @test result["effective_configuration"]["timeout"] == 0
+        @test result["effective_configuration"]["iterator"]["max_generations_without_improvement"] == 10
+    end
+    unsupported = first(t for t in tasks if t.grammar.rules[1] != :ntString)
+    result = Experiments.run_trial(ExperimentConfig(algorithm=:heuristic), strings,
+        unsupported.problem, unsupported.grammar)
+    @test !result["solved_train_examples"] && !result["solved_test_examples"]
+    @test result["execution_time"] == 0 && result["programs_enumerated"] == 0
+    @test isnothing(result["effective_configuration"])
     @test length(Experiments.benchmark_tasks(ExperimentConfig(benchmark=:bitvectors), bitvectors)) == 151
     @test length(Experiments.benchmark_tasks(ExperimentConfig(benchmark=:arc, shard="d"), arc)) == 100
     selected = Experiments.benchmark_tasks(ExperimentConfig(task_names=["2171308"]), strings)

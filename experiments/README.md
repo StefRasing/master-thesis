@@ -89,6 +89,22 @@ and solution per trial, followed by totals. Playground clients keep these plain
 results in `playground_results` and return `nothing` to avoid a REPL data dump.
 All playgrounds use `store=false`; stored experiment runs retain archival metadata.
 
+## Comparison settings
+
+Both algorithms default to 10 generations without improvement and a shared
+`ExperimentConfig(timeout=1800)` budget in seconds per trial. The cooperative
+deadline covers initialization and search; Phalcon also includes property
+invention. Individual DSL/interpreter calls cannot be interrupted, so this is
+not a hard execution limit. `iterator_options` can override the stagnation
+setting, and existing `phalcon_options.timeout` overrides still take precedence
+for Phalcon. Effective settings are saved with supported trials.
+
+The heuristic string baseline cannot handle non-string outputs. These tasks
+remain in the benchmark denominator and are recorded as unsolved with zero
+search work; Phalcon attempts them. This intentionally measures that baseline
+limitation. Historical runs using four stagnant generations or no baseline
+deadline must be rerun to use the matched defaults.
+
 ## Interpreter reuse
 
 By default, `ExperimentConfig(reuse_interpreter=true)` shares one generated output

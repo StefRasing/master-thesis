@@ -5,6 +5,7 @@ Base.@kwdef struct ExperimentConfig
     shard::Union{Nothing,String} = nothing
     repetitions::Int = 1
     seed::Int = 1
+    timeout::Real = 1800
     reuse_interpreter::Bool = true
     output::Union{Nothing,String} = nothing
     store::Bool = true
