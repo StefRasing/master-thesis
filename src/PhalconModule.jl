@@ -21,6 +21,7 @@ export GeneticIterator, LazyCostBasedBus, Property,
        find_property!, phalcon, levenshtein, hamming_distance
 
 include("deadline.jl")
+include("output_limits.jl")
 include("lazy_cost_based_bus.jl")
 include("genetic_iterator.jl")
 include("property_synthesizer.jl")

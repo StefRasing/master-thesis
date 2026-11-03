@@ -96,7 +96,7 @@ function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRule
     outputs = iter.program_to_outputs(rule, child_outputs)
     _check_deadline(iter.deadline)
     # Check the complete output vector before hashing or caching it.
-    iter.max_output_bytes != typemax(Int) && Base.summarysize(outputs) > iter.max_output_bytes && return nothing
+    !_within_output_limit(outputs, iter.max_output_bytes) && return nothing
     any(iter.prune_by_output, outputs) && return nothing
     outputs_hash = _hash_outputs(outputs)
     outputs_hash in iter.seen_outputs_hashes[type] && return nothing

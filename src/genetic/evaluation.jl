@@ -23,7 +23,7 @@ function interp(iter::GeneticIterator, rule_id::Int, children_outputs::AbstractV
     # Interp rule on outputs
     res = iter.interpreter(rule_id, children_outputs, iter.problem.spec)
 
-    if iter.max_output_bytes != typemax(Int) && Base.summarysize(res) > iter.max_output_bytes
+    if !_within_output_limit(res, iter.max_output_bytes)
         return fill(nothing, length(iter.problem.spec))
     end
 

@@ -6,8 +6,12 @@ Node output memory limits can be configured with `max_output_bytes` on
 a keyword on `LazyCostBasedBus`. Program synthesis defaults to 1 MiB; property
 synthesis (`phalcon` and `find_property!`) defaults to 21 MiB. Pass `typemax(Int)`
 to disable the limit.
-After a node is evaluated, `Base.summarysize` measures its complete output vector,
-including referenced values and counting shared objects once. Vectors exceeding
+After a node is evaluated, its complete output vector is checked against the
+`Base.summarysize` limit, including referenced values and counting shared objects
+once. On Julia 1.12, strings, pointer-free values and nested dense arrays use a
+conservative fast acceptance bound that includes backing capacity. Unknown values
+and inconclusive bounds fall back to `Base.summarysize`; overestimates never
+reject outputs. Other Julia versions use the general traversal. Vectors exceeding
 the limit are pruned; vectors exactly at the limit are accepted. Existing
 `prune_node_by_output` callbacks remain available for other pruning criteria.
 This bounds retained outputs per node, not allocation peaks or total search memory.
