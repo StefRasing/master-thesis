@@ -61,6 +61,7 @@ function phalcon(;
     deadline = _search_time() + timeout
     population_costs = []
 
+    properties_enumerated = Ref(0)
     selected_properties = []
     solution = nothing
     program_synthesis_durations = []
@@ -123,6 +124,7 @@ function phalcon(;
                 max_output_bytes = max_output_bytes,
                 deadline = deadline,
                 stop_reduction_rate = property_stop_reduction_rate,
+                properties_enumerated = properties_enumerated,
             )
             push!(property_invention_durations, time() - start_time)
 
@@ -161,6 +163,7 @@ function phalcon(;
         "solved_train_examples" => !isnothing(solution),
         "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
         "programs_enumerated" => iterator.programs_evaluated,
+        "properties_enumerated" => properties_enumerated[],
         "execution_time" => time() - start,
         "heuristic" => [
             isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.reduction_rate)

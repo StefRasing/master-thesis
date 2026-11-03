@@ -6,6 +6,7 @@ Base.@kwdef struct ExperimentConfig
     repetitions::Int = 1
     seed::Int = 1
     timeout::Real = 1800
+    verbose::Bool = false
     reuse_interpreter::Bool = true
     output::Union{Nothing,String} = nothing
     store::Bool = true

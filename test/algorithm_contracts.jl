@@ -115,3 +115,33 @@ end
     @test_throws DomainError phalcon(iterator=iter, timeout=60,
         property_types=[:Start], max_property_cost=1, rule_cost_func=_ -> 1)
 end
+
+@testset "Initialization candidates and cached population resets" begin
+    grammar = @csgrammar begin
+        Start = 1
+        Start = 1 + 0
+        Start = nothing
+        Flag = true
+        Start = Start + Start
+    end
+    calls = Ref(0)
+    interpreter = (rule, children, spec) -> begin
+        calls[] += 1
+        rule <= 2 ? [1] : rule == 3 ? [nothing] : rule == 4 ? [true] : [sum(first.(children))]
+    end
+    iter = GeneticIterator(grammar, :Start; benchmark=Main, interpreter,
+        problem=(name="counts", spec=[IOExample(Dict{Symbol,Any}(), 99)],),
+        cost=_ -> 1, rule_costs=ones(Int, 5),
+        max_extension_size=1, max_initial_population_size=3)
+    initialize!(iter)
+    @test iter.programs_evaluated == calls[]
+    @test calls[] > sum(length, values(iter.extensions))
+    counted = calls[]
+    @test length(iter.extensions[:Start]) == 2
+    @test length(iter.extensions[:Flag]) == 1
+    for cost in (_ -> 2, _ -> 3)
+        update_cost_function(iter, cost)
+        @test iter.programs_evaluated == counted
+        @test calls[] == counted
+    end
+end

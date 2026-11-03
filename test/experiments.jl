@@ -17,6 +17,14 @@ using .Experiments
     @test [t.problem for t in tasks] == [getfield(strings.benchmark, Symbol("problem_", n)) for n in expected_names]
     @test any(t -> t.grammar.rules[1] != :ntString, tasks)
     @test ExperimentConfig().timeout == 1800
+    @test !ExperimentConfig().verbose
+    for (verbose, overrides, expected) in ((true, (;), true), (false, (;), false),
+        (true, (verbose=false,), false))
+        task = first(Experiments.benchmark_tasks(ExperimentConfig(benchmark=:arc, problem_indices=1:1), arc))
+        result = Experiments.run_trial(ExperimentConfig(benchmark=:arc, timeout=0,
+            verbose=verbose, phalcon_options=overrides), arc, task.problem, task.grammar)
+        @test result["effective_configuration"]["phalcon"]["verbose"] === expected
+    end
     # A zero shared budget cancels both algorithms before interpreter creation.
     supported = first(t for t in tasks if t.grammar.rules[1] == :ntString)
     for algorithm in (:heuristic, :phalcon)
@@ -25,6 +33,7 @@ using .Experiments
             supported.problem, supported.grammar; interpreter_ref=interpreter)
         @test !result["solved_train_examples"] && !result["solved_test_examples"]
         @test result["programs_enumerated"] == 0
+        @test result["properties_enumerated"] == 0
         @test isnothing(interpreter[])
         @test result["effective_configuration"]["timeout"] == 0
         @test result["effective_configuration"]["iterator"]["max_generations_without_improvement"] == 10
@@ -56,6 +65,7 @@ using .Experiments
         @test results[1]["result"]["solved_train_examples"] === false
         @test results[1]["result"]["solved_test_examples"] === false
         @test results[1]["result"]["programs_enumerated"] == 0
+        @test results[1]["result"]["properties_enumerated"] == 0
         @test isempty(run_experiment(config))
         @test length(Experiments.load_results(path)) == 1
         changed = ExperimentConfig(output=path, task_names=["2171308"], seed=2, phalcon_options=(timeout=0,))
@@ -149,7 +159,7 @@ end
             run_experiment(config) = push!(calls, config)
         end
     """)
-    for file in ("heuristic_strings.jl", "phalcon_bitvectors.jl", "phalcon_strings.jl")
+    for file in ("heuristic_strings.jl", "phalcon_bitvectors.jl", "phalcon_strings.jl", "phalcon_arc.jl")
         path = joinpath(@__DIR__, "../experiments/playgrounds", file)
         # Activation is already handled by the test entry point; keep this test
         # free of Pkg depot writes, while executing all client module/runner code.
@@ -157,8 +167,9 @@ end
         Base.include_string(sandbox, client, path)
         Base.include_string(sandbox, client, path)
     end
-    @test length(sandbox.Experiments.calls) == 6
-    @test getproperty.(sandbox.Experiments.calls, :benchmark) == [:strings, :strings, :bitvectors, :bitvectors, :strings, :strings]
+    @test length(sandbox.Experiments.calls) == 8
+    @test getproperty.(sandbox.Experiments.calls, :benchmark) == [:strings, :strings, :bitvectors, :bitvectors, :strings, :strings, :arc, :arc]
+    @test all(c -> c.verbose, sandbox.Experiments.calls[7:8])
 end
 
 @testset "Playground output contains outcomes only" begin
@@ -170,7 +181,8 @@ end
     @test occursin("repetition 1/2", output)
     @test occursin("repetition 2/2", output)
     @test occursin("Training: unsolved  |  Test: unsolved", output)
-    @test occursin("Programs evaluated: 0", output)
+    @test occursin("Program candidates: 0", output)
+    @test occursin("Property candidates: 0", output)
     @test occursin("Solution: none", output)
     @test occursin("Completed 2 trials", output)
     @test all(r -> !haskey(r, "provenance") && !haskey(r, "effective_configuration"), results)

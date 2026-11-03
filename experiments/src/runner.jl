@@ -5,7 +5,8 @@ function display_result(io::IO, result; repetition=1, repetitions=1)
     println(io, "  Training: ", result["solved_train_examples"] ? "solved" : "unsolved",
         "  |  Test: ", result["solved_test_examples"] ? "solved" : "unsolved")
     println(io, "  Time: ", round(result["execution_time"]; digits=3),
-        " s  |  Programs evaluated: ", result["programs_enumerated"])
+        " s  |  Program candidates: ", result["programs_enumerated"],
+        "  |  Property candidates: ", result["properties_enumerated"])
     solution = result["solution"]
     println(io, "  Solution: ", isnothing(solution) ? "none" : solution)
 end
@@ -33,7 +34,7 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
     solution = nothing
     result = OrderedDict{String,Any}("problem_name"=>problem.name, "solved_train_examples"=>false,
-        "solution"=>nothing, "programs_enumerated"=>0, "execution_time"=>0.0)
+        "solution"=>nothing, "programs_enumerated"=>0, "properties_enumerated"=>0, "execution_time"=>0.0)
     if supported
         options = merge((benchmark=adapter.benchmark, problem=train, interpreter=interpreter_ref[],
             cost=config.algorithm == :phalcon ? (_ -> 0) : (pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)),
@@ -46,7 +47,7 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         effective_phalcon = nothing
         if config.algorithm == :phalcon
             options = merge((max_number_of_properties=20, rule_cost_func=adapter.rule_cost,
-                verbose=false, timeout=config.timeout), adapter.property_options, config.phalcon_options)
+                verbose=config.verbose, timeout=config.timeout), adapter.property_options, config.phalcon_options)
             effective_phalcon = config.store ? json_value(options) : nothing
             solution, result = phalcon(; iterator, options...)
         else

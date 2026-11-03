@@ -28,6 +28,8 @@ julia --project=. experiments/playgrounds/phalcon_strings.jl
 The former top-level named scripts have moved to `presets/`. Playground filenames
 no longer need the `_playground` suffix because their directory identifies them.
 The shared module is loaded with `include("experiments/src/Experiments.jl")`.
+Set `ExperimentConfig(verbose=true, ...)` to print Phalcon's search diagnostics.
+It defaults to `false`; an explicit `phalcon_options.verbose` takes precedence.
 Search algorithms remain in the repository's root `src/`; benchmark-specific
 experiment code belongs here. Slurm submission lives in `exe/submit.sh` and
 continues to call `experiments/run.jl`. Results remain under the root `data/`.
@@ -120,3 +122,20 @@ copies and do not share this interpreter. Separately constructed equal grammars
 are deliberately not deduplicated; this is run-scoped ownership, with no global
 structural cache. Reuse is included in archived configuration identities, while
 generated function objects are excluded from JSON metadata.
+
+## Enumeration counts
+
+`programs_enumerated` counts candidates interpreted during initialization
+(including intermediate types, rejected outputs, and observational duplicates),
+plus genetic candidates submitted to the population, including rejected candidates.
+Initialization candidates are counted once; rebuilding the population from cached
+extensions after a cost update adds no counts.
+
+`properties_enumerated` counts candidates interpreted during property enumeration,
+including intermediate subprograms and candidates later pruned or deduplicated.
+It accumulates across property searches, including work before a timeout, and is
+zero for the heuristic baseline and trials that do not invent properties.
+Both counts are saved and displayed. They count candidates, not per-example
+interpreter calls; property-based cost evaluation and cached rescoring are excluded.
+They therefore do not measure total synthesis work or sample efficiency. Historical
+results retain their original counts and must be rerun to use these semantics.

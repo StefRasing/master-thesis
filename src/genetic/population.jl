@@ -22,7 +22,7 @@ function update_cost_function(iter::GeneticIterator, cost::Function; deadline::R
     empty!(iter.population)
     for program in iter.extensions[get_starting_symbol(iter)]
         _check_deadline(deadline)
-        add_to_population!(iter, Individual(iter, program))
+        add_to_population!(iter, Individual(iter, program); count_program=false)
     end
 
     return nothing
@@ -70,7 +70,10 @@ function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
         types,
         iter.max_extension_size,
         iter.rule_costs,
-        (r, o) -> interp(iter, r, o),
+        (r, o) -> begin
+            iter.programs_evaluated += 1
+            interp(iter, r, o)
+        end,
         isnothing;
         deadline=deadline,
     )
@@ -83,7 +86,7 @@ function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
         push!(iter.extensions[type], extension)
 
         if type == get_starting_symbol(iter)
-            add_to_population!(iter, Individual(iter, extension))
+            add_to_population!(iter, Individual(iter, extension); count_program=false)
         end
     end
 
@@ -94,7 +97,7 @@ function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
             type = grammar.types[get_rule(extension)]
             extension = RuleNodeWithRuleCounts(iter, extension)
             push!(iter.extensions[type], extension)
-            add_to_population!(iter, Individual(iter, extension))
+            add_to_population!(iter, Individual(iter, extension); count_program=false)
         end
     end
 
@@ -111,9 +114,10 @@ end
 
 Given a GeneticIterator, adds a RuleNodeWithRuleCounts to the population. This function ensures that
 the population only keeps the N best programs with unique outputs.
+Set count_program=false for already counted initialization candidates or cached rescoring.
 """
-function add_to_population!(iter::GeneticIterator, new_individual::Individual)::Nothing
-    iter.programs_evaluated += 1
+function add_to_population!(iter::GeneticIterator, new_individual::Individual; count_program::Bool=true)::Nothing
+    count_program && (iter.programs_evaluated += 1)
     
     # If the cost is infinity, skip the program
     new_individual.cost == Inf && return nothing

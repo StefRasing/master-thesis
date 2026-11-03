@@ -17,6 +17,8 @@ function find_property!(;
     max_output_bytes::Int = 21 * 1024^2,
     deadline::Real = Inf,
     stop_reduction_rate::Union{Nothing,Real} = nothing,
+    # Shared across property searches; updated before interpretation, including pruned candidates.
+    properties_enumerated::Base.RefValue{Int} = Ref(0),
 )
     isnothing(stop_reduction_rate) || 0 < stop_reduction_rate < 1 ||
         throw(ArgumentError("stop_reduction_rate must be between 0 and 1"))
@@ -25,7 +27,10 @@ function find_property!(;
 
     interp = HerbInterpret.make_output_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
     specs = [(new_in = copy(io.in); new_in[:_arg_out] = y; new_in) for (io, y) in zip(Iterators.cycle(problem.spec), [target_outputs; local_optimum_outputs...])]
-    interp_all = (rule, os) -> interp(rule, os, specs)
+    interp_all = (rule, os) -> begin
+        properties_enumerated[] += 1
+        interp(rule, os, specs)
+    end
 
     best_property = nothing
     best_reduction_number = 0
