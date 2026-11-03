@@ -107,21 +107,40 @@ search work; Phalcon attempts them. This intentionally measures that baseline
 limitation. Historical runs using four stagnant generations or no baseline
 deadline must be rerun to use the matched defaults.
 
-## Interpreter reuse
+## Timing protocol and interpreter reuse
 
-By default, `ExperimentConfig(reuse_interpreter=true)` shares one generated output
-interpreter across repetitions and tasks that reference the same grammar object
-within a single `run_experiment` call. Construction remains lazy, inside the
-first initialization's timing and timeout. Later trials still initialize their
-own extensions, populations, counters, and RNGs. No outputs or problem data are
-cached in the interpreter. Resuming a run in another process starts cold again.
-Use `reuse_interpreter=false` for fresh-interpreter timing comparisons.
+The runner uses `timing_protocol=:warmed_v1`. On every invocation, including
+resume, it runs an untimed, fixed synthetic workload for both algorithms, followed
+by property enumeration on canonical benchmark representatives (one per output
+type). The representatives do not depend on task selection, order, shard or seed.
+Warm-up RNGs and search state are discarded. This is representative warm-up,
+not a guarantee that Julia will never compile another specialization.
+
+Before a supported trial's budget starts, the runner constructs and exercises its
+grammar's output interpreter using bounded extension initialization. This scratch
+initialization's outputs, population and counters are discarded. The measured
+trial still performs its own initialization, using its independently seeded RNG.
+The interpreter contains no cached problem outputs or search state.
+
+`reuse_interpreter=true` retains prepared output interpreters for identical grammar
+objects within one invocation. `false` prepares a new interpreter before each
+trial; both settings exclude output-interpreter preparation from measurement.
+Resuming repeats warm-up and prepares interpreters before remaining trials.
+Property grammars, property interpreters and property search created by Phalcon
+remain inside the measured budget. Test-set evaluation remains outside it.
+The common configured timeout includes search initialization and search; cancellation
+is cooperative and can overshoot during an individual DSL or compiler call.
+
+The protocol is included in archived configuration identities, so old timing
+results cannot be silently resumed as warmed results. Rerun earlier experiments
+for the paper's main comparison. Before the full suite, check representative
+seeded trials across fresh processes, task orders and resume boundaries for
+material residual compilation effects. Use identically warmed isolated processes
+per trial if those effects remain material.
 
 Adapter grammars must remain unchanged during a run. Property grammars are deep
-copies and do not share this interpreter. Separately constructed equal grammars
-are deliberately not deduplicated; this is run-scoped ownership, with no global
-structural cache. Reuse is included in archived configuration identities, while
-generated function objects are excluded from JSON metadata.
+copies and do not share the prepared output interpreter. Equal but separately
+constructed grammars are deliberately not deduplicated.
 
 ## Enumeration counts
 

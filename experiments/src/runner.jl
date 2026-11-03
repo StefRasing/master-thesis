@@ -75,8 +75,70 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
     return result
 end
 
+"""Compile shared search paths using a fixed, task-independent synthetic workload.
+
+Run on every invocation, including resume. Never share its search state or RNG.
+"""
+function warmup_search!(adapter, benchmark)
+    grammar = @csgrammar begin
+        Start = 1
+        Start = 2
+        Start = Start + Start
+    end
+    problem = Problem("timing-warmup", [IOExample(Dict{Symbol,Any}(), 99)])
+    for algorithm in (:heuristic, :phalcon)
+        iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
+            problem, rng=Random.Xoshiro(0), cost=_ -> 1, rule_costs=[1, 1, 1],
+            population_size=20, candidate_pool_size=4, max_extension_size=1,
+            max_initial_population_size=3, max_generations_without_improvement=1)
+        if algorithm == :heuristic
+            initialize!(iterator)
+            find_solution(iterator)
+        else
+            phalcon(; iterator, timeout=Inf, max_number_of_properties=1,
+                property_types=[:Start], max_property_cost=1, rule_cost_func=_ -> 1)
+        end
+    end
+    # Canonical representatives are independent of selected tasks, shard, order,
+    # seed and resume position. Cover benchmark-specific output/property types.
+    seen = Set{Symbol}()
+    for (problem, grammar) in benchmark_tasks(ExperimentConfig(; benchmark), adapter)
+        output_type = grammar.types[1]
+        output_type in seen && continue
+        push!(seen, output_type)
+        sample = Problem("timing-types", problem.spec[1:1])
+        property_grammar = get(adapter.property_options, :grammar_to_property_grammar,
+            Phalcon._grammar_to_property_grammar)(grammar)
+        find_property!(; benchmark=adapter.benchmark, problem=sample,
+            grammar=property_grammar, local_optimum_outputs=[[sample.spec[1].out]],
+            property_types=adapter.property_options.property_types, max_cost=1,
+            rule_costs=Int[adapter.rule_cost(r) for r in property_grammar.rules],
+            max_output_bytes=get(adapter.property_options, :max_output_bytes, 21 * 1024^2))
+    end
+    return nothing
+end
+
+"""Prepare a grammar interpreter outside measurement, discarding all search state.
+
+Exercise the benchmark's types using the same bounded extension enumeration used
+by initialization. Only the generated interpreter survives; populations, outputs,
+counters and the private RNG do not pass to the measured trial.
+"""
+function prepare_interpreter(config, adapter, problem, grammar)
+    train, _, _ = split_problem(problem, config.test_indices)
+    interpreter = HerbInterpret.make_output_interpreter(grammar;
+        target_module=adapter.benchmark, cache_module=adapter.benchmark)
+    iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
+        problem=train, interpreter, rng=Random.Xoshiro(0), cost=_ -> 1,
+        rule_costs=Int[adapter.rule_cost(r) for r in grammar.rules],
+        max_extension_size=1, max_initial_population_size=1)
+    initialize!(iterator)
+    return interpreter
+end
+
 function run_experiment(config::ExperimentConfig; io::IO=stdout)
     config.algorithm in (:phalcon, :heuristic) || throw(ArgumentError("unknown algorithm"))
+    config.timing_protocol == :warmed_v1 || throw(ArgumentError("unsupported timing protocol"))
     config.repetitions > 0 || throw(ArgumentError("repetitions must be positive"))
     adapter = benchmark_adapter(config.benchmark)
     RuntimeGeneratedFunctions.init(adapter.benchmark)
@@ -94,9 +156,9 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
     configuration = config.store ? Dict(string(k) => json_value(getfield(config, k)) for k in fieldnames(ExperimentConfig)
         if !(k in (:output, :store, :repetitions))) : nothing
     results = Any[]
-    # Run-owned reuse for the fixed grammar objects returned by the adapter.
-    # Property grammars are deep copies; none of these grammars are mutated.
-    # Keep construction lazy so it remains inside the first trial's timeout.
+    # Repeat preparation after resume; never rely on completed trials to warm Julia.
+    isempty(tasks) || warmup_search!(adapter, config.benchmark)
+    # Run-owned reuse of explicitly prepared, unchanged grammar interpreters.
     interpreters = IdDict{Any,Base.RefValue{Any}}()
     !config.store && println(io, "$(config.algorithm) · $(config.benchmark) · $(length(tasks)) problems · $(config.repetitions) repetitions")
     for (problem, grammar) in tasks
@@ -106,8 +168,12 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
             seed_key = Dict("seed"=>config.seed, "run"=>config.run, "problem"=>problem.name, "repetition"=>repetition)
             seed = parse(UInt64, fingerprint(seed_key)[1:16]; base=16)
             if !config.store
+                ref = isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref
+                if isnothing(ref[]) && !(config.algorithm == :heuristic && config.benchmark == :strings && grammar.rules[1] != :ntString)
+                    ref[] = prepare_interpreter(config, adapter, problem, grammar)
+                end
                 result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref)
+                    interpreter_ref=ref)
                 display_result(io, result; repetition, repetitions=config.repetitions)
                 push!(results, result)
                 continue
@@ -116,9 +182,13 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
                 "seed"=>string(seed), "repetition"=>repetition,
                 "provenance_sha256"=>provenance_hash)
             config.store && completed_run(path, identity) && continue
+            ref = isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref
+            if isnothing(ref[]) && !(config.algorithm == :heuristic && config.benchmark == :strings && grammar.rules[1] != :ntString)
+                ref[] = prepare_interpreter(config, adapter, problem, grammar)
+            end
             started = string(now(UTC))
             result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref)
+                    interpreter_ref=ref)
             record = Dict("schema_version"=>3, "run_id"=>fingerprint(identity),
                 "identity"=>identity, "rng"=>"Random.Xoshiro", "provenance_sha256"=>provenance_hash,
                 "started_at_utc"=>started, "completed_at_utc"=>string(now(UTC)), "result"=>result)

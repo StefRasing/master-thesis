@@ -6,7 +6,7 @@ using .Experiments
     bitvectors = benchmark_adapter(:bitvectors)
     arc = benchmark_adapter(:arc)
     @test strings.property_options.max_property_cost == 3
-    @test bitvectors.property_options.max_property_cost == 4
+    @test bitvectors.property_options.max_property_cost == 3
     @test arc.candidate_pool_size == 10000
     @test !arc.rule_cost(:(objects(x)))
     @test arc.rule_cost(:(rotate(x)))
@@ -276,4 +276,32 @@ end
     @test ns[1](4) == false
     @test isnothing(ns[2])
     @test ns[3](4) == true
+end
+
+@testset "Warmed timing protocol" begin
+    adapter = benchmark_adapter(:strings)
+    task = only(Experiments.benchmark_tasks(ExperimentConfig(task_names=["2171308"]), adapter))
+    config = ExperimentConfig(store=false, timeout=0)
+    @test config.timing_protocol == :warmed_v1
+    @test_throws ArgumentError run_experiment(ExperimentConfig(timing_protocol=:unknown))
+    prepared = Experiments.prepare_interpreter(config, adapter, task.problem, task.grammar)
+    ref = Ref{Any}(prepared)
+    result = Experiments.run_trial(config, adapter, task.problem, task.grammar; interpreter_ref=ref)
+    @test ref[] === prepared
+    @test result["programs_enumerated"] == 0
+    @test !result["solved_train_examples"]
+    # Preparation/warm-up must not consume the caller's default random stream.
+    Experiments.Random.seed!(123)
+    expected = Experiments.Random.rand(UInt64)
+    Experiments.Random.seed!(123)
+    Experiments.warmup_search!(adapter, :strings)
+    Experiments.prepare_interpreter(config, adapter, task.problem, task.grammar)
+    @test Experiments.Random.rand(UInt64) == expected
+    for benchmark in (:bitvectors, :arc)
+        @test isnothing(Experiments.warmup_search!(benchmark_adapter(benchmark), benchmark))
+    end
+    results = run_experiment(ExperimentConfig(store=false, timeout=0,
+        task_names=["2171308"], repetitions=2, reuse_interpreter=false); io=IOBuffer())
+    @test length(results) == 2
+    @test all(r -> r["programs_enumerated"] == 0, results)
 end

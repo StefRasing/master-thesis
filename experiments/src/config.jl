@@ -8,6 +8,7 @@ Base.@kwdef struct ExperimentConfig
     timeout::Real = 1800
     verbose::Bool = false
     reuse_interpreter::Bool = true
+    timing_protocol::Symbol = :warmed_v1
     output::Union{Nothing,String} = nothing
     store::Bool = true
     task_names::Union{Nothing,Vector{String}} = nothing

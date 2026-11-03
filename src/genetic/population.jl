@@ -57,7 +57,8 @@ function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
     iter.rules_in_recursive_rules = [type in recurisve_types for type in types]
 
     # A supplied interpreter belongs to this unchanged grammar/module context.
-    # Keep it across trials; construction still falls inside initialization's budget.
+    # Experiment runners prepare it before timing; standalone callers construct
+    # it here, inside initialization's budget.
     if isnothing(iter.interpreter)
         iter.interpreter = HerbInterpret.make_output_interpreter(grammar, target_module=iter.benchmark, cache_module=iter.benchmark)
     end
