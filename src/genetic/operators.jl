@@ -60,13 +60,8 @@ function mutate(iter::GeneticIterator, individual::RuleNodeWithRuleCounts)::Tupl
         # Select a random subprogram to replace. Every node is allowed in this case
         old_node, replacement_path = random_subtree(iter, individual, [true for _ in types])
 
-        # Obtain type and select a random rule of that type and fill with random extensions
+        # Obtain type and select a random extensions of that type
         replacement_type = types[old_node.rule]
-        # Keep the discarded construction for now: removing it changes RNG consumption
-        # and interpreter calls. See docs/genetic-search.md before optimizing.
-        replacement_rule = rand(iter.rng, [rule_id for (rule_id, type) in enumerate(grammar.types) if type == replacement_type])
-        children = [rand(iter.rng, iter.extensions[child_type]) for child_type in grammar.childtypes[replacement_rule]]
-        replacement = RuleNodeWithRuleCounts(iter, replacement_rule, children)
         replacement = rand(iter.rng, iter.extensions[replacement_type])
 
         # Replace and return

@@ -88,3 +88,19 @@ trial results. It prints training/test status, elapsed time, evaluation count,
 and solution per trial, followed by totals. Playground clients keep these plain
 results in `playground_results` and return `nothing` to avoid a REPL data dump.
 All playgrounds use `store=false`; stored experiment runs retain archival metadata.
+
+## Interpreter reuse
+
+By default, `ExperimentConfig(reuse_interpreter=true)` shares one generated output
+interpreter across repetitions and tasks that reference the same grammar object
+within a single `run_experiment` call. Construction remains lazy, inside the
+first initialization's timing and timeout. Later trials still initialize their
+own extensions, populations, counters, and RNGs. No outputs or problem data are
+cached in the interpreter. Resuming a run in another process starts cold again.
+Use `reuse_interpreter=false` for fresh-interpreter timing comparisons.
+
+Adapter grammars must remain unchanged during a run. Property grammars are deep
+copies and do not share this interpreter. Separately constructed equal grammars
+are deliberately not deduplicated; this is run-scoped ownership, with no global
+structural cache. Reuse is included in archived configuration identities, while
+generated function objects are excluded from JSON metadata.

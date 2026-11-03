@@ -36,7 +36,11 @@ For custom verbose output, pass `display_outputs` to `phalcon` (for example,
 an experiment-specific adapter, outside the search module.
 
 Run the regression tests with `julia --project=. test/runtests.jl`. The tests use
-the dependencies pinned in `Manifest.toml`; no sibling checkout is required. CI instantiates that environment and runs the same entry point.
+the dependencies pinned in `Manifest.toml`. This development environment links
+`HerbInterpret` to `../HerbInterpret.jl`, which contains the rule-local compiler
+change; keep that sibling checkout available when instantiating or running jobs.
+Before using a standalone checkout in CI or on a cluster, publish the HerbInterpret
+change and replace the local path with its pinned revision.
 
 Experiments share `experiments/src/Experiments.jl`, with benchmark adapters for strings,
 bitvectors, and ARC. Instantiate the environment once before running jobs:
@@ -89,3 +93,9 @@ optimum remain inadmissible in both modes.
 Stored runs use version 3 records in `.runs/` directories. Resume matches exact
 run identities, including configuration, seed, repetition, code and environment.
 See `experiments/README.md` for the schema and legacy export.
+
+Genetic search components live in `src/genetic/`. Ancestry diagnostics remain
+off by default; pass `track_ancestry=true` to `GeneticIterator` to retain
+parent history for diagnostic printing. See [genetic search notes](docs/genetic-search.md)
+for the component map, behavior guarantees, profiling command and the discarded
+replacement optimization awaiting discussion.

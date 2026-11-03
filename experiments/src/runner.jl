@@ -27,7 +27,7 @@ function split_problem(problem, test_indices)
     return Problem(problem.name, problem.spec[train_indices]), Problem(problem.name, problem.spec[test_indices]), train_indices
 end
 
-function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed))
+function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing))
     train, test, train_indices = split_problem(problem, config.test_indices)
     # Keep unsupported string problems in the results, as in the original runners.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
@@ -35,14 +35,14 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
     result = OrderedDict{String,Any}("problem_name"=>problem.name, "solved_train_examples"=>false,
         "solution"=>nothing, "programs_enumerated"=>0, "execution_time"=>0.0)
     if supported
-        options = merge((benchmark=adapter.benchmark, problem=train,
+        options = merge((benchmark=adapter.benchmark, problem=train, interpreter=interpreter_ref[],
             cost=config.algorithm == :phalcon ? (_ -> 0) : (pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)),
             population_size=20, candidate_pool_size=adapter.candidate_pool_size,
             max_generations_without_improvement=config.algorithm == :phalcon ? 10 : 4,
             max_extension_size=1, max_initial_population_size=1, max_size=50,
             rule_costs=Int[adapter.rule_cost(r) for r in grammar.rules]), config.iterator_options)
         iterator = GeneticIterator(grammar, :Start; options..., rng)
-        effective_iterator = config.store ? Dict(string(k)=>json_value(v) for (k,v) in pairs(options) if k != :problem) : nothing
+        effective_iterator = config.store ? Dict(string(k)=>json_value(v) for (k,v) in pairs(options) if !(k in (:problem, :interpreter))) : nothing
         effective_phalcon = nothing
         if config.algorithm == :phalcon
             options = merge((max_number_of_properties=20, rule_cost_func=adapter.rule_cost,
@@ -58,6 +58,7 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
             result["solved_train_examples"] = !isnothing(solution)
             result["solution"] = isnothing(solution) ? nothing : string(rulenode2expr(solution, grammar))
         end
+        interpreter_ref[] = iterator.interpreter
     end
     config.store && (result["effective_configuration"] = supported ? Dict("iterator"=>effective_iterator, "phalcon"=>effective_phalcon) : nothing)
     result["train_test_split"] = (train_indices, config.test_indices)
@@ -85,14 +86,20 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
     configuration = config.store ? Dict(string(k) => json_value(getfield(config, k)) for k in fieldnames(ExperimentConfig)
         if !(k in (:output, :store, :repetitions))) : nothing
     results = Any[]
+    # Run-owned reuse for the fixed grammar objects returned by the adapter.
+    # Property grammars are deep copies; none of these grammars are mutated.
+    # Keep construction lazy so it remains inside the first trial's timeout.
+    interpreters = IdDict{Any,Base.RefValue{Any}}()
     !config.store && println(io, "$(config.algorithm) · $(config.benchmark) · $(length(tasks)) problems · $(config.repetitions) repetitions")
     for (problem, grammar) in tasks
+        interpreter_ref = config.reuse_interpreter ? get!(() -> Ref{Any}(nothing), interpreters, grammar) : nothing
         for repetition in 1:config.repetitions
             # Independent streams: resume/order/sharding do not consume other runs' RNG state.
             seed_key = Dict("seed"=>config.seed, "run"=>config.run, "problem"=>problem.name, "repetition"=>repetition)
             seed = parse(UInt64, fingerprint(seed_key)[1:16]; base=16)
             if !config.store
-                result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed))
+                result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
+                    interpreter_ref=isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref)
                 display_result(io, result; repetition, repetitions=config.repetitions)
                 push!(results, result)
                 continue
@@ -102,7 +109,8 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
                 "provenance_sha256"=>provenance_hash)
             config.store && completed_run(path, identity) && continue
             started = string(now(UTC))
-            result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed))
+            result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
+                    interpreter_ref=isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref)
             record = Dict("schema_version"=>3, "run_id"=>fingerprint(identity),
                 "identity"=>identity, "rng"=>"Random.Xoshiro", "provenance_sha256"=>provenance_hash,
                 "started_at_utc"=>started, "completed_at_utc"=>string(now(UTC)), "result"=>result)
