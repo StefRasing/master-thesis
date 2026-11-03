@@ -5,6 +5,11 @@ struct Property
     reduction_rate::Number
 end
 
+"""Find a property using fresh task outputs and enumeration state on every call.
+
+An optional `interpreter` may be reused only for the same unchanged grammar and
+benchmark module. It caches generated code, not inputs, outputs or search state.
+"""
 function find_property!(;
     benchmark,
     problem,
@@ -13,6 +18,7 @@ function find_property!(;
     property_types::Vector{Symbol},
     max_cost::Int64,
     rule_costs::Vector{Int},
+    interpreter = nothing,
     prune_node_by_output::Function = _ -> false,
     max_output_bytes::Int = 21 * 1024^2,
     deadline::Real = Inf,
@@ -25,7 +31,8 @@ function find_property!(;
     _check_deadline(deadline)
     target_outputs = [io.out for io in problem.spec]
 
-    interp = HerbInterpret.make_output_interpreter(grammar, target_module=benchmark, cache_module=benchmark)
+    interp = isnothing(interpreter) ?
+        HerbInterpret.make_output_interpreter(grammar, target_module=benchmark, cache_module=benchmark) : interpreter
     specs = [(new_in = copy(io.in); new_in[:_arg_out] = y; new_in) for (io, y) in zip(Iterators.cycle(problem.spec), [target_outputs; local_optimum_outputs...])]
     interp_all = (rule, os) -> begin
         properties_enumerated[] += 1

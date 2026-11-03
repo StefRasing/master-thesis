@@ -127,7 +127,13 @@ objects within one invocation. `false` prepares a new interpreter before each
 trial; both settings exclude output-interpreter preparation from measurement.
 Resuming repeats warm-up and prepares interpreters before remaining trials.
 Property grammars, property interpreters and property search created by Phalcon
-remain inside the measured budget. Test-set evaluation remains outside it.
+remain inside the measured budget. Within one Phalcon run, property enumeration
+reuses its output interpreter for the unchanged property grammar and benchmark
+module. It is created lazily during the first property search; its construction
+and any compilation stay inside that search's budget. Inputs, candidate outputs,
+enumeration banks and counters are rebuilt or updated per search as before; no
+property-search state or interpreter is retained across Phalcon runs. Test-set
+evaluation remains outside it.
 The common configured timeout includes search initialization and search; cancellation
 is cooperative and can overshoot during an individual DSL or compiler call.
 

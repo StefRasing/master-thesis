@@ -76,6 +76,9 @@ function phalcon(;
 
         property_interpreter = HerbInterpret.make_interpreter(property_grammar, target_module=iterator.benchmark, cache_module=iterator.benchmark)
         property_interp = (program, io, y) -> property_interpreter(program, (new_in = copy(io.in); new_in[:_arg_out] = y; new_in))
+        # This grammar/module pair stays fixed for this run. Reuse generated code
+        # across property searches, while find_property! builds fresh search state.
+        property_output_interpreter = nothing
 
         while _search_time() < deadline
             # Run search and return if it found the solution
@@ -112,10 +115,16 @@ function phalcon(;
 
             # Find new property
             start_time = time()
+            if isnothing(property_output_interpreter)
+                _check_deadline(deadline)
+                property_output_interpreter = HerbInterpret.make_output_interpreter(property_grammar;
+                    target_module=iterator.benchmark, cache_module=iterator.benchmark)
+            end
             property = find_property!(
                 benchmark = iterator.benchmark,
                 problem = iterator.problem,
                 grammar = property_grammar,
+                interpreter = property_output_interpreter,
                 local_optimum_outputs = outputs,
                 property_types = property_types,
                 max_cost = max_property_cost,

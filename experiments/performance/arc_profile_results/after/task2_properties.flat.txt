@@ -1,0 +1,410 @@
+ Count  Overhead File                    Line Function
+ =====  ======== ====                    ==== ========
+     2         0 @Base/iterators.jl        ? iterate
+     2         2 @juliasrc/julia.h      1515 jl_is_layout_opaque
+     2         0 @Base/array.jl          819 _collect(c::Vector{Vector{Tuple{I…
+     2         2 @juliasrc/gc-stock.c    736 jl_gc_small_alloc_inner
+     2         0 @juliasrc/jltypes.c     119 has_free_typevars
+     2         2 @juliasrc/jltypes.c       ? has_free_typevars
+     2         1 @juliasrc/datatype.c   1907 set_nth_field
+     2         1 @Base/dict.jl           279 ht_keyindex2_shorthash!(h::Dict{A…
+     2         0 @Base/dict.jl           133 isslotempty
+     2         0 @Base/hashing.jl         47 hash_64_64
+     2         0 @juliasrc/typemap.c    1152 jl_typemap_entry_assoc_exact
+     2         2 @juliasrc/subtype.c    2249 ijl_subtype_env
+     2         2 @juliasrc/julia_internal.h 1815 jl_typemap_assoc_exact
+     2         1 @juliasrc/subtype.c    2153 obvious_subtype
+     2         2 @juliasrc/subtype.c       ? local_forall_exists_subtype
+     2         0 @juliasrc/gf.c         4151 jl_lookup_generic_
+     2         0 @juliasrc/gf.c         3067 arg_type_tuple
+     2         0 @Base/multidimensional.jl 1764 unique
+     2         0 @Base/multidimensional.jl 1764 #unique#548
+     2         0 @Base/multidimensional.jl 1766 _unique_dims
+     2         0 @Base/set.jl            230 unique(itr::Vector{Int64})
+     2         0 @juliasrc/subtype.c    1962 obvious_subtype
+     2         1 @juliasrc/subtype.c    1989 obvious_subtype
+     2         0 @Base/array.jl          826 collect_to_with_first!
+     2         0 @Base/array.jl          848 collect_to!
+     2         2 @julialib/julia/sys.dylib    ? __truncsdbf2
+     2         1 @juliasrc/subtype.c     404 obviously_egal
+     2         1 @Base/sort.jl          1952 sortperm(A::Vector{Int64})
+     2         0 @Base/array.jl          986 setindex!
+     2         2 @Base/array.jl          991 _setindex!
+     2         0 @juliasrc/subtype.c    2045 obvious_subtype
+     2         2 @juliasrc/julia.h      1852 jl_is_type_type
+     2         0 @HerbBenchmarks/…GI1/arc_primitives.jl  309 height(patch::Vector{Tuple{Int64,…
+     2         2 @juliasrc/subtype.c    2052 obvious_subtype
+     2         0 @juliasrc/gf.c         4126 jl_lookup_generic_
+     2         2 @juliasrc/subtype.c    2065 obvious_subtype
+     2         0 @juliasrc/jltypes.c    2138 inst_datatype_inner
+     2         0 @juliasrc/jltypes.c    1121 lookup_type
+     2         0 @Base/abstractarray.jl 3582 hash(A::Vector{Tuple{Int64, Carte…
+     2         0 @juliasrc/subtype.c    1629 local_forall_exists_subtype
+     2         0 @juliasrc/typemap.c    1238 jl_typemap_level_assoc_exact
+     2         0 @Base/dict.jl           274 ht_keyindex2_shorthash!(h::Dict{T…
+     2         0 @Base/dict.jl           128 hashindex
+     2         0 @Base/hashing.jl         28 hash
+     2         2 …ibsystem_malloc.dylib    ? _xzm_xzone_malloc_small_freelist
+     2         0 @Base/dict.jl           363 setindex!(h::Dict{Tuple{Int64, Ca…
+     2         0 @Base/dict.jl           329 _setindex!
+     2         0 @juliasrc/builtins.c   2092 jl_f__compute_sparams
+     2         0 @Base/dict.jl           248 ht_keyindex(h::Dict{Tuple{Int64, …
+     2         0 @Base/summarysize.jl     86 summarysize(obj::Any; exclude::An…
+     2         2 @juliasrc/subtype.c     795 var_lt
+     2         2 @juliasrc/subtype.c    1955 obvious_subtype
+     2         0 @juliasrc/subtype.c    2425 jl_tuple1_isa
+     2         0 @juliasrc/subtype.c    2316 ijl_subtype
+     2         0 @juliasrc/subtype.c    1630 local_forall_exists_subtype
+     2         2 @juliasrc/jltypes.c     223 jl_has_bound_typevars
+     2         0 @Base/boot.jl           648 Array
+     2         1 @juliasrc/subtype.c     771 var_lt
+     2         0 @HerbBenchmarks/…GI1/arc_primitives.jl  851 color(object::Vector{Tuple{Int64,…
+     2         0 @juliasrc/datatype.c   1871 set_nth_field
+     2         2 @juliasrc/julia.h      1594 jl_field_isptr
+     2         0 @Base/reduce.jl         696 maximum
+     2         0 @Base/reduce.jl         696 #maximum#284
+     2         0 @juliasrc/subtype.c    1740 forall_exists_equal
+     2         2 @juliasrc/jltypes.c     110 has_free_typevars
+     2         2 @juliasrc/subtype.c     926 unalias_unionall
+     2         0 @juliasrc/jltypes.c    1805 typekey_hash
+     2         0 @Base/array.jl         1136 (::Base.var"#_growend!##0#_growen…
+     2         2 @Base/array.jl          194 size
+     2         0 @HerbBenchmarks/…GI1/arc_primitives.jl  340 mostcolor(grid::Matrix{Int64})
+     2         0 @StatsBase/src/counts.jl  433 countmap
+     2         0 @StatsBase/src/counts.jl  433 countmap(x::Matrix{Int64}; alg::S…
+     2         2 @juliasrc/gf.c         3994 _jl_invoke
+     2         0 @Base/iterators.jl        ? iterate(f::Base.Iterators.Flatten…
+     2         0 @juliasrc/gf.c         1499 lookup_leafcache
+     2         0 @juliasrc/subtype.c    2410 jl_tuple1_isa
+     2         2 @juliasrc/julia.h      1835 jl_is_tuple_type
+     2         0 @HerbBenchmarks/…GI1/arc_primitives.jl  743 objects(grid::Matrix{Int64}, univ…
+     2         0 @Base/abstractarray.jl 1238 isempty
+     2         0 @HerbBenchmarks/…GI1/arc_primitives.jl  764 objects(grid::Matrix{Int64}, univ…
+     2         2 @juliasrc/jltypes.c    1134 lookup_typevalue
+     2         2 @juliasrc/jltypes.c    1009 typekeyvalue_eq
+     2         2 @juliasrc/jltypes.c    2501 jl_inst_arg_tuple_type
+     2         2 @juliasrc/gc-stock.c    789 jl_gc_alloc_
+     2         2 @julialib/julia/sys.dylib    ? jfptr_NOT._58919.1
+     2         2 @juliasrc/gc-stock.c    727 jl_gc_small_alloc_inner
+     2         2 @juliasrc/subtype.c    1935 obvious_subtype
+     2         2 @juliasrc/builtins.c    472 jl_object_id__cold
+     2         0 @Base/array.jl         1293 _push!
+     2         2 @Base/array.jl         1010 __safe_setindex!
+     2         1 @juliasrc/jltypes.c    1016 typekeyvalue_eq
+     2         2 @juliasrc/support/hashing.c   34 int64hash
+     2         0 @juliasrc/builtins.c    939 arg_tuple
+     2         2 @juliasrc/jltypes.c    1811 typekey_hash
+     2         1 @juliasrc/jltypes.c    1828 typekeyvalue_hash
+     2         0 @Base/array.jl         1151 (::Base.var"#_growend!##0#_growen…
+     2         0 @Base/array.jl          621 Vector{Vector{Tuple{Int64, Cartes…
+     2         2 @juliasrc/builtins.c    338 hash_svec
+     2         2 @juliasrc/datatype.c   1912 set_nth_field
+     2         2 @juliasrc/jltypes.c    1008 typekeyvalue_eq
+     2         1 @julialib/julia/sys.dylib    ? jfptr_iterate_48027.1
+     3         0 @Base/hashing.jl         49 hash_64_64
+     3         0 @Base/array.jl          790 collect(itr::Base.Generator{Base.…
+     3         0 @juliasrc/subtype.c    2414 jl_tuple1_isa
+     3         3 @Base/int.jl            379 xor
+     3         0 @Base/reduce.jl          92 MappingRF
+     3         0 @Base/summarysize.jl    151 (::Base.SummarySize)(obj::Memory{…
+     3         0 @juliasrc/subtype.c    2417 jl_tuple1_isa
+     3         0 @juliasrc/iddict.c      128 jl_table_peek_bp
+     3         3 @juliasrc/julia.h      1882 jl_egal_
+     3         0 @juliasrc/subtype.c    2144 obvious_subtype
+     3         0 @Base/boot.jl           647 Array
+     3         0 @juliasrc/genericmemory.c   41 jl_alloc_genericmemory_unchecked
+     3         0 …azy_cost_based_bus.jl   92 assemble(iter::Main.Experiments.P…
+     3         0 @Base/array.jl          795 collect(itr::Base.Generator{Vecto…
+     3         3 @juliasrc/subtype.c    2529 ijl_isa
+     3         1 @juliasrc/subtype.c    1737 forall_exists_equal
+     3         3 @juliasrc/julia.h       982 jl_to_typeof
+     3         3 @juliasrc/julia.h      1853 jl_is_type_type
+     3         0 @juliasrc/typemap.c     312 mtcache_hash_lookup
+     3         3 @juliasrc/subtype.c    1936 obvious_subtype
+     3         0 @Base/int.jl           1015 *
+     3         0 @HerbBenchmarks/…GI1/arc_primitives.jl  292 lowermost(object::Vector{Tuple{In…
+     3         0 @juliasrc/builtins.c   1727 jl_f_memoryrefnew
+     3         0 @HerbBenchmarks/…GI1/arc_primitives.jl  614 shift(object::Vector{Tuple{Int64,…
+     3         0 @Base/array.jl          795 collect
+     3         0 @Base/array.jl          670 _array_for_inner
+     3         0 @Base/abstractarray.jl  866 similar
+     3         0 @Base/abstractarray.jl  867 similar
+     3         0 @juliasrc/subtype.c    1613 has_exists_typevar
+     3         3 …system_platform.dylib    ? __bzero
+     3         0 @Base/abstractarray.jl 1342 getindex(A::Vector{Vector{Tuple{I…
+     3         3 @juliasrc/subtype.c    2252 ijl_subtype_env
+     3         0 @juliasrc/subtype.c     957 subtype_unionall
+     3         3 @juliasrc/builtins.c    463 jl_object_id__cold
+     3         0 @Base/array.jl          885 grow_to!(dest::Vector{Main.Experi…
+     3         0 @Base/abstractarray.jl  699 checkbounds
+     3         0 @Base/abstractarray.jl  681 checkbounds
+     3         0 @Base/abstractarray.jl   98 axes
+     3         3 @juliasrc/iddict.c      156 ijl_eqtable_get
+     3         0 @juliasrc/builtins.c    342 hash_svec
+     3         3 @julialib/…internal.1.12.5.dylib    ? libsupport_init.cold.1
+     3         0 @HerbBenchmarks/…GI1/arc_primitives.jl  763 objects(grid::Matrix{Int64}, univ…
+     3         3 @juliasrc/jltypes.c       ? typekeyvalue_hash
+     3         0 @HerbBenchmarks/…GI1/arc_primitives.jl  762 objects(grid::Matrix{Int64}, univ…
+     3         3 @juliasrc/gc-stock.c    734 jl_gc_small_alloc_inner
+     3         0 @HerbBenchmarks/…GI1/arc_primitives.jl  731 objects(grid::Matrix{Int64}, univ…
+     3         1 @julialib/julia/sys.dylib    ? jfptr_iterate_48043.1
+     4         0 @Base/generator.jl       45 iterate
+     4         4 @Base/essentials.jl     386 getindex
+     4         0 @juliasrc/jltypes.c    1409 inst_datatype_env
+     4         4 @juliasrc/subtype.c    2479 ijl_isa
+     4         0 @HerbBenchmarks/…GI1/arc_primitives.jl  847 numcolors(element::Vector{Tuple{I…
+     4         0 @HerbBenchmarks/…GI1/arc_primitives.jl  775 palette(object::Vector{Tuple{Int6…
+     4         4 @juliasrc/subtype.c    2235 obvious_subtype
+     4         0 @juliasrc/subtype.c    2130 obvious_subtype
+     4         4 @juliasrc/julia.h         ? jl_svecref
+     4         0 @Base/summarysize.jl    100 _summarysize(ss::Base.SummarySize…
+     4         4 …bsystem_pthread.dylib    ? ___chkstk_darwin
+     4         4 …system_platform.dylib    ? _platform_memmove
+     4         3 @Base/Base_compiler.jl   54 getproperty
+     4         4 @juliasrc/typemap.c       ? sig_match_simple
+     4         0 @juliasrc/iddict.c       47 jl_table_assign_bp
+     4         4 @juliasrc/builtins.c    496 ijl_object_id_
+     4         0 @juliasrc/datatype.c   1858 ijl_get_nth_field_checked
+     4         4 @juliasrc/builtins.c    462 jl_object_id__cold
+     4         2 @Base/array.jl          928 getindex
+     4         4 @Base/essentials.jl      11 length
+     4         0 @HerbBenchmarks/…GI1/arc_primitives.jl  754 objects(grid::Matrix{Int64}, univ…
+     4         0 @juliasrc/datatype.c   1866 set_nth_field
+     4         2 @juliasrc/julia.h      1586 jl_field_offset
+     5         0 @Base/operators.jl      642 +
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  341 mostcolor(object::Vector{Tuple{In…
+     5         1 @juliasrc/subtype.c    1290 subtype_tuple_tail
+     5         0 @juliasrc/subtype.c    2011 obvious_subtype
+     5         0 @juliasrc/typemap.c    1135 jl_typemap_entry_assoc_exact
+     5         0 @juliasrc/typemap.c    1240 jl_typemap_level_assoc_exact
+     5         0 @Base/array.jl          815 _collect(c::Vector{Vector{Tuple{I…
+     5         0 @Base/summarysize.jl    146 (::Base.SummarySize)(obj::Memory{…
+     5         0 @Base/abstractdict.jl    19 haskey
+     5         0 @Base/iddict.jl         182 in
+     5         0 @Base/iddict.jl          92 get
+     5         0 @Base/boot.jl           660 Array
+     5         1 @HerbBenchmarks/…GI1/arc_primitives.jl  219 order_by(container::Vector{Vector…
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  313 width(patch::Vector{Tuple{Int64, …
+     5         5 @juliasrc/iddict.c      125 jl_table_peek_bp
+     5         5 @juliasrc/gf.c         4045 sig_match_fast
+     5         5 @Base/int.jl             88 *
+     5         0 @Base/summarysize.jl     93 (::Base.SummarySize)(obj::Any)
+     5         0 @juliasrc/iddict.c       25 ijl_idtable_rehash
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  571 _object_period(normalized::Vector…
+     5         0 @Base/set.jl             92 in
+     5         0 @Base/dict.jl           548 haskey
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  296 uppermost(object::Vector{Tuple{In…
+     5         0 @juliasrc/typemap.c    1209 jl_typemap_level_assoc_exact
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  759 objects(grid::Matrix{Int64}, univ…
+     5         0 @juliasrc/gc-stock.c    775 ijl_gc_small_alloc
+     5         2 @juliasrc/support/hashing.h   31 bitmix
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  745 objects(grid::Matrix{Int64}, univ…
+     5         0 @Base/array.jl         1616 pop!
+     5         0 @Base/array.jl         1233 _deleteend!
+     5         5 @Base/range.jl          921 iterate
+     5         4 …ibsystem_malloc.dylib    ? _xzm_xzone_malloc_freelist_outlin…
+     5         5 @juliasrc/jltypes.c    1147 lookup_typevalue
+     5         0 @HerbBenchmarks/…GI1/arc_primitives.jl  768 objects(grid::Matrix{Int64}, univ…
+     6         6 @Base/int.jl             87 +
+     6         0 @juliasrc/gc-stock.c    726 jl_gc_small_alloc_inner
+     6         6 @juliasrc/gc-stock.c    349 maybe_collect
+     6         0 @Base/reduce.jl         728 minimum
+     6         0 @Base/reduce.jl         728 #minimum#285
+     6         1 @julialib/julia/sys.dylib    ? jfptr_SummarySize_31695.1
+     6         0 @juliasrc/iddict.c      101 jl_table_assign_bp
+     6         0 @Base/dict.jl           356 setindex!(h::Dict{Tuple{Int64, Ca…
+     6         0 @juliasrc/subtype.c    1647 local_forall_exists_subtype
+     6         0 @Base/reduce.jl          55 _foldl_impl
+     6         5 @juliasrc/julia.h      1523 jl_datatype_layout
+     6         0 @juliasrc/builtins.c    940 arg_tuple
+     6         6 @juliasrc/gf.c            ? _jl_invoke
+     6         0 @Base/array.jl         1289 push!
+     7         0 @juliasrc/builtins.c    585 jl_f_isa
+     7         0 @Base/iddict.jl          86 setindex!
+     7         0 @juliasrc/iddict.c      146 ijl_eqtable_put
+     7         7 @juliasrc/gf.c         4208 ijl_apply_generic
+     7         0 @HerbBenchmarks/…GI1/arc_primitives.jl  561 _object_period(normalized::Vector…
+     7         0 @Base/iterators.jl      682 iterate
+     7         1 @juliasrc/jltypes.c    1823 typekeyvalue_hash
+     7         0 @HerbBenchmarks/…GI1/arc_primitives.jl  734 objects(grid::Matrix{Int64}, univ…
+     7         7 @juliasrc/gf.c         3992 _jl_invoke
+     7         7 @juliasrc/gf.c         3989 _jl_invoke
+     8         0 @Base/multidimensional.jl  147 hash
+     8         0 @Base/hashing.jl         78 hash_uint64
+     8         0 @juliasrc/builtins.c    942 arg_tuple
+     8         0 @juliasrc/jltypes.c     571 simple_subtype
+     8         0 @juliasrc/subtype.c    1969 obvious_subtype
+     8         0 @Base/reduce.jl         299 mapreduce
+     8         0 @Base/reduce.jl         299 #mapreduce#274
+     8         0 @Base/abstractset.jl    106 union!(s::Set{Tuple{Int64, Cartes…
+     8         0 @Base/set.jl            137 push!
+     8         0 @juliasrc/gc-stock.c   3830 ijl_gc_managed_malloc
+     8         0 @juliasrc/gc-common.h   112 jl_malloc_aligned
+     8         0 …ibsystem_malloc.dylib    ? _posix_memalign
+     8         0 …ibsystem_malloc.dylib    ? _malloc_zone_memalign
+     8         0 @HerbBenchmarks/…GI1/arc_primitives.jl  733 objects(grid::Matrix{Int64}, univ…
+     8         8 @juliasrc/gf.c         3991 _jl_invoke
+     8         1 @juliasrc/gf.c         4209 ijl_apply_generic
+     8         8 @juliasrc/gf.c         4042 sig_match_fast
+     9         0 @Base/reduce.jl         167 mapfoldl
+     9         0 @Base/reduce.jl         167 #mapfoldl#270
+     9         0 @Base/reduce.jl          36 mapfoldl_impl
+     9         0 @Base/reduce.jl          40 foldl_impl
+     9         0 @HerbBenchmarks/…GI1/arc_primitives.jl  218 order_by(container::Vector{Vector…
+     9         0 @juliasrc/jltypes.c     668 ijl_type_union
+     9         0 @HerbBenchmarks/…GI1/arc_primitives.jl  300 rightmost(object::Vector{Tuple{In…
+     9         0 @HerbBenchmarks/…GI1/arc_primitives.jl  304 leftmost(object::Vector{Tuple{Int…
+     9         9 @juliasrc/gf.c            ? sig_match_fast
+     9         3 @Base/boot.jl           594 memoryref
+     9         0 @juliasrc/genericmemory.c   38 jl_alloc_genericmemory_unchecked
+     9         9 @juliasrc/gf.c         4103 jl_lookup_generic_
+     9         0 @juliasrc/builtins.c    340 hash_svec
+     9         9 @juliasrc/julia.h      1309 jl_svecref
+     9         0 @Base/array.jl         1148 (::Base.var"#_growend!##0#_growen…
+     9         0 @Base/array.jl         1067 array_new_memory
+     9         9 @juliasrc/threading.c   262 ijl_get_pgcstack
+     9         5 @juliasrc/gf.c         4127 jl_lookup_generic_
+    10         0 @juliasrc/gc-stock.c    798 jl_gc_alloc_
+    10         0 @juliasrc/gc-stock.c    784 jl_gc_small_alloc_noinline
+    10        10 @juliasrc/subtype.c       ? obvious_subtype
+    10        10 @Base/essentials.jl     920 getindex
+    10         0 @juliasrc/builtins.c    341 hash_svec
+    10         0 @juliasrc/builtins.c    508 ijl_object_id
+    10        10 @juliasrc/gf.c         3995 _jl_invoke
+    10         0 @HerbBenchmarks/…GI1/arc_primitives.jl  761 objects(grid::Matrix{Int64}, univ…
+    11         0 @Base/tuple.jl          580 hash
+    11         0 @Base/hashing.jl         87 hash
+    11         0 @juliasrc/typemap.c    1162 jl_typemap_entry_assoc_exact
+    11         1 @juliasrc/subtype.c    2070 obvious_subtype
+    12         0 …azy_cost_based_bus.jl    7 _hash_outputs(outputs::Vector{Vec…
+    12         0 @Base/abstractarray.jl 3581 hash(A::Vector{Vector{Tuple{Int64…
+    12         8 @juliasrc/gf.c         4125 jl_lookup_generic_
+    13         0 …azy_cost_based_bus.jl  101 assemble(iter::Main.Experiments.P…
+    13         0 @HerbBenchmarks/…GI1/arc_primitives.jl   42 (::HerbBenchmarks.ARC_AGI1.var"#3…
+    13         0 @juliasrc/subtype.c    1776 forall_exists_equal
+    13         1 @juliasrc/jltypes.c    2479 jl_inst_arg_tuple_type
+    13         1 @Base/boot.jl           588 GenericMemory
+    13         0 @juliasrc/subtype.c    2132 obvious_subtype
+    13         0 @juliasrc/subtype.c    1669 local_forall_exists_subtype
+    14         6 @juliasrc/jltypes.c    1067 lookup_type_setvalue
+    14         0 @HerbBenchmarks/…GI1/arc_primitives.jl  582 hperiod(object::Vector{Tuple{Int6…
+    14         2 @Base/array.jl         1289 push!(a::Vector{Tuple{Int64, Cart…
+    14        14 @julialib/julia/sys.dylib    ? jfptr_LT.EQ._60993.1
+    14         0 @juliasrc/builtins.c    935 arg_tuple
+    15         0 @juliasrc/subtype.c    2076 obvious_subtype
+    15         0 @juliasrc/subtype.c    1942 obvious_subtype
+    15         0 @juliasrc/jltypes.c    1139 lookup_typevalue
+    15         0 @juliasrc/subtype.c     698 subtype_ccheck
+    15         0 @HerbBenchmarks/…GI1/arc_primitives.jl  585 vperiod(object::Vector{Tuple{Int6…
+    15         0 @juliasrc/jltypes.c    1136 lookup_typevalue
+    15         0 @Base/array.jl         1131 _growend!
+    15        15 @HerbBenchmarks/…GI1/arc_primitives.jl    ? objects(grid::Matrix{Int64}, univ…
+    16         4 @Base/array.jl          901 iterate
+    16         0 @juliasrc/subtype.c    1718 equal_var
+    16         0 @HerbBenchmarks/…GI1/arc_primitives.jl  628 normalize_zero_indexed(patch::Vec…
+    16         0 @Base/array.jl         1292 _push!
+    19         0 @juliasrc/typemap.c    1196 jl_typemap_level_assoc_exact
+    19        19 @juliasrc/datatype.c   1531 ijl_box_int64
+    19         0 @juliasrc/subtype.c    1295 subtype_tuple_tail
+    20        20 …urces/julia/bin/julia    ? jl_get_pgcstack_static
+    20         0 @juliasrc/gf.c         4141 jl_lookup_generic_
+    20         1 @juliasrc/gf.c         3072 lookup_arg_type_tuple
+    21         7 @juliasrc/gf.c         4124 jl_lookup_generic_
+    22         1 @juliasrc/builtins.c    475 jl_object_id__cold
+    23         0 @Base/summarysize.jl     87 summarysize(obj::Any; exclude::An…
+    23         0 @juliasrc/julia_internal.h 1816 jl_typemap_assoc_exact
+    24         0 @juliasrc/subtype.c    1374 subtype_tuple
+    26         0 none                      ? #9183
+    26         0 @HerbBenchmarks/…GI1/arc_primitives.jl  710 objects(grid::Matrix{Int64}, univ…
+    27         0 none                      ? var"##herb_output_rule#4964"(r::I…
+    28         0 @juliasrc/subtype.c    1554 subtype
+    29         0 @juliasrc/julia_internal.h 1820 jl_typemap_assoc_exact
+    30         0 @juliasrc/gf.c         4147 jl_lookup_generic_
+    30         1 @juliasrc/iddict.c      118 jl_table_peek_bp
+    32         0 @Base/array.jl          810 _collect(c::Vector{Vector{Tuple{I…
+    32         0 @Base/summarysize.jl     70 summarysize(obj::Any; exclude::An…
+    32         0 @Base/genericmemory.jl  110 isassigned
+    32         0 @juliasrc/builtins.c    502 ijl_object_id_
+    34         0 @Base/array.jl          820 _collect(c::Vector{Vector{Tuple{I…
+    34         6 @HerbBenchmarks/…GI1/arc_primitives.jl  752 objects(grid::Matrix{Int64}, univ…
+    37         1 @juliasrc/gf.c         1492 lookup_leafcache
+    38         0 @juliasrc/gf.c         4143 jl_lookup_generic_
+    39         0 @juliasrc/subtype.c    2279 ijl_subtype_env
+    39         0 @juliasrc/subtype.c    1820 forall_exists_subtype
+    39         0 @juliasrc/subtype.c    1791 exists_subtype
+    39         0 @juliasrc/subtype.c     965 subtype_unionall
+    40         0 @juliasrc/subtype.c    4580 jl_type_intersection_env_s
+    41         0 @juliasrc/builtins.c   2095 jl_f__compute_sparams
+    41         0 @juliasrc/gf.c         4214 ijl_apply_generic
+    42         0 @juliasrc/subtype.c    2267 ijl_subtype_env
+    42         0 @juliasrc/subtype.c    2239 ijl_obvious_subtype
+    43         0 @Base/summarysize.jl     56 summarysize(obj::Any; exclude::An…
+    43         0 @Base/abstractarray.jl  241 eltype
+    43         0 @juliasrc/iddict.c      157 ijl_eqtable_get
+    72         3 @HerbBenchmarks/…GI1/arc_primitives.jl  751 objects(grid::Matrix{Int64}, univ…
+    74         0 @Base/array.jl          732 collect_similar(cont::Vector{Vect…
+    77         0 @Base/abstractarray.jl 3372 map(f::Function, A::Vector{Vector…
+    78         0 @HerbBenchmarks/…GI1/arc_primitives.jl  217 order_by(container::Vector{Vector…
+    92         0 none                      ? #9009
+    93         0 none                      ? var"##herb_output_rule#4936"(r::I…
+    97        97 …/system/libdyld.dylib    ? _tlv_get_addr
+   100         0 …azy_cost_based_bus.jl   99 assemble(iter::Main.Experiments.P…
+   100         0 …/src/output_limits.jl   73 _within_output_limit
+   100         0 @Base/summarysize.jl     38 summarysize
+   117         2 @HerbBenchmarks/…GI1/arc_primitives.jl  746 objects(grid::Matrix{Int64}, univ…
+   146         0 @juliasrc/gf.c         4210 ijl_apply_generic
+   174         0 @Base/iterators.jl     1251 iterate
+   176         0 @Base/iterators.jl      535 iterate(f::Base.Iterators.Filter{…
+   276         0 none                      ? var"##herb_output_rule#4963"(r::I…
+   276         0 none                      ? #9177
+   368         0 @Base/iterators.jl     1251 iterate(f::Base.Iterators.Flatten…
+   370         0 @Base/iterators.jl      545 iterate(f::Base.Iterators.Filter{…
+   392         0 @Base/array.jl          826 collect_to_with_first!(dest::Vect…
+   392         0 @Base/array.jl          848 collect_to!(dest::Vector{Vector{V…
+   394         0 @Base/array.jl          800 collect(itr::Base.Generator{Base.…
+   396         0 @Base/abstractarray.jl 3402 map(f::Function, A::Base.Iterator…
+   397         0 @HerbInterpret/src/make_interpret.jl  220 (::HerbInterpret.OutputRuleDispat…
+   398         0 @juliasrc/builtins.c    881 jl_f_invokelatest
+   429         0 …azy_cost_based_bus.jl   96 assemble(iter::Main.Experiments.P…
+   429         0 …operty_synthesizer.jl   39 (::Main.Experiments.Phalcon.var"#…
+   429         0 @HerbInterpret/src/make_interpret.jl  265 (::HerbInterpret.GeneratedOutputI…
+   543         0 @Base/array.jl          894 grow_to!(dest::Vector{Main.Experi…
+   546         0 …operty_synthesizer.jl   76 find_property!(; benchmark::Modul…
+   546         0 …azy_cost_based_bus.jl  145 iterate(iter::Main.Experiments.Ph…
+   546         0 …azy_cost_based_bus.jl   57 get_programs(iter::Main.Experimen…
+   546         0 @Base/dict.jl           458 get!(default::Main.Experiments.Ph…
+   546         0 …azy_cost_based_bus.jl   57 (::Main.Experiments.Phalcon.var"#…
+   546         0 …azy_cost_based_bus.jl  111 grow(iter::Main.Experiments.Phalc…
+   546         0 @Base/array.jl          728 collect(itr::Base.Iterators.Filte…
+   546         0 @Base/array.jl          779 _collect
+   546         0 @Base/array.jl          867 grow_to!(dest::Vector{Main.Experi…
+   546         0 @Base/generator.jl       48 iterate
+   546         0 none                      ? (::Main.Experiments.Phalcon.var"#…
+   547         0 @juliasrc/interpreter.c  123 do_call
+   547         0 …arc_search_profile.jl  156 main()
+   547         0 …arc_search_profile.jl   67 measured(label::String, f::var"#m…
+   547         0 @Base/timing.jl         697 macro expansion
+   547         0 @Profile/src/Profile.jl   60 macro expansion
+   547         0 …arc_search_profile.jl  156 #main##5
+   547         0 …arc_search_profile.jl  143 (::var"#properties#main##4"{@Name…
+   547         0 …operty_synthesizer.jl   13 kwcall(::@NamedTuple{benchmark::M…
+   549         0 @juliasrc/jlapi.c      1139 jl_repl_entrypoint
+   549         0 @juliasrc/jlapi.c       971 true_main
+   549         0 @julialib/julia/sys.dylib    ? jfptr__start_56280.1
+   549         0 @Base/client.jl         550 _start()
+   549         0 @Base/client.jl         317 exec_options(opts::Base.JLOptions)
+   549         0 @Base/Base.jl           306 include(mod::Module, _path::Strin…
+   549         0 @Base/loading.jl       2930 _include(mapexpr::Function, mod::…
+   549         0 @Base/loading.jl       2870 include_string(mapexpr::typeof(id…
+   549         0 @Base/boot.jl           489 eval(m::Module, e::Any)
+   549         0 @juliasrc/toplevel.c   1092 ijl_toplevel_eval_in
+   549         0 @juliasrc/toplevel.c   1047 ijl_toplevel_eval
+   549         0 @juliasrc/toplevel.c    975 jl_toplevel_eval_flex
+   549         0 @juliasrc/toplevel.c   1035 jl_toplevel_eval_flex
+   549         0 @juliasrc/interpreter.c  898 jl_interpret_toplevel_thunk
+   549         0 @juliasrc/interpreter.c  689 eval_body
+   549         0 @juliasrc/interpreter.c  194 eval_stmt_value
+   550         0 @juliasrc/julia.h      2391 jl_apply
+   564        31 [any unknown stackframes]
+   700       700 …ibsystem_kernel.dylib    ? __psynch_cvwait
+Total snapshots: 1400. Utilization: 50% across all threads and tasks. Use the `groupby` kwarg to break down by thread and/or task.
