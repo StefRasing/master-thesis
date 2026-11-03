@@ -174,8 +174,11 @@ only on the base seed and problem name, so algorithms, runs and repetitions
 share the same folds. Each fold starts a fresh search with its own RNG and full
 per-trial timeout; cross-validation multiplies the search budget by `k`.
 
-ARC trains on all examples except the final example, which remains its fixed
-test set. There is no inner cross-validation. Bitvectors retain their existing
+ARC uses the official HerbBenchmarks training/test split metadata, holding out
+all official test examples, including tasks with multiple test examples. Missing
+or inconsistent metadata raises an error rather than inferring a split. There is
+no inner cross-validation. Historical ARC runs that held out only the final
+example must be rerun for the official protocol. Bitvectors retain their existing
 first-example test split. An explicit `ExperimentConfig(test_indices=[...])`
 overrides the default protocol with one fixed split for any domain. Problems
 need at least two examples.

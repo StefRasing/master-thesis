@@ -28,7 +28,12 @@ function evaluation_folds(config, problem)
         split_problem(problem, config.test_indices) # Validate explicit overrides.
         return [copy(config.test_indices)]
     elseif config.benchmark == :arc
-        return [[n]]
+        splits = HerbBenchmarks.ARC_AGI1.ARC_AGI1_TRAINING_SPLITS
+        split = get(splits, Symbol(problem.name), nothing)
+        isnothing(split) && throw(ArgumentError("no official ARC split for $(problem.name); provide test_indices explicitly"))
+        split.train > 0 && split.test > 0 && split.train + split.test == n ||
+            throw(ArgumentError("official ARC split does not match examples for $(problem.name)"))
+        return [collect((split.train + 1):n)]
     elseif config.benchmark == :strings
         key = Dict("seed"=>config.seed, "problem"=>problem.name, "protocol"=>"cv5_v1")
         seed = parse(UInt64, fingerprint(key)[1:16]; base=16)

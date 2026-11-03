@@ -326,10 +326,35 @@ end
             @test isempty(intersect(indices, heldout))
             @test length(train.spec) + length(test.spec) == n
         end
-        @test Experiments.evaluation_folds(ExperimentConfig(benchmark=:arc), problem) == [[n]]
+        @test_throws ArgumentError Experiments.evaluation_folds(ExperimentConfig(benchmark=:arc), problem)
         @test Experiments.evaluation_folds(ExperimentConfig(benchmark=:bitvectors), problem) == [[1]]
         @test Experiments.evaluation_folds(ExperimentConfig(test_indices=[2]), problem) == [[2]]
     end
     singleton = Problem("singleton", [IOExample(Dict{Symbol,Any}(), 1)])
     @test_throws ArgumentError Experiments.evaluation_folds(ExperimentConfig(), singleton)
+end
+
+@testset "Official ARC train/test splits" begin
+    arc = benchmark_adapter(:arc).benchmark
+    config = ExperimentConfig(benchmark=:arc)
+    multiple_test_tasks = 0
+    for problem in arc.training_problems()
+        heldout = only(Experiments.evaluation_folds(config, problem))
+        train, test, train_indices = Experiments.split_problem(problem, heldout)
+        @test train.spec == arc.train_examples(problem)
+        @test test.spec == arc.test_examples(problem)
+        @test isempty(intersect(train_indices, heldout))
+        @test sort(vcat(train_indices, heldout)) == collect(eachindex(problem.spec))
+        multiple_test_tasks += length(heldout) > 1
+        if problem.name == "problem_ff28f65a"
+            @test train_indices == collect(1:8)
+            @test heldout == collect(9:11)
+        end
+        @test Experiments.evaluation_folds(ExperimentConfig(benchmark=:arc, test_indices=[1]), problem) == [[1]]
+    end
+    @test multiple_test_tasks > 0
+    # Known names with truncated example collections must not silently change the split.
+    original = first(arc.training_problems())
+    truncated = Problem(original.name, original.spec[1:2])
+    @test_throws ArgumentError Experiments.evaluation_folds(config, truncated)
 end
