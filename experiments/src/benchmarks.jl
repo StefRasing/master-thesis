@@ -14,7 +14,7 @@ function benchmark_adapter(kind::Symbol)
             rule_cost=r -> r isa Expr, distance=strings ? levenshtein : hamming_distance,
             candidate_pool_size=2000,
             property_options=strings ? (property_types=[:ntString, :ntInt, :ntBool], max_property_cost=3, max_output_bytes=21 * 1024^2) :
-                (property_types=[:Start], max_property_cost=4,))
+                (property_types=[:Start], max_property_cost=3,))
     end
     throw(ArgumentError("unknown benchmark: $kind"))
 end
