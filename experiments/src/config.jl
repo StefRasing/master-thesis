@@ -13,7 +13,7 @@ Base.@kwdef struct ExperimentConfig
     store::Bool = true
     task_names::Union{Nothing,Vector{String}} = nothing
     problem_indices = Colon()
-    test_indices::Vector{Int} = [1]
+    test_indices::Union{Nothing,Vector{Int}} = nothing
     iterator_options::NamedTuple = (;)
     phalcon_options::NamedTuple = (;)
 end

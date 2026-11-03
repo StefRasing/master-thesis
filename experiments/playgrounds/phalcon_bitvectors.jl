@@ -5,7 +5,7 @@ if !isdefined(@__MODULE__, :Experiments)
 end
 
 playground_results = Experiments.run_experiment(Experiments.ExperimentConfig(algorithm=:phalcon, benchmark=:bitvectors,
-    store=false, problem_indices=1:1, verbose=true))
+    store=true, problem_indices=1:5, verbose=true))
 
 # Keep results available for inspection without the REPL dumping the return value.
 nothing

@@ -158,3 +158,27 @@ Both counts are saved and displayed. They count candidates, not per-example
 interpreter calls; property-based cost evaluation and cached rescoring are excluded.
 They therefore do not measure total synthesis work or sample efficiency. Historical
 results retain their original counts and must be rerun to use these semantics.
+
+## Evaluation splits
+
+Strings use reproducibly shuffled, balanced 5-fold cross-validation. Problems
+with fewer than five examples use leave-one-out evaluation (`k = min(5, n)`).
+Every example is held out exactly once per repetition. The partition depends
+only on the base seed and problem name, so algorithms, runs and repetitions
+share the same folds. Each fold starts a fresh search with its own RNG and full
+per-trial timeout; cross-validation multiplies the search budget by `k`.
+
+ARC trains on all examples except the final example, which remains its fixed
+test set. There is no inner cross-validation. Bitvectors retain their existing
+first-example test split. An explicit `ExperimentConfig(test_indices=[...])`
+overrides the default protocol with one fixed split for any domain. Problems
+need at least two examples.
+
+Each fold is a separate result with `fold`, `folds`, `train_test_split`,
+`test_examples`, and `correct_test_examples`. Fold and held-out indices are part
+of the stored identity, so resume handles folds independently. Repetitions remain
+independent synthesis attempts, not additional folds. To aggregate accuracy,
+sum correct and held-out example counts within each problem/repetition, divide,
+then average across repetitions and problems. This gives each problem equal
+weight even when fold sizes or example counts differ. `solved_test_examples`
+continues to indicate whether every example in that fold was solved.

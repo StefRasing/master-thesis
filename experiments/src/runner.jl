@@ -1,7 +1,7 @@
 """Print the useful outcome of a trial without archival metadata."""
 function display_result(io::IO, result; repetition=1, repetitions=1)
     label = repetitions > 1 ? " (repetition $repetition/$repetitions)" : ""
-    println(io, "\n", result["problem_name"], label)
+    println(io, "\n", result["problem_name"], label, " (fold $(result["fold"])/$(result["folds"]))")
     println(io, "  Training: ", result["solved_train_examples"] ? "solved" : "unsolved",
         "  |  Test: ", result["solved_test_examples"] ? "solved" : "unsolved")
     println(io, "  Time: ", round(result["execution_time"]; digits=3),
@@ -20,6 +20,25 @@ function output_path(config)
     return joinpath(root, stem, "$(stem)$(config.run).runs")
 end
 
+"""Deterministic folds, shared across algorithms, runs and repetitions."""
+function evaluation_folds(config, problem)
+    n = length(problem.spec)
+    n >= 2 || throw(ArgumentError("$(problem.name) needs at least two examples"))
+    if !isnothing(config.test_indices)
+        split_problem(problem, config.test_indices) # Validate explicit overrides.
+        return [copy(config.test_indices)]
+    elseif config.benchmark == :arc
+        return [[n]]
+    elseif config.benchmark == :strings
+        key = Dict("seed"=>config.seed, "problem"=>problem.name, "protocol"=>"cv5_v1")
+        seed = parse(UInt64, fingerprint(key)[1:16]; base=16)
+        indices = Random.randperm(Random.Xoshiro(seed), n)
+        k = min(5, n)
+        return [sort(indices[i:k:end]) for i in 1:k]
+    end
+    return [[1]] # Preserve the bitvector protocol.
+end
+
 function split_problem(problem, test_indices)
     isempty(test_indices) && throw(ArgumentError("test_indices cannot be empty"))
     all(i -> i in eachindex(problem.spec), test_indices) || throw(ArgumentError("invalid test index"))
@@ -28,8 +47,9 @@ function split_problem(problem, test_indices)
     return Problem(problem.name, problem.spec[train_indices]), Problem(problem.name, problem.spec[test_indices]), train_indices
 end
 
-function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing))
-    train, test, train_indices = split_problem(problem, config.test_indices)
+function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing),
+        test_indices=first(evaluation_folds(config, problem)), fold=1, folds=length(evaluation_folds(config, problem)))
+    train, test, train_indices = split_problem(problem, test_indices)
     # Non-string outputs are a baseline limitation: retain these tasks as unsolved.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
     solution = nothing
@@ -69,9 +89,14 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
     config.store && (result["effective_configuration"] = supported ? Dict("iterator"=>effective_iterator,
         "timeout"=>config.algorithm == :phalcon ? effective_phalcon["timeout"] : config.timeout,
         "phalcon"=>effective_phalcon) : nothing)
-    result["train_test_split"] = (train_indices, config.test_indices)
-    result["solved_test_examples"] = !isnothing(solution) &&
-        HerbInterpret.make_interpreter(grammar; target_module=adapter.benchmark, cache_module=adapter.benchmark)(solution, test.spec) == [io.out for io in test.spec]
+    result["fold"] = fold
+    result["folds"] = folds
+    result["train_test_split"] = (train_indices, test_indices)
+    outputs = isnothing(solution) ? nothing :
+        HerbInterpret.make_interpreter(grammar; target_module=adapter.benchmark, cache_module=adapter.benchmark)(solution, test.spec)
+    result["test_examples"] = length(test.spec)
+    result["correct_test_examples"] = isnothing(outputs) ? 0 : count(i -> outputs[i] == test.spec[i].out, eachindex(test.spec))
+    result["solved_test_examples"] = result["correct_test_examples"] == length(test.spec)
     return result
 end
 
@@ -124,8 +149,8 @@ Exercise the benchmark's types using the same bounded extension enumeration used
 by initialization. Only the generated interpreter survives; populations, outputs,
 counters and the private RNG do not pass to the measured trial.
 """
-function prepare_interpreter(config, adapter, problem, grammar)
-    train, _, _ = split_problem(problem, config.test_indices)
+function prepare_interpreter(config, adapter, problem, grammar; test_indices=first(evaluation_folds(config, problem)))
+    train, _, _ = split_problem(problem, test_indices)
     interpreter = HerbInterpret.make_output_interpreter(grammar;
         target_module=adapter.benchmark, cache_module=adapter.benchmark)
     iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
@@ -163,32 +188,33 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
     !config.store && println(io, "$(config.algorithm) · $(config.benchmark) · $(length(tasks)) problems · $(config.repetitions) repetitions")
     for (problem, grammar) in tasks
         interpreter_ref = config.reuse_interpreter ? get!(() -> Ref{Any}(nothing), interpreters, grammar) : nothing
-        for repetition in 1:config.repetitions
+        folds = evaluation_folds(config, problem)
+        for (fold, test_indices) in enumerate(folds), repetition in 1:config.repetitions
             # Independent streams: resume/order/sharding do not consume other runs' RNG state.
-            seed_key = Dict("seed"=>config.seed, "run"=>config.run, "problem"=>problem.name, "repetition"=>repetition)
+            seed_key = Dict("seed"=>config.seed, "run"=>config.run, "problem"=>problem.name, "repetition"=>repetition, "fold"=>fold, "test_indices"=>test_indices)
             seed = parse(UInt64, fingerprint(seed_key)[1:16]; base=16)
             if !config.store
                 ref = isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref
                 if isnothing(ref[]) && !(config.algorithm == :heuristic && config.benchmark == :strings && grammar.rules[1] != :ntString)
-                    ref[] = prepare_interpreter(config, adapter, problem, grammar)
+                    ref[] = prepare_interpreter(config, adapter, problem, grammar; test_indices)
                 end
                 result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=ref)
+                    interpreter_ref=ref, test_indices, fold, folds=length(folds))
                 display_result(io, result; repetition, repetitions=config.repetitions)
                 push!(results, result)
                 continue
             end
             identity = Dict("problem"=>problem.name, "configuration"=>configuration,
-                "seed"=>string(seed), "repetition"=>repetition,
+                "seed"=>string(seed), "repetition"=>repetition, "fold"=>fold, "test_indices"=>test_indices,
                 "provenance_sha256"=>provenance_hash)
             config.store && completed_run(path, identity) && continue
             ref = isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref
             if isnothing(ref[]) && !(config.algorithm == :heuristic && config.benchmark == :strings && grammar.rules[1] != :ntString)
-                ref[] = prepare_interpreter(config, adapter, problem, grammar)
+                ref[] = prepare_interpreter(config, adapter, problem, grammar; test_indices)
             end
             started = string(now(UTC))
             result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=ref)
+                    interpreter_ref=ref, test_indices, fold, folds=length(folds))
             record = Dict("schema_version"=>3, "run_id"=>fingerprint(identity),
                 "identity"=>identity, "rng"=>"Random.Xoshiro", "provenance_sha256"=>provenance_hash,
                 "started_at_utc"=>started, "completed_at_utc"=>string(now(UTC)), "result"=>result)

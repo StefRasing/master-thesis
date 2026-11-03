@@ -24,6 +24,9 @@ using .Experiments
         result = Experiments.run_trial(ExperimentConfig(benchmark=:arc, timeout=0,
             verbose=verbose, phalcon_options=overrides), arc, task.problem, task.grammar)
         @test result["effective_configuration"]["phalcon"]["verbose"] === expected
+        @test result["train_test_split"][2] == [length(task.problem.spec)]
+        @test result["test_examples"] == 1
+        @test result["correct_test_examples"] == 0
     end
     # A zero shared budget cancels both algorithms before interpreter creation.
     supported = first(t for t in tasks if t.grammar.rules[1] == :ntString)
@@ -57,7 +60,10 @@ using .Experiments
         path = joinpath(dir, "nested", "result.json")
         config = ExperimentConfig(output=path, task_names=["2171308"], phalcon_options=(timeout=0,))
         results = run_experiment(config)
-        @test length(results) == 1
+        k = min(5, length(first(selected).problem.spec))
+        @test length(results) == k
+        @test sort([r["identity"]["fold"] for r in results]) == collect(1:k)
+        @test sort(vcat([r["result"]["train_test_split"][2] for r in results]...)) == collect(eachindex(first(selected).problem.spec))
         @test results[1]["schema_version"] == 3
         @test !haskey(results[1], "provenance")
         @test isfile(joinpath(path, "provenance", results[1]["provenance_sha256"] * ".json"))
@@ -67,12 +73,12 @@ using .Experiments
         @test results[1]["result"]["programs_enumerated"] == 0
         @test results[1]["result"]["properties_enumerated"] == 0
         @test isempty(run_experiment(config))
-        @test length(Experiments.load_results(path)) == 1
+        @test length(Experiments.load_results(path)) == k
         changed = ExperimentConfig(output=path, task_names=["2171308"], seed=2, phalcon_options=(timeout=0,))
-        @test length(run_experiment(changed)) == 1
+        @test length(run_experiment(changed)) == k
         extended = ExperimentConfig(output=path, task_names=["2171308"], repetitions=2, phalcon_options=(timeout=0,))
-        @test length(run_experiment(extended)) == 1
-        @test length(Experiments.load_results(path)) == 3
+        @test length(run_experiment(extended)) == k
+        @test length(Experiments.load_results(path)) == 3k
         @test length(readdir(joinpath(path, "provenance"))) == 1
     end
 end
@@ -175,7 +181,7 @@ end
 @testset "Playground output contains outcomes only" begin
     io = IOBuffer()
     results = run_experiment(ExperimentConfig(store=false,
-        task_names=["2171308"], repetitions=2, phalcon_options=(timeout=0,)); io)
+        test_indices=[1], task_names=["2171308"], repetitions=2, phalcon_options=(timeout=0,)); io)
     output = String(take!(io))
     @test length(results) == 2
     @test occursin("repetition 1/2", output)
@@ -301,7 +307,29 @@ end
         @test isnothing(Experiments.warmup_search!(benchmark_adapter(benchmark), benchmark))
     end
     results = run_experiment(ExperimentConfig(store=false, timeout=0,
-        task_names=["2171308"], repetitions=2, reuse_interpreter=false); io=IOBuffer())
+        test_indices=[1], task_names=["2171308"], repetitions=2, reuse_interpreter=false); io=IOBuffer())
     @test length(results) == 2
     @test all(r -> r["programs_enumerated"] == 0, results)
+end
+
+@testset "Domain evaluation folds" begin
+    for n in (2, 3, 4, 5, 6, 11)
+        problem = Problem("synthetic", [IOExample(Dict{Symbol,Any}(), i) for i in 1:n])
+        config = ExperimentConfig()
+        folds = Experiments.evaluation_folds(config, problem)
+        @test length(folds) == min(5, n)
+        @test sort(vcat(folds...)) == collect(1:n)
+        @test maximum(length.(folds)) - minimum(length.(folds)) <= 1
+        @test folds == Experiments.evaluation_folds(ExperimentConfig(algorithm=:heuristic, run="other", repetitions=3), problem)
+        for heldout in folds
+            train, test, indices = Experiments.split_problem(problem, heldout)
+            @test isempty(intersect(indices, heldout))
+            @test length(train.spec) + length(test.spec) == n
+        end
+        @test Experiments.evaluation_folds(ExperimentConfig(benchmark=:arc), problem) == [[n]]
+        @test Experiments.evaluation_folds(ExperimentConfig(benchmark=:bitvectors), problem) == [[1]]
+        @test Experiments.evaluation_folds(ExperimentConfig(test_indices=[2]), problem) == [[2]]
+    end
+    singleton = Problem("singleton", [IOExample(Dict{Symbol,Any}(), 1)])
+    @test_throws ArgumentError Experiments.evaluation_folds(ExperimentConfig(), singleton)
 end
