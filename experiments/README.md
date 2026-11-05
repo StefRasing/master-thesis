@@ -37,14 +37,32 @@ Search algorithms remain in the repository's root `src/`; benchmark-specific
 experiment code belongs here. Slurm submission lives in `exe/submit.sh` and
 continues to call `experiments/run.jl`. Results remain under the root `data/`.
 
-Both algorithms run one attempt per fold per array task. For example,
-`bash exe/submit.sh heuristic strings 5` submits five independent runs, numbered
-1–5; bitvectors use the same layout. ARC submits four 100-problem shards per run
-(20 array tasks for five runs). `RUNS` defaults to five for both algorithms.
-Each task stores results in its own run directory, such as
-`data/heuristic_strings/heuristic_strings1.runs`. Resubmit the same run to skip
-its completed folds. Direct CLI/preset invocations also perform one repetition;
-custom Julia clients can still set `ExperimentConfig(repetitions=...)` explicitly.
+Slurm arrays run one attempt per fold, in batches of five problems per run.
+`bash exe/submit.sh heuristic strings 5 --account=YOUR_ACCOUNT` submits five
+independent runs split into batches (25 batches for strings, 31 for bitvectors,
+80 for ARC with the current suite). Defaults are partition `all`, QoS `normal`;
+verify live cluster limits with `exe/inspect_cluster.sh`. Override via sbatch
+options or `SLURM_PARTITION` / `SLURM_QOS`. `EXPERIMENT_BATCH_SIZE` changes the
+batch size; walltime scales with the maximum five folds plus overhead headroom.
+This is a cooperative budget estimate, not a hard completion guarantee.
+All workers use one Julia/BLAS/OpenMP thread and disable startup files.
+Results share each run's directory and are atomically stored per fold. Keep batch
+size unchanged when resuming because selection is part of the result identity.
+The CLI also accepts `ALGORITHM BENCHMARK RUN --batch INDEX SIZE`.
+Direct CLI/preset calls keep their existing full-suite or ARC-shard selection.
+
+For a temporary diagnostic pass over **every problem and fold in all six
+algorithm/domain combinations**, run:
+
+```sh
+julia --project=. --threads=1 --startup-file=no experiments/preflight.jl data/preflight/my-check 0.05
+```
+
+It stores real v3 archives, flat metric exports and `summary.json` in the selected
+directory. The tiny per-fold search budget checks loading, splits, interpreter
+preparation, timeout handling, storage and resume identities. These are diagnostic
+outcomes, not production accuracy measurements or full-budget memory tests.
+Keep the directory to inspect JSON fields; it is excluded from Git.
 
 Earlier heuristic strings/bitvectors clients stored five repetitions together in
 `data/heuristic_strings_20.runs` or `data/heuristic_bitvectors_20.runs`. Those

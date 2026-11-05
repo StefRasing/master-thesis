@@ -3,8 +3,7 @@
 ## Scheduler settings
 
 The DAIC environment is in transition. The [September update](https://daic.tudelft.nl/blog/2026/09/21/2026-09-21/)
-says hardware moves in stages through early November. Do not assume the old
-`general` partition and `long` QoS in `exe/submit.sh` still apply.
+says hardware moves in stages through early November. The submission script now defaults to `all` / `normal`; verify these against live limits.
 The [new scheduler reference](https://doc.daic.tudelft.nl/docs/software/scheduler/)
 specifies `--partition=all`, `--qos=normal`, and a required `--account`.
 Find the account with `sacctmgr show user "$USER" withassoc format=account%20`.
@@ -40,20 +39,17 @@ or predictions of expected completion time.
 | Heuristic bitvectors | 151 | 1 | 377.5 h (755 folds) |
 | ARC, either algorithm, one shard | 100 | 1 | 50 h |
 
-Both algorithms now emit RUNS independent jobs with one attempt per fold; ARC emits
-4*RUNS jobs. Thus the current 24 h heuristic / 72 h Phalcon requests may expire
-well before a difficult suite finishes. Completion may still be much faster if
-search solves or stagnates early. Do not extrapolate a ten-second pilot's search
-times to 1,800-second searches.
+The table above describes whole suites and legacy 100-problem shards, not current
+array tasks. `exe/submit.sh` now splits every domain into five-problem batches
+per run. A batch has at most 25 folds (12.5 hours search), with an 18-hour default
+walltime allowing 25% search headroom plus two hours, rounded up. ARC batches
+have only five folds. `EXPERIMENT_BATCH_SIZE` changes the batch size and scales
+the request conservatively. Override `--time` after compute-node measurement.
+Account, QoS time limits, array limits and available memory still need live
+verification. Submit `--test-only` first to validate scheduler acceptance.
 
-Prefer smaller problem batches (for example, 5 string problems = up to 12.5 h
-per repetition, 10 bitvector problems = 25 h, 10 ARC problems = 5 h), plus
-measured overhead and initial 25% time headroom. Use ExperimentConfig's
-`problem_indices` for these batches; the current submission CLI only exposes
-100-problem ARC shards, so finer batching requires a custom Julia client or a
-future submission change. Explicit extra repetitions in custom clients multiply these totals.
-Use a QoS whose live time limit covers the request. Existing atomic per-fold
-results permit resuming unchanged stored configurations after interruption.
+Atomic per-fold results permit resuming unchanged configurations. Keep batch size
+and source/environment unchanged when resubmitting; both affect identity.
 
 ## Reproducible resource pilots
 
@@ -120,6 +116,5 @@ sbatch --account=YOUR_ACCOUNT --partition=all --qos=normal \
 
 Submit from the repository root after preparing Julia and dependencies. Use a
 unique output JSON path for each pilot. Check live QoS/partition limits first.
-The existing production submission defaults have deliberately not been changed
-from these short local measurements; override partition/QoS/account explicitly
-and choose smaller batches before full experiments.
+Production memory defaults remain conservative (32G, ARC 64G). Submission uses
+smaller batches and `all` / `normal`; supply `--account` and verify live limits.

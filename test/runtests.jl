@@ -4,6 +4,7 @@ include("algorithm_contracts.jl")
 include("property_interpreter_reuse.jl")
 include("genetic_diagnostics.jl")
 include("typed_output_storage.jl")
+include("string_property_ranking.jl")
 
 @testset "Search termination and deadlines" begin
     g = @csgrammar begin

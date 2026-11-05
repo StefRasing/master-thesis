@@ -7,6 +7,11 @@ using .Experiments
     Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/config.jl"))
     Core.eval(sandbox, :(run_experiment(config) = config))
     Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/cli.jl"))
+    Core.eval(sandbox, :(benchmark_adapter(b) = nothing))
+    Core.eval(sandbox, :(benchmark_tasks(c, a) = 1:12))
+    @test sandbox.main(["phalcon", "strings", "2", "--batch", "3", "5"]).problem_indices == 11:12
+    @test_throws ArgumentError sandbox.main(["phalcon", "strings", "2", "--batch", "4", "5"])
+    @test_throws ArgumentError sandbox.main(["phalcon", "strings", "2", "--batch", "1", "0"])
     for algorithm in ("heuristic", "phalcon"), benchmark in ("strings", "bitvectors", "arc")
         config = sandbox.main([algorithm, benchmark, "3"])
         @test config.repetitions == 1
