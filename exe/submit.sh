@@ -20,8 +20,6 @@ if [[ $benchmark == arc ]]; then
 elif [[ $algorithm == heuristic ]]; then
     walltime=24:00:00
 fi
-# Heuristic non-ARC clients already perform five repetitions in one output file.
-if [[ $algorithm == heuristic && $benchmark != arc ]]; then tasks=1; fi
 sbatch --partition=general --qos=long --ntasks=1 --cpus-per-task=1 \
     --mem="$memory" --time="$walltime" --array="1-$tasks" \
     --chdir="$root" --output="$root/exe/out/%A_%a.out" \

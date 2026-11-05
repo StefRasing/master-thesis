@@ -1,5 +1,8 @@
 # Experiments
 
+For DAIC scheduler settings, budget accounting and reproducible memory pilots,
+see [Slurm resource planning](performance/SLURM_RESOURCES.md).
+
 Run commands from the repository root. Activate and instantiate the root Julia
 project before running experiments (see the repository README).
 
@@ -33,6 +36,21 @@ It defaults to `false`; an explicit `phalcon_options.verbose` takes precedence.
 Search algorithms remain in the repository's root `src/`; benchmark-specific
 experiment code belongs here. Slurm submission lives in `exe/submit.sh` and
 continues to call `experiments/run.jl`. Results remain under the root `data/`.
+
+Both algorithms run one attempt per fold per array task. For example,
+`bash exe/submit.sh heuristic strings 5` submits five independent runs, numbered
+1–5; bitvectors use the same layout. ARC submits four 100-problem shards per run
+(20 array tasks for five runs). `RUNS` defaults to five for both algorithms.
+Each task stores results in its own run directory, such as
+`data/heuristic_strings/heuristic_strings1.runs`. Resubmit the same run to skip
+its completed folds. Direct CLI/preset invocations also perform one repetition;
+custom Julia clients can still set `ExperimentConfig(repetitions=...)` explicitly.
+
+Earlier heuristic strings/bitvectors clients stored five repetitions together in
+`data/heuristic_strings_20.runs` or `data/heuristic_bitvectors_20.runs`. Those
+archives remain readable but are not resumed by the new run-specific layout.
+Run IDs and repetition indices enter the RNG seed and result identity, so the
+new five-run layout does not reproduce the old five-repetition random streams.
 
 ## Reproducible result format (version 3)
 
@@ -167,7 +185,7 @@ results retain their original counts and must be rerun to use these semantics.
 
 ## Evaluation splits
 
-Strings use reproducibly shuffled, balanced 5-fold cross-validation. Problems
+Strings and bitvectors use reproducibly shuffled, balanced 5-fold cross-validation. Problems
 with fewer than five examples use leave-one-out evaluation (`k = min(5, n)`).
 Every example is held out exactly once per repetition. The partition depends
 only on the base seed and problem name, so algorithms, runs and repetitions
@@ -178,8 +196,10 @@ ARC uses the official HerbBenchmarks training/test split metadata, holding out
 all official test examples, including tasks with multiple test examples. Missing
 or inconsistent metadata raises an error rather than inferring a split. There is
 no inner cross-validation. Historical ARC runs that held out only the final
-example must be rerun for the official protocol. Bitvectors retain their existing
-first-example test split. An explicit `ExperimentConfig(test_indices=[...])`
+example must be rerun for the official protocol. Bitvectors now use the same
+five-fold protocol as strings: current ten-example tasks train on eight examples
+and test on two per fold. Earlier first-example-only bitvector results must be
+rerun for this protocol. An explicit `ExperimentConfig(test_indices=[...])`
 overrides the default protocol with one fixed split for any domain. Problems
 need at least two examples.
 

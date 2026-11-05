@@ -1,0 +1,73 @@
+heuristic · strings · 3 problems · 1 repetitions
+
+problem_11440431 (fold 1/5)
+  Training: solved  |  Test: unsolved
+  Time: 1.59 s  |  Program candidates: 5179  |  Property candidates: 0
+  Solution: replace_cvc(concat_cvc("", _arg_1), concat_cvc(" ", "US"), "")
+
+problem_11440431 (fold 2/5)
+  Training: solved  |  Test: solved
+  Time: 0.056 s  |  Program candidates: 6455  |  Property candidates: 0
+  Solution: replace_cvc(replace_cvc(_arg_1, "CAN", "US"), concat_cvc(" ", "US"), "")
+
+problem_11440431 (fold 3/5)
+  Training: solved  |  Test: solved
+  Time: 0.184 s  |  Program candidates: 6739  |  Property candidates: 0
+  Solution: replace_cvc(replace_cvc(_arg_1, "CAN", "US"), concat_cvc(" ", "US"), "")
+
+problem_11440431 (fold 4/5)
+  Training: solved  |  Test: solved
+  Time: 0.063 s  |  Program candidates: 6859  |  Property candidates: 0
+  Solution: replace_cvc(replace_cvc(_arg_1, "CAN", "US"), concat_cvc(" ", "US"), "")
+
+problem_11440431 (fold 5/5)
+  Training: solved  |  Test: solved
+  Time: 0.269 s  |  Program candidates: 6267  |  Property candidates: 0
+  Solution: replace_cvc(replace_cvc(_arg_1, concat_cvc(" ", "US"), ""), concat_cvc(" ", "CAN"), "")
+
+problem_get_domain_name_from_url (fold 1/3)
+  Training: unsolved  |  Test: unsolved
+  Time: 2.525 s  |  Program candidates: 64555  |  Property candidates: 0
+  Solution: none
+
+problem_get_domain_name_from_url (fold 2/3)
+  Training: unsolved  |  Test: unsolved
+  Time: 0.897 s  |  Program candidates: 50555  |  Property candidates: 0
+  Solution: none
+
+problem_get_domain_name_from_url (fold 3/3)
+  Training: solved  |  Test: unsolved
+  Time: 0.237 s  |  Program candidates: 19679  |  Property candidates: 0
+  Solution: substr_cvc(_arg_1, 1, ((-1 - indexof_cvc(substr_cvc(_arg_1, 1, 3 + 3), "/", 1)) + len_cvc(_arg_1)) - 3)
+
+problem_univ_6 (fold 1/5)
+  Training: unsolved  |  Test: unsolved
+  Time: 3.572 s  |  Program candidates: 274246  |  Property candidates: 0
+  Solution: none
+
+problem_univ_6 (fold 2/5)
+  Training: unsolved  |  Test: unsolved
+  Time: 1.194 s  |  Program candidates: 236193  |  Property candidates: 0
+  Solution: none
+
+problem_univ_6 (fold 3/5)
+  Training: solved  |  Test: unsolved
+  Time: 1.242 s  |  Program candidates: 233865  |  Property candidates: 0
+  Solution: if prefixof_cvc("New York", _arg_2)
+    _arg_2
+else
+    replace_cvc(replace_cvc(_arg_2, "CA", concat_cvc(concat_cvc(concat_cvc("CA", ","), " "), "USA")), "New York", "NY")
+end
+
+problem_univ_6 (fold 4/5)
+  Training: unsolved  |  Test: unsolved
+  Time: 2.571 s  |  Program candidates: 286299  |  Property candidates: 0
+  Solution: none
+
+problem_univ_6 (fold 5/5)
+  Training: unsolved  |  Test: unsolved
+  Time: 1.835 s  |  Program candidates: 248246  |  Property candidates: 0
+  Solution: none
+
+Completed 13 trials · Training solved: 7/13 · Test solved: 4/13
+Resource report: experiments/performance/resource_results/heuristic_strings.json

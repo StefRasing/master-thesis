@@ -1,6 +1,19 @@
 include("../experiments/src/Experiments.jl")
 using .Experiments
 
+@testset "CLI runs one attempt per fold" begin
+    # Inspect real CLI configuration without launching benchmark searches.
+    sandbox = Module(:ExperimentCLIProbe)
+    Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/config.jl"))
+    Core.eval(sandbox, :(run_experiment(config) = config))
+    Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/cli.jl"))
+    for algorithm in ("heuristic", "phalcon"), benchmark in ("strings", "bitvectors", "arc")
+        config = sandbox.main([algorithm, benchmark, "3"])
+        @test config.repetitions == 1
+        @test config.run == "3"
+    end
+end
+
 @testset "Shared experiment runner" begin
     strings = benchmark_adapter(:strings)
     bitvectors = benchmark_adapter(:bitvectors)
@@ -18,6 +31,16 @@ using .Experiments
     @test any(t -> t.grammar.rules[1] != :ntString, tasks)
     @test ExperimentConfig().timeout == 1800
     @test !ExperimentConfig().verbose
+    # Array runs must write separate archives for both algorithms.
+    for algorithm in (:heuristic, :phalcon), benchmark in (:strings, :bitvectors, :arc)
+        c1 = ExperimentConfig(; algorithm, benchmark, run="1")
+        c2 = ExperimentConfig(; algorithm, benchmark, run="2")
+        @test Experiments.output_path(c1) != Experiments.output_path(c2)
+        if benchmark != :arc
+            stem = "$(algorithm)_$(benchmark)"
+            @test endswith(Experiments.output_path(c1), joinpath(stem, "$(stem)1.runs"))
+        end
+    end
     for (verbose, overrides, expected) in ((true, (;), true), (false, (;), false),
         (true, (verbose=false,), false))
         task = first(Experiments.benchmark_tasks(ExperimentConfig(benchmark=:arc, problem_indices=1:1), arc))
@@ -313,25 +336,32 @@ end
 end
 
 @testset "Domain evaluation folds" begin
-    for n in (2, 3, 4, 5, 6, 11)
+    for benchmark in (:strings, :bitvectors), n in (2, 3, 4, 5, 6, 10, 11)
         problem = Problem("synthetic", [IOExample(Dict{Symbol,Any}(), i) for i in 1:n])
-        config = ExperimentConfig()
+        config = ExperimentConfig(; benchmark)
         folds = Experiments.evaluation_folds(config, problem)
         @test length(folds) == min(5, n)
         @test sort(vcat(folds...)) == collect(1:n)
         @test maximum(length.(folds)) - minimum(length.(folds)) <= 1
-        @test folds == Experiments.evaluation_folds(ExperimentConfig(algorithm=:heuristic, run="other", repetitions=3), problem)
+        @test folds == Experiments.evaluation_folds(ExperimentConfig(; benchmark, algorithm=:heuristic, run="other", repetitions=3), problem)
         for heldout in folds
             train, test, indices = Experiments.split_problem(problem, heldout)
             @test isempty(intersect(indices, heldout))
             @test length(train.spec) + length(test.spec) == n
         end
         @test_throws ArgumentError Experiments.evaluation_folds(ExperimentConfig(benchmark=:arc), problem)
-        @test Experiments.evaluation_folds(ExperimentConfig(benchmark=:bitvectors), problem) == [[1]]
-        @test Experiments.evaluation_folds(ExperimentConfig(test_indices=[2]), problem) == [[2]]
+        @test Experiments.evaluation_folds(ExperimentConfig(; benchmark, test_indices=[2]), problem) == [[2]]
     end
     singleton = Problem("singleton", [IOExample(Dict{Symbol,Any}(), 1)])
     @test_throws ArgumentError Experiments.evaluation_folds(ExperimentConfig(), singleton)
+    bitvectors = benchmark_adapter(:bitvectors)
+    config = ExperimentConfig(benchmark=:bitvectors)
+    tasks = Experiments.benchmark_tasks(config, bitvectors)
+    @test sum(length(Experiments.evaluation_folds(config, t.problem)) for t in tasks) == 755
+    @test all(tasks) do task
+        folds = Experiments.evaluation_folds(config, task.problem)
+        length(folds) == 5 && all(indices -> length(indices) == 2, folds)
+    end
 end
 
 @testset "Official ARC train/test splits" begin

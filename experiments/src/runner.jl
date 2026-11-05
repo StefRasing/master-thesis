@@ -16,7 +16,6 @@ function output_path(config)
     stem = "$(config.algorithm)_$(config.benchmark)"
     root = joinpath(@__DIR__, "..", "..", "data")
     config.benchmark == :arc && return joinpath(root, stem, "$(stem)_$(config.run)$(something(config.shard, "")).runs")
-    config.algorithm == :heuristic && return joinpath(root, "$(stem)_20.runs")
     return joinpath(root, stem, "$(stem)$(config.run).runs")
 end
 
@@ -34,14 +33,14 @@ function evaluation_folds(config, problem)
         split.train > 0 && split.test > 0 && split.train + split.test == n ||
             throw(ArgumentError("official ARC split does not match examples for $(problem.name)"))
         return [collect((split.train + 1):n)]
-    elseif config.benchmark == :strings
+    elseif config.benchmark in (:strings, :bitvectors)
         key = Dict("seed"=>config.seed, "problem"=>problem.name, "protocol"=>"cv5_v1")
         seed = parse(UInt64, fingerprint(key)[1:16]; base=16)
         indices = Random.randperm(Random.Xoshiro(seed), n)
         k = min(5, n)
         return [sort(indices[i:k:end]) for i in 1:k]
     end
-    return [[1]] # Preserve the bitvector protocol.
+    throw(ArgumentError("unknown benchmark: $(config.benchmark)"))
 end
 
 function split_problem(problem, test_indices)
