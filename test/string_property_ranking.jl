@@ -68,6 +68,18 @@ const SPR = StringPropertyRanking
     @test [(expr, cost) for (expr, type, cost) in enumerated_properties if expr == "_arg_out"] == [("_arg_out", 0)]
     @test all(cost == 1 for (expr, type, cost) in enumerated_properties if expr == "len_cvc(_arg_out)")
 
+    sampling_grammar = @csgrammar begin
+        Start = _arg_1
+        Start = "a"
+        Start = "b"
+    end
+    sampling_task = (problem=(name="exclude_solution", spec=[example("x", "x")]), grammar=sampling_grammar)
+    sampled = SPR.sample_programs(sampling_task, SPR.RankingConfig(programs=2, max_program_cost=0))
+    @test length(sampled.outputs) == 2
+    @test sampled.solutions_excluded == 1
+    @test sampled.outputs == [["a"], ["b"]]
+    @test all(outputs != ["x"] for outputs in sampled.outputs)
+
     # Shared constants distinguish literal Bool/Int; task-specific constants do
     # not leak into a supposedly shared grammar.
     g1 = @csgrammar begin
@@ -89,4 +101,18 @@ const SPR = StringPropertyRanking
     @test any(r -> r === 1, shared.rules)
     @test any(r -> r === true, shared.rules)
     @test :_arg_out in shared.rules
+end
+
+include("../experiments/research/filter_zero_score_properties.jl")
+@testset "Filter zero total scores, preserving per-task zeros" begin
+    zero = Dict("property" => "identity", "score" => 0, "acceptance_by_task" => [0, 0])
+    partial = Dict("property" => "partial", "score" => 2, "acceptance_by_task" => [0, 2])
+    positive = Dict("property" => "positive", "score" => 3, "acceptance_by_task" => [1, 2])
+    report = Dict{String,Any}("ranking" => [zero, partial, positive], "complete" => true)
+    filtered = ZeroScorePropertyFilter.remove_zero_scores(report)
+    @test filtered["ranking"] == [partial, positive]
+    @test filtered["zero_total_score_properties_removed"] == 1
+    @test report["ranking"] == [zero, partial, positive]
+    @test filtered["ranking"][1]["acceptance_by_task"] == [0, 2]
+    @test filtered["complete"]
 end

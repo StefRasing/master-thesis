@@ -82,13 +82,21 @@ function sample_programs(task, config)
             interp(rule, children, problem.spec)
         end, isnothing; max_output_bytes=config.max_output_bytes, deadline)
     outputs, expressions = Vector[], String[]
+    targets = [ex.out for ex in problem.spec]
+    solutions_excluded = 0
     for program in bus
+        # Keep solutions available as intermediate subprograms in the enumerator,
+        # but never include their complete output vectors in the sampled pool.
+        if program.outputs == targets
+            solutions_excluded += 1
+            continue
+        end
         push!(outputs, program.outputs)
         push!(expressions, string(rulenode2expr(program, grammar)))
         length(outputs) == config.programs && break
     end
-    length(outputs) == config.programs || error("$(problem.name): found only $(length(outputs)) valid, behaviorally distinct programs within cost $(config.max_program_cost); increase --max-program-cost")
-    return (; outputs, expressions, evaluated=evaluated[])
+    length(outputs) == config.programs || error("$(problem.name): found only $(length(outputs)) valid, behaviorally distinct non-solution programs within cost $(config.max_program_cost); increase --max-program-cost")
+    return (; outputs, expressions, evaluated=evaluated[], solutions_excluded)
 end
 
 """Count whole-program acceptances: the property must match on EVERY I/O example."""
@@ -254,14 +262,16 @@ function run(config=RankingConfig(); io=stdout)
         "benchmark_data_sha256" => bytes2hex(sha256(read(joinpath(dirname(pathof(HerbBenchmarks)), "data/SyGuS/PBE_SLIA_Track_2019/data.jl")))),
         "configuration" => Dict(string(f) => getfield(config, f) for f in fieldnames(RankingConfig)),
         "selection" => "one string input _arg_1, one string output; all supplied examples; no holdout",
-        "program_order" => "cost-ordered LazyCostBasedBus; behavioral deduplication on each task; nothing outputs excluded",
+        "program_order" => "cost-ordered LazyCostBasedBus; behavioral deduplication on each task; nothing outputs and training solutions excluded; continue until the requested number of non-solutions is collected",
         "property_grammar" => [string(Expr(:(=), t, r)) for (t,r) in zip(grammar.types, grammar.rules)],
         "property_grammar_policy" => "intersection of typed productions over all eligible tasks, plus ntString = _arg_out",
         "score" => config.prune_zero_acceptance ?
             "sum of whole-program acceptance counts; invalid if any task has zero acceptance; ascending rank" :
             "sum of whole-program acceptance counts including zeros; ascending rank",
         "tasks" => [Dict("name" => t.problem.name, "examples" => length(t.problem.spec),
-            "sampled_programs" => s.expressions, "programs_evaluated_including_intermediates" => s.evaluated)
+            "sampled_programs" => s.expressions, "programs_evaluated_including_intermediates" => s.evaluated,
+            "solutions_excluded" => s.solutions_excluded,
+            "sampled_solutions" => count(==([ex.out for ex in t.problem.spec]), s.outputs))
             for (t,s) in zip(tasks,samples)],
         "excluded_tasks" => excluded, "eligible_task_count" => length(eligible),
         "properties_enumerated" => result.enumerated, "invalid_counts" => result.invalid_counts,

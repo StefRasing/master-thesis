@@ -16,8 +16,11 @@ For each task, enumerate the first **400 valid, behaviorally distinct programs**
 in increasing operation cost using PHALCON's `LazyCostBasedBus`. Use the task's
 own program grammar and all its supplied examples. Terminals cost zero;
 function applications cost one. This is deterministic enumeration, not genetic
-sampling or a population selected by fitness. Programs that exactly solve the
-task are retained. Failed program outputs are excluded.
+sampling or a population selected by fitness. Programs that exactly solve all supplied examples are excluded from the sampled
+pool; enumeration continues until it collects the requested number of non-solutions.
+Solutions remain available as intermediate subprograms inside the enumerator.
+Failed program outputs are excluded. The JSON records solutions skipped and
+checks the number of solutions in the final sample (zero).
 
 The property grammar is the intersection of typed productions across the whole
 eligible suite (even when using `--tasks` for a pilot), with `_arg_out` added as a
@@ -102,3 +105,19 @@ Use a different output path to preserve the original ranking:
 ```sh
 julia --project=. experiments/research/rank_string_properties.jl --canonical-only --programs 100 --max-property-cost 2 --keep-zero-acceptance --output experiments/research/results/string_property_ranking_canonical_100_cost2_keep_zero.json
 ```
+
+## Remove properties whose total score is zero
+
+After collecting non-solution samples and ranking with `--keep-zero-acceptance`,
+filter the completed JSON into a separate file:
+
+```sh
+julia --project=. experiments/research/filter_zero_score_properties.jl INPUT.json OUTPUT.json
+```
+
+This keeps a property with counts such as `[0, 2, 0]` (score 2), but removes one
+with `[0, 0, 0]` (score 0). It does not change scores, task-level counts, or ordering
+of retained rows. The original JSON is untouched, existing output files are not
+overwritten, and postprocessing metadata records the source file's hash and the
+number of rows removed. The original enumeration and invalidation counts describe
+the input ranking; the separate removal count describes this additional filter.
