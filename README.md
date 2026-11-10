@@ -84,8 +84,9 @@ problem indices, and held-out example indices. Default splitting holds out the
 first example. Benchmark adapters own selection filters, grammar choices, rule
 costs, distance metrics, and property settings. Keyword overrides in
 `iterator_options` and `phalcon_options` are passed to the shared algorithms.
-Playgrounds use the same runner with storage disabled. The strings playground
-explicitly retains its lower property cost budget of 2; production uses 3.
+Playgrounds use the same runner. Set
+`phalcon_options=(max_property_evaluations=10_000,)` to configure the
+per-search evaluation budget, which defaults to 10,000.
 
 `agreement` counts the local optima whose property outputs match the target on
 every example. Phalcon defaults to `agreement_threshold=1`. The agreement
@@ -93,7 +94,7 @@ threshold variant, **Phalcon-AT**, uses a larger threshold. For Phalcon-AT(5),
 pass `agreement_threshold=5` to `phalcon` or `find_property!`, or use
 `phalcon_options=(agreement_threshold=5,)` in `ExperimentConfig`. The search
 stops at the first property with agreement from 1 through the threshold,
-inclusive. If it exhausts the cost budget first, it returns the property with
+inclusive. If it exhausts the evaluation budget first, it returns the property with
 the lowest positive agreement found, or `nothing` if none had positive
 agreement. The `heuristic` statistics store the agreement alongside each
 selected property.

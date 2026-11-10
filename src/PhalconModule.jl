@@ -16,16 +16,18 @@ using HerbConstraints
 using HerbSearch
 import HerbInterpret
 
-export GeneticIterator, LazyCostBasedBus, Property,
+export GeneticIterator, LazyCostBasedBus, ResumableCostBasedBus, Property,
        initialize!, find_solution, local_optimum_outputs, update_cost_function,
-       find_property!, phalcon, levenshtein, hamming_distance
+       find_property!, phalcon, phalcon_batch, levenshtein, hamming_distance
 
 include("deadline.jl")
 include("output_limits.jl")
 include("lazy_cost_based_bus.jl")
+include("resumable_cost_based_bus.jl")
 include("genetic_iterator.jl")
 include("property_synthesizer.jl")
 include("phalcon.jl")
+include("phalcon_batch.jl")
 include("heuristics.jl")
 
 end

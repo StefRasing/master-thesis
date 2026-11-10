@@ -3,7 +3,9 @@
 # The array layout and Memory charging below match Julia 1.12's summarysize.jl;
 # other Julia versions retain the general check until their layout is validated.
 const _FAST_OUTPUT_BOUND = VERSION.major == 1 && VERSION.minor == 12
-const _OUTPUT_BOUND_WORK = 1024
+# A batch can hold thousands of grids or object lists. Leave enough room to
+# scan their backing arrays before falling back to the exact graph traversal.
+const _OUTPUT_BOUND_WORK = 65_536
 const _OUTPUT_BOUND_DEPTH = 8
 
 @inline function _output_size_budget(@nospecialize(value), bytes::Int, work::Int, depth::Int)::Tuple{Int,Int}
@@ -49,6 +51,9 @@ function _output_size_budget(value::Array{T}, bytes::Int, work::Int, depth::Int)
         if isassigned(memory, i)
             bytes, work = _output_size_budget(memory[i], bytes, work, depth - 1)
             bytes >= 0 || return (-1, 0)
+        else
+            work > 0 || return (-1, 0)
+            work -= 1
         end
     end
     return (bytes, work)

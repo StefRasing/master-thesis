@@ -5,7 +5,6 @@ function benchmark_adapter(kind::Symbol)
             rule_cost=r -> r isa Expr && !(r.args[1] in [:objects, :asgrid]),
             distance=hamming_distance, candidate_pool_size=10000,
             property_options=(property_types=[:Grid, :Objects, :Object, :Indices, :IntContainer, :IntegerTuple, :Integer, :Boolean],
-                max_property_cost=3,
                 grammar_to_property_grammar=_ -> Phalcon._grammar_to_property_grammar(property_grammar_hodel),
                 display_outputs=HerbBenchmarks.ARC_AGI1.visualize, max_output_bytes=21 * 1024^2))
     elseif kind == :strings || kind == :bitvectors
@@ -13,8 +12,8 @@ function benchmark_adapter(kind::Symbol)
         return (benchmark=strings ? HerbBenchmarks.PBE_SLIA_Track_2019 : HerbBenchmarks.PBE_BV_Track_2018,
             rule_cost=r -> r isa Expr, distance=strings ? levenshtein : hamming_distance,
             candidate_pool_size=2000,
-            property_options=strings ? (property_types=[:ntString, :ntInt, :ntBool], max_property_cost=3, max_output_bytes=21 * 1024^2) :
-                (property_types=[:Start], max_property_cost=3,))
+            property_options=strings ? (property_types=[:ntString, :ntInt, :ntBool], max_output_bytes=21 * 1024^2) :
+                (property_types=[:Start],))
     end
     throw(ArgumentError("unknown benchmark: $kind"))
 end

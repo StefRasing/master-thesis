@@ -56,8 +56,8 @@ end
     strings = benchmark_adapter(:strings)
     bitvectors = benchmark_adapter(:bitvectors)
     arc = benchmark_adapter(:arc)
-    @test strings.property_options.max_property_cost == 3
-    @test bitvectors.property_options.max_property_cost == 3
+    @test strings.property_options.property_types == [:ntString, :ntInt, :ntBool]
+    @test bitvectors.property_options.property_types == [:Start]
     @test arc.candidate_pool_size == 10000
     @test !arc.rule_cost(:(objects(x)))
     @test arc.rule_cost(:(rotate(x)))
@@ -85,6 +85,7 @@ end
         result = Experiments.run_trial(ExperimentConfig(benchmark=:arc, timeout=0,
             verbose=verbose, phalcon_options=overrides), arc, task.problem, task.grammar)
         @test result["effective_configuration"]["phalcon"]["verbose"] === expected
+        @test result["effective_configuration"]["phalcon"]["max_property_evaluations"] == 10_000
         @test result["train_test_split"][2] == [length(task.problem.spec)]
         @test result["test_examples"] == 1
         @test result["correct_test_examples"] == 0

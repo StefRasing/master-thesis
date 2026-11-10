@@ -57,6 +57,21 @@ using Random
         end
     end
 
+    @testset "Large ARC output batches fit the fast bound" begin
+        if Phalcon._FAST_OUTPUT_BOUND
+            limit = 21 * 1024^2
+            grids = [fill(i, 8, 8) for i in 1:2005]
+            objects = [[[(i, CartesianIndex(j, j))] for j in 1:8] for i in 1:2005]
+            for x in (grids, objects)
+                size = Base.summarysize(x)
+                @test 0 <= bound(x, limit) <= limit - size
+                @test fits(x, limit)
+                @test fits(x, size)
+                @test !fits(x, size - 1)
+            end
+        end
+    end
+
     @testset "Unsupported graphs, cycles, and bounded work" begin
         captured=zeros(Int,100)
         closure=let captured=captured; ()->sum(captured);end
@@ -74,7 +89,9 @@ using Random
         if Phalcon._FAST_OUTPUT_BOUND
             @test bound(cycle,1024^2)<0
             @test bound(deep,1024^2)<0
-            @test bound(broad,1024^2)<0
+            @test bound(broad,32 * 1024^2)<0
+            @test first(Phalcon._output_size_budget(Vector{String}(undef, 64), 1024^2,
+                16, Phalcon._OUTPUT_BOUND_DEPTH)) < 0
         end
     end
 

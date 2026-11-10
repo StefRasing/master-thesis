@@ -5,7 +5,7 @@ algorithm=${1:?usage: submit.sh ALGORITHM BENCHMARK [RUNS or ABLATION_SETTING] [
 benchmark=${2:?benchmark required}
 selection=${3:-}
 shift "$(( $# >= 3 ? 3 : $# ))"
-[[ $algorithm == phalcon || $algorithm == heuristic || $algorithm == phalcon-ablation ]] || { echo 'invalid algorithm' >&2; exit 2; }
+[[ $algorithm == phalcon || $algorithm == phalcon_batch || $algorithm == heuristic || $algorithm == phalcon-ablation ]] || { echo 'invalid algorithm' >&2; exit 2; }
 [[ $benchmark == arc || $benchmark == strings || $benchmark == bitvectors ]] || { echo 'invalid benchmark' >&2; exit 2; }
 if [[ $algorithm == phalcon-ablation ]]; then
     selection=${selection:-all}

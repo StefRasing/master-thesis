@@ -54,6 +54,7 @@ end
 function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing),
         test_indices=first(evaluation_folds(config, problem)), fold=1, folds=length(evaluation_folds(config, problem)))
     train, test, train_indices = split_problem(problem, test_indices)
+    uses_properties = config.algorithm in (:phalcon, :phalcon_batch)
     # Non-string outputs are a baseline limitation: retain these tasks as unsolved.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
     solution = nothing
@@ -61,7 +62,7 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         "solution"=>nothing, "programs_enumerated"=>0, "properties_enumerated"=>0, "execution_time"=>0.0)
     if supported
         options = merge((benchmark=adapter.benchmark, problem=train, interpreter=interpreter_ref[],
-            cost=config.algorithm == :phalcon ? (_ -> 0) : (pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)),
+            cost=uses_properties ? (_ -> 0) : (pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)),
             population_size=20, candidate_pool_size=adapter.candidate_pool_size,
             max_generations_without_improvement=10,
             max_extension_size=1, max_initial_population_size=1, max_size=50,
@@ -69,11 +70,15 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         iterator = GeneticIterator(grammar, :Start; options..., rng)
         effective_iterator = config.store ? Dict(string(k)=>json_value(v) for (k,v) in pairs(options) if !(k in (:problem, :interpreter))) : nothing
         effective_phalcon = nothing
-        if config.algorithm == :phalcon
+        if uses_properties
             options = merge((max_number_of_properties=20, rule_cost_func=adapter.rule_cost,
                 verbose=config.verbose, timeout=config.timeout), adapter.property_options, config.phalcon_options)
+            if isnothing(get(options, :max_property_cost, nothing)) && !haskey(options, :max_property_evaluations)
+                options = merge(options, (max_property_evaluations=Phalcon.DEFAULT_MAX_PROPERTY_EVALUATIONS,))
+            end
             effective_phalcon = config.store ? json_value(options) : nothing
-            solution, result = phalcon(; iterator, options...)
+            search = config.algorithm == :phalcon_batch ? phalcon_batch : phalcon
+            solution, result = search(; iterator, options...)
         else
             start = time()
             deadline = Phalcon._search_time() + config.timeout
@@ -91,7 +96,7 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         interpreter_ref[] = iterator.interpreter
     end
     config.store && (result["effective_configuration"] = supported ? Dict("iterator"=>effective_iterator,
-        "timeout"=>config.algorithm == :phalcon ? effective_phalcon["timeout"] : config.timeout,
+        "timeout"=>uses_properties ? effective_phalcon["timeout"] : config.timeout,
         "phalcon"=>effective_phalcon) : nothing)
     result["fold"] = fold
     result["folds"] = folds
@@ -108,7 +113,7 @@ end
 
 Run on every invocation, including resume. Never share its search state or RNG.
 """
-function warmup_search!(adapter, benchmark)
+function warmup_search!(adapter, benchmark; batch=false)
     grammar = @csgrammar begin
         Start = 1
         Start = 2
@@ -125,8 +130,21 @@ function warmup_search!(adapter, benchmark)
             find_solution(iterator)
         else
             phalcon(; iterator, timeout=Inf, max_number_of_properties=1,
-                property_types=[:Start], max_property_cost=1, rule_cost_func=_ -> 1)
+                property_types=[:Start], max_property_evaluations=4, rule_cost_func=_ -> 1)
         end
+    end
+    if batch
+        property_grammar = @csgrammar begin
+            Start = _arg_out > 4
+            Start = _arg_out > 2
+        end
+        iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
+            problem, rng=Random.Xoshiro(0), cost=_ -> 0, rule_costs=[1, 1, 1],
+            population_size=3, candidate_pool_size=4, max_extension_size=1,
+            max_initial_population_size=3, max_generations_without_improvement=1)
+        phalcon_batch(; iterator, max_number_of_properties=2, property_types=[:Start],
+            max_property_evaluations=2, rule_cost_func=_ -> 1,
+            grammar_to_property_grammar=_ -> property_grammar)
     end
     # Canonical representatives are independent of selected tasks, shard, order,
     # seed and resume position. Cover benchmark-specific output/property types.
@@ -166,7 +184,7 @@ function prepare_interpreter(config, adapter, problem, grammar; test_indices=fir
 end
 
 function run_experiment(config::ExperimentConfig; io::IO=stdout)
-    config.algorithm in (:phalcon, :heuristic) || throw(ArgumentError("unknown algorithm"))
+    config.algorithm in (:phalcon, :phalcon_batch, :heuristic) || throw(ArgumentError("unknown algorithm"))
     config.timing_protocol == :warmed_v1 || throw(ArgumentError("unsupported timing protocol"))
     config.repetitions > 0 || throw(ArgumentError("repetitions must be positive"))
     adapter = benchmark_adapter(config.benchmark)
@@ -186,7 +204,7 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
         if !(k in (:output, :store, :repetitions))) : nothing
     results = Any[]
     # Repeat preparation after resume; never rely on completed trials to warm Julia.
-    isempty(tasks) || warmup_search!(adapter, config.benchmark)
+    isempty(tasks) || warmup_search!(adapter, config.benchmark; batch=config.algorithm == :phalcon_batch)
     # Run-owned reuse of explicitly prepared, unchanged grammar interpreters.
     interpreters = IdDict{Any,Base.RefValue{Any}}()
     !config.store && println(io, "$(config.algorithm) · $(config.benchmark) · $(length(tasks)) problems · $(config.repetitions) repetitions")

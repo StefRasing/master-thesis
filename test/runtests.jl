@@ -1,9 +1,11 @@
 include("setup.jl")
 include("output_limits.jl")
 include("algorithm_contracts.jl")
+include("phalcon_batch.jl")
 include("property_interpreter_reuse.jl")
 include("genetic_diagnostics.jl")
 include("typed_output_storage.jl")
+include("resumable_cost_based_bus.jl")
 include("string_property_ranking.jl")
 
 @testset "Search termination and deadlines" begin
@@ -89,10 +91,61 @@ end
         cost=_ -> 0, rule_costs=[1, 1], max_initial_population_size=1,
         max_generations_without_improvement=0)
     _, stats = phalcon(; iterator=iter, property_types=[:Start], agreement_threshold=2,
-        max_property_cost=2, rule_cost_func=r -> r == :(_arg_out > 0) ? 1 : 2,
+        max_property_evaluations=1, rule_cost_func=r -> r == :(_arg_out > 0) ? 1 : 2,
         max_number_of_properties=2,
         grammar_to_property_grammar=_ -> property_grammar)
     @test stats["programs_enumerated"] == 2
     @test stats["properties_enumerated"] == 2
     @test last.(stats["heuristic"]) == [2, 2]
+end
+
+@testset "Property evaluation budget" begin
+    grammar = @csgrammar begin
+        Start = 1
+        Start = 2
+        Start = 3
+        Start = 4
+    end
+    calls = Int[]
+    outputs = [[0, 0, 0, 1], [0, 0, 0, 1], fill(nothing, 4), [0, 0, 1, 1]]
+    interpreter = (rule, children, specs) -> (push!(calls, rule); outputs[rule])
+    counter = Ref(8)
+    options = (benchmark=Main, grammar=grammar,
+        problem=(spec=[IOExample(Dict{Symbol,Any}(), 0)],),
+        local_optimum_outputs=[[1], [2], [3]], property_types=[:Start],
+        rule_costs=fill(5, 4), prune_node_by_output=isnothing,
+        interpreter=interpreter, properties_enumerated=counter)
+
+    best = find_property!(; options..., max_property_evaluations=3)
+    @test best.program == RuleNode(1)
+    @test best.agreement == 2
+    @test calls == [1, 2, 3] # A duplicate and a pruned candidate both count.
+    @test counter[] == 11
+
+    empty!(calls)
+    best = find_property!(; options..., max_property_evaluations=4)
+    @test best.program == RuleNode(4)
+    @test best.agreement == 1
+    @test calls == [1, 2, 3, 4]
+    @test counter[] == 15
+    @test isnothing(find_property!(; options..., max_property_evaluations=0))
+    @test counter[] == 15
+    @test_throws ArgumentError find_property!(; options..., max_property_evaluations=-1)
+
+    nested = @csgrammar begin
+        Start = identity(Child)
+        Child = 1
+        Child = 2
+    end
+    empty!(calls)
+    nested_options = merge(options, (grammar=nested, rule_costs=[1, 0, 0]))
+    @test isnothing(find_property!(; nested_options..., max_property_evaluations=1))
+    @test calls == [2] # Stop inside child-pool discovery before interpreting a parent.
+    @test counter[] == 16
+
+    unproductive = @csgrammar begin
+        Start = identity(Start)
+    end
+    @test isnothing(find_property!(; merge(options, (grammar=unproductive, rule_costs=[1]))...))
+    @test counter[] == 16
 end

@@ -66,7 +66,7 @@ function initialize!(iter::GeneticIterator; deadline::Real = Inf)::Nothing
 
 
     # Create extensions that produce unique outputs
-    extensions = LazyCostBasedBus(
+    extensions = ResumableCostBasedBus(
         grammar,
         types,
         iter.max_extension_size,

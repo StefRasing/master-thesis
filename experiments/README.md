@@ -23,6 +23,7 @@ experiments/
 
 ```sh
 julia --project=. experiments/run.jl phalcon strings 1
+julia --project=. experiments/run.jl phalcon_batch strings 1
 julia --project=. experiments/run.jl heuristic arc 1 a
 julia --project=. experiments/presets/phalcon_arc.jl 1 a
 julia --project=. experiments/playgrounds/phalcon_strings.jl
@@ -143,6 +144,27 @@ search work; Phalcon attempts them. This intentionally measures that baseline
 limitation. Historical runs using four stagnant generations or no baseline
 deadline must be rerun to use the matched defaults.
 
+## Batch Phalcon
+
+Use `algorithm=:phalcon_batch` in `ExperimentConfig` to select the batch
+variant. It uses the same iterator and property options as Phalcon. With the
+default settings, it collects up to 400 distinct program output vectors
+(20 properties × population size 20) in one initial search. It enumerates
+properties once on the full sample and records which vectors agree on all
+training examples. Candidate pruning and output limits apply to the full sample.
+The batch keeps the first property per distinct nonempty agreement set, then
+selects by increasing agreement count, with ties in enumeration order.
+Two selected properties may agree on some of the same vectors. The batch can
+contain fewer properties than requested if there are too few distinct patterns.
+The guided search uses the combined property cost and the original population
+size. The `agreement_threshold` option controls early stopping for standard
+Phalcon and Phalcon-AT.
+
+Each trial records the requested and actual sample sizes as
+`property_sample_target` and `property_sample_size`. The `heuristic` field
+lists selected properties in order with their agreement on the full
+sample. The usual folds, trial seeds and time budget apply.
+
 ## Phalcon ablation
 
 The ablation crosses population sizes 10, 20, 50 and 100 with maximum property
@@ -232,6 +254,10 @@ extensions after a cost update adds no counts.
 including intermediate subprograms and candidates later pruned or deduplicated.
 It accumulates across property searches, including work before a timeout, and is
 zero for the heuristic baseline and trials that do not invent properties.
+Set `phalcon_options=(max_property_evaluations=10_000,)` to limit those
+evaluations per property search. This is the default for both Phalcon variants.
+Properties are still visited in increasing cost order. Explicit
+`max_property_cost` settings keep cost-bounded experiments such as the ablation.
 Both counts are saved and displayed. They count candidates, not per-example
 interpreter calls; property-based cost evaluation and cached rescoring are excluded.
 They therefore do not measure total synthesis work or sample efficiency. Historical

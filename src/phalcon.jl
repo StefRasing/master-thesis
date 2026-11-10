@@ -38,8 +38,9 @@ end
     phalcon(; iterator, agreement_threshold=1, timeout=typemax(Int), ...)
 
 Each property search stops at the first property with agreement from 1 through
-`agreement_threshold`, inclusive. If the search exhausts its cost budget first,
-it selects the lowest positive agreement found. Use a larger threshold for Phalcon-AT.
+`agreement_threshold`, inclusive. If the search exhausts its evaluation budget
+first, it selects the lowest positive agreement found. `max_property_evaluations`
+defaults to 10,000 per search. Use a larger threshold for Phalcon-AT.
 
 Run synthesis with a shared timeout in seconds, including initialization.
 Cancellation is cooperative: enumeration and genetic search check a monotonic
@@ -51,7 +52,8 @@ function phalcon(;
     iterator::ProgramIterator,
     max_number_of_properties::Int = typemax(Int),
     property_types::Vector,
-    max_property_cost::Int,
+    max_property_cost::Union{Nothing,Int} = nothing,
+    max_property_evaluations::Int = isnothing(max_property_cost) ? DEFAULT_MAX_PROPERTY_EVALUATIONS : typemax(Int),
     agreement_threshold::Int = 1,
     grammar_to_property_grammar::Function = _grammar_to_property_grammar,
     rule_cost_func::Function,
@@ -62,6 +64,7 @@ function phalcon(;
     display_outputs::Function = println,
 )
     agreement_threshold >= 1 || throw(ArgumentError("agreement_threshold must be positive"))
+    max_property_evaluations >= 0 || throw(ArgumentError("max_property_evaluations must be nonnegative"))
     start = time()
     deadline = _search_time() + timeout
     population_costs = []
@@ -97,7 +100,7 @@ function phalcon(;
             outputs = local_optimum_outputs(iterator)
 
             # Select new property if limit not exceeded
-            if length(selected_properties) >= max_number_of_properties
+            if max_property_evaluations == 0 || length(selected_properties) >= max_number_of_properties
                 break
             end
 
@@ -133,6 +136,7 @@ function phalcon(;
                 local_optimum_outputs = outputs,
                 property_types = property_types,
                 max_cost = max_property_cost,
+                max_property_evaluations = max_property_evaluations,
                 rule_costs = rule_costs,
                 agreement_threshold = agreement_threshold,
                 prune_node_by_output = prune_node_by_output,
@@ -160,24 +164,34 @@ function phalcon(;
             push!(selected_properties, property)
 
             # Define new cost
-            cost(outputs_and_targets) = sum(
-                sum(property.target_values .!= [property_interp(property.program, io, y) for (io, (y, _)) in zip(iterator.problem.spec, outputs_and_targets)])
-                for property in selected_properties if !isnothing(property)
-            , init=0)
-
-            update_cost_function(iterator, cost; deadline=deadline)
+            update_cost_function(iterator, _property_cost(iterator.problem, selected_properties, property_interp); deadline)
         end
 
     catch err
         err isa SearchTimeout || rethrow()
     end
 
-    return solution, OrderedDict(
+    return solution, _phalcon_stats(iterator, solution, start, properties_enumerated[],
+        property_grammar, selected_properties, population_costs,
+        program_synthesis_durations, property_invention_durations)
+end
+
+function _property_cost(problem, properties, property_interp)
+    return outputs_and_targets -> sum(
+        sum(property.target_values .!= [property_interp(property.program, io, y)
+            for (io, (y, _)) in zip(problem.spec, outputs_and_targets)])
+        for property in properties if !isnothing(property)
+    , init=0)
+end
+
+function _phalcon_stats(iterator, solution, start, properties_enumerated, property_grammar,
+        selected_properties, population_costs, program_synthesis_durations, property_invention_durations)
+    return OrderedDict(
         "problem_name" => iterator.problem.name,
         "solved_train_examples" => !isnothing(solution),
         "solution" => isnothing(solution) ? nothing : string(rulenode2expr(solution, iterator.solver.grammar)),
         "programs_enumerated" => iterator.programs_evaluated,
-        "properties_enumerated" => properties_enumerated[],
+        "properties_enumerated" => properties_enumerated,
         "execution_time" => time() - start,
         "heuristic" => [
             isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.agreement)
