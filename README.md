@@ -87,11 +87,16 @@ costs, distance metrics, and property settings. Keyword overrides in
 Playgrounds use the same runner with storage disabled. The strings playground
 explicitly retains its lower property cost budget of 2; production uses 3.
 
-Property synthesis minimizes `agreement`, the number of local optima whose
-property outputs match the target on every example. A property must match at
-least one local optimum and reject at least one. Search stops early when a
-property agrees with exactly one program. The `heuristic` statistics store the
-integer agreement alongside each selected property expression.
+`agreement` counts the local optima whose property outputs match the target on
+every example. Phalcon defaults to `agreement_threshold=1`. The agreement
+threshold variant, **Phalcon-AT**, uses a larger threshold. For Phalcon-AT(5),
+pass `agreement_threshold=5` to `phalcon` or `find_property!`, or use
+`phalcon_options=(agreement_threshold=5,)` in `ExperimentConfig`. The search
+stops at the first property with agreement from 1 through the threshold,
+inclusive. If it exhausts the cost budget first, it returns the property with
+the lowest positive agreement found, or `nothing` if none had positive
+agreement. The `heuristic` statistics store the agreement alongside each
+selected property.
 
 Stored runs use version 3 records in `.runs/` directories. Resume matches exact
 run identities, including configuration, seed, repetition, code and environment.

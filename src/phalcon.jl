@@ -35,7 +35,11 @@ end
 =#
 
 """
-    phalcon(; iterator, timeout=typemax(Int), ...)
+    phalcon(; iterator, agreement_threshold=1, timeout=typemax(Int), ...)
+
+Each property search stops at the first property with agreement from 1 through
+`agreement_threshold`, inclusive. If the search exhausts its cost budget first,
+it selects the lowest positive agreement found. Use a larger threshold for Phalcon-AT.
 
 Run synthesis with a shared timeout in seconds, including initialization.
 Cancellation is cooperative: enumeration and genetic search check a monotonic
@@ -48,6 +52,7 @@ function phalcon(;
     max_number_of_properties::Int = typemax(Int),
     property_types::Vector,
     max_property_cost::Int,
+    agreement_threshold::Int = 1,
     grammar_to_property_grammar::Function = _grammar_to_property_grammar,
     rule_cost_func::Function,
     prune_node_by_output::Function = _ -> false,
@@ -56,6 +61,7 @@ function phalcon(;
     verbose::Bool = false,
     display_outputs::Function = println,
 )
+    agreement_threshold >= 1 || throw(ArgumentError("agreement_threshold must be positive"))
     start = time()
     deadline = _search_time() + timeout
     population_costs = []
@@ -128,6 +134,7 @@ function phalcon(;
                 property_types = property_types,
                 max_cost = max_property_cost,
                 rule_costs = rule_costs,
+                agreement_threshold = agreement_threshold,
                 prune_node_by_output = prune_node_by_output,
                 max_output_bytes = max_output_bytes,
                 deadline = deadline,

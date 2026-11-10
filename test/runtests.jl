@@ -43,7 +43,7 @@ end
 
 include("experiments.jl")
 
-@testset "Property search stops at one agreement" begin
+@testset "Property agreement threshold" begin
     grammar = @csgrammar begin
         Start = _arg_out > 4
         Start = _arg_out > 0
@@ -54,13 +54,25 @@ include("experiments.jl")
     options = (benchmark=TypedStorageDSL,
         problem=(spec=[IOExample(Dict{Symbol,Any}(), 0)],), grammar=grammar,
         local_optimum_outputs=[[1], [2], [3], [4]], property_types=[:Start],
-        max_cost=2, rule_costs=[1, 1, 1, 1, 2])
+        max_cost=2, rule_costs=[1, 1, 1, 2, 2])
     counter = Ref(0)
     @test find_property!(; options..., properties_enumerated=counter).agreement === 1
-    @test counter[] == 4
+    default_count = counter[]
     @test isnothing(find_property!(; options..., properties_enumerated=counter,
         prune_node_by_output=_ -> true))
-    @test counter[] > 8
+    @test counter[] > default_count
+
+    counter[] = 0
+    property = find_property!(; options..., agreement_threshold=2, properties_enumerated=counter)
+    @test property.agreement === 2
+    @test property.program == RuleNode(3)
+    @test counter[] < default_count
+
+    # The last positive match has agreement 4, but the best match has 2.
+    fallback = find_property!(; options..., rule_costs=[2, 1, 1, 3, 3])
+    @test fallback.agreement === 2
+    @test fallback.program == RuleNode(3)
+    @test_throws ArgumentError find_property!(; options..., agreement_threshold=0)
 end
 
 @testset "Property enumeration results accumulate across searches" begin
@@ -69,15 +81,18 @@ end
         Start = 2
     end
     property_grammar = @csgrammar begin
+        Start = _arg_out > 0
         Start = _arg_out > 1
     end
     iter = GeneticIterator(grammar, :Start; benchmark=Main,
         problem=(name="property-counts", spec=[IOExample(Dict{Symbol,Any}(), 99)],),
         cost=_ -> 0, rule_costs=[1, 1], max_initial_population_size=1,
         max_generations_without_improvement=0)
-    _, stats = phalcon(; iterator=iter, property_types=[:Start],
-        max_property_cost=1, rule_cost_func=_ -> 1, max_number_of_properties=2,
+    _, stats = phalcon(; iterator=iter, property_types=[:Start], agreement_threshold=2,
+        max_property_cost=2, rule_cost_func=r -> r == :(_arg_out > 0) ? 1 : 2,
+        max_number_of_properties=2,
         grammar_to_property_grammar=_ -> property_grammar)
     @test stats["programs_enumerated"] == 2
     @test stats["properties_enumerated"] == 2
+    @test last.(stats["heuristic"]) == [2, 2]
 end
