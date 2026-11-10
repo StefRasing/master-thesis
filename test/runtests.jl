@@ -43,23 +43,24 @@ end
 
 include("experiments.jl")
 
-@testset "Property stopping policies" begin
+@testset "Property search stops at one agreement" begin
     grammar = @csgrammar begin
+        Start = _arg_out > 4
+        Start = _arg_out > 0
         Start = _arg_out > 2
         Start = _arg_out > 1
+        Start = _arg_out > 3
     end
     options = (benchmark=TypedStorageDSL,
         problem=(spec=[IOExample(Dict{Symbol,Any}(), 0)],), grammar=grammar,
         local_optimum_outputs=[[1], [2], [3], [4]], property_types=[:Start],
-        max_cost=1, rule_costs=[1, 1])
+        max_cost=2, rule_costs=[1, 1, 1, 1, 2])
     counter = Ref(0)
-    @test find_property!(; options..., properties_enumerated=counter).reduction_rate == 0.75
-    @test counter[] == 2
+    @test find_property!(; options..., properties_enumerated=counter).agreement === 1
+    @test counter[] == 4
     @test isnothing(find_property!(; options..., properties_enumerated=counter,
         prune_node_by_output=_ -> true))
-    @test counter[] == 4
-    @test find_property!(; options..., stop_reduction_rate=0.5).reduction_rate == 0.5
-    @test_throws ArgumentError find_property!(; options..., stop_reduction_rate=1.0)
+    @test counter[] > 8
 end
 
 @testset "Property enumeration results accumulate across searches" begin

@@ -57,7 +57,7 @@ end
     local_outputs = local_optimum_outputs(iter)
     @test local_outputs[1] === rebuilt.outputs
     @test local_outputs[2] === maybe.outputs
-    property = Property(RuleNode(1), rebuilt.outputs, 0.5)
+    property = Property(RuleNode(1), rebuilt.outputs, 1)
     @test property.target_values === rebuilt.outputs
     # Property synthesis accepts both homogeneous and heterogeneous vector types.
     @test find_property!(benchmark=TypedStorageDSL, problem=(spec=examples,),

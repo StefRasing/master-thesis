@@ -54,7 +54,6 @@ function phalcon(;
     max_output_bytes::Int = typemax(Int),
     timeout::Real = typemax(Int),
     verbose::Bool = false,
-    property_stop_reduction_rate::Union{Nothing,Real} = nothing,
     display_outputs::Function = println,
 )
     start = time()
@@ -132,7 +131,6 @@ function phalcon(;
                 prune_node_by_output = prune_node_by_output,
                 max_output_bytes = max_output_bytes,
                 deadline = deadline,
-                stop_reduction_rate = property_stop_reduction_rate,
                 properties_enumerated = properties_enumerated,
             )
             push!(property_invention_durations, time() - start_time)
@@ -148,7 +146,7 @@ function phalcon(;
                     println()
                     @show expr
                     @show property.target_values
-                    @show property.reduction_rate
+                    @show property.agreement
                 end
             end
 
@@ -175,7 +173,7 @@ function phalcon(;
         "properties_enumerated" => properties_enumerated[],
         "execution_time" => time() - start,
         "heuristic" => [
-            isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.reduction_rate)
+            isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.agreement)
             for property in selected_properties],
         "population_costs" => population_costs,
         "program_synthesis_durations" => program_synthesis_durations,

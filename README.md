@@ -75,7 +75,7 @@ run_experiment(ExperimentConfig(
     algorithm=:phalcon, benchmark=:strings, store=false,
     task_names=["2171308"],
     iterator_options=(population_size=30,),
-    phalcon_options=(property_stop_reduction_rate=0.5, timeout=60,),
+    phalcon_options=(timeout=60,),
 ))
 ```
 
@@ -87,12 +87,11 @@ costs, distance metrics, and property settings. Keyword overrides in
 Playgrounds use the same runner with storage disabled. The strings playground
 explicitly retains its lower property cost budget of 2; production uses 3.
 
-Property synthesis has one implementation. Its default stopping rule seeks the
-largest admissible reduction (all but one local optimum); pass
-`property_stop_reduction_rate=0.5` to `phalcon`, or
-`stop_reduction_rate=0.5` to `find_property!`, for the former playground behavior.
-The rate must be strictly between zero and one. Properties rejecting every local
-optimum remain inadmissible in both modes.
+Property synthesis minimizes `agreement`, the number of local optima whose
+property outputs match the target on every example. A property must match at
+least one local optimum and reject at least one. Search stops early when a
+property agrees with exactly one program. The `heuristic` statistics store the
+integer agreement alongside each selected property expression.
 
 Stored runs use version 3 records in `.runs/` directories. Resume matches exact
 run identities, including configuration, seed, repetition, code and environment.

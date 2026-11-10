@@ -18,7 +18,7 @@
         reused = find_property!(; options..., interpreter, properties_enumerated=counter)
         @test reused.program == fresh.program
         @test reused.target_values == fresh.target_values
-        @test reused.reduction_rate == fresh.reduction_rate
+        @test reused.agreement == fresh.agreement
         total_candidates += fresh_count[]
         @test counter[] == total_candidates
         @test input == Dict{Symbol,Any}(:_arg_1 => 123)

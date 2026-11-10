@@ -2,7 +2,7 @@
 struct Property
     program::AbstractRuleNode
     target_values::Vector
-    reduction_rate::Number
+    agreement::Int
 end
 
 """Find a property using fresh task outputs and enumeration state on every call.
@@ -22,12 +22,9 @@ function find_property!(;
     prune_node_by_output::Function = _ -> false,
     max_output_bytes::Int = 21 * 1024^2,
     deadline::Real = Inf,
-    stop_reduction_rate::Union{Nothing,Real} = nothing,
     # Shared across property searches; updated before interpretation, including pruned candidates.
     properties_enumerated::Base.RefValue{Int} = Ref(0),
 )
-    isnothing(stop_reduction_rate) || 0 < stop_reduction_rate < 1 ||
-        throw(ArgumentError("stop_reduction_rate must be between 0 and 1"))
     _check_deadline(deadline)
     target_outputs = [io.out for io in problem.spec]
 
@@ -40,10 +37,8 @@ function find_property!(;
     end
 
     best_property = nothing
-    best_reduction_number = 0
     best_target_values = nothing
-    maximum_reduction_number = isnothing(stop_reduction_rate) ?
-        length(local_optimum_outputs) - 1 : ceil(Int, stop_reduction_rate * length(local_optimum_outputs))
+    best_agreement = length(local_optimum_outputs)
 
     properties = LazyCostBasedBus(
         grammar, 
@@ -60,18 +55,16 @@ function find_property!(;
         _check_deadline(deadline)
         all_values = property.outputs
         target_values = all_values[begin:length(problem.spec)]
-        other_valuess = Iterators.partition(all_values[length(problem.spec)+1:end], length(problem.spec))
+        local_property_values = Iterators.partition(all_values[length(problem.spec)+1:end], length(problem.spec))
 
-        reduction_number = count(other_values != target_values for other_values in other_valuess)
+        agreement = count(values == target_values for values in local_property_values)
 
-        if reduction_number != length(local_optimum_outputs) && reduction_number > best_reduction_number
+        if agreement > 0
             best_property = property
             best_target_values = target_values
-            best_reduction_number = reduction_number
+            best_agreement = agreement
 
-            if reduction_number >= maximum_reduction_number
-                break
-            end
+            agreement == 1 && break
         end
     end
 
@@ -80,7 +73,6 @@ function find_property!(;
     end
 
     program = RuleNode(best_property)
-    best_reduction_rate = best_reduction_number / length(local_optimum_outputs)
 
-    return Property(program, best_target_values, best_reduction_rate)
+    return Property(program, best_target_values, best_agreement)
 end
