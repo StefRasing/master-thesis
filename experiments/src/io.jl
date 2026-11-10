@@ -40,7 +40,7 @@ function source_snapshot(root)
         end
     end
     git(args...) = try
-        strip(read(pipeline(`git -C $root $args`; stderr=devnull), String))
+        strip(read(pipeline(Cmd(`git $args`; dir=root); stderr=devnull), String))
     catch
         nothing
     end

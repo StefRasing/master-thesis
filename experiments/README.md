@@ -143,6 +143,42 @@ search work; Phalcon attempts them. This intentionally measures that baseline
 limitation. Historical runs using four stagnant generations or no baseline
 deadline must be rerun to use the matched defaults.
 
+## Phalcon ablation
+
+The ablation crosses population sizes 10, 20, 50 and 100 with maximum property
+costs 1, 2, 3 and 4. It uses one repetition and a 30-minute search budget per
+fold. The population size also sets the GP population size. Other search
+settings use the usual Phalcon defaults. Each problem and fold starts with the
+same RNG seed across settings, and evaluation uses the standard domain splits.
+
+Run all 16 settings for a domain locally or submit them as one Slurm array per
+setting. Each command below covers strings, bitvectors and the full ARC suite.
+
+```sh
+for domain in strings bitvectors arc; do
+    julia --project=. --threads=1 --startup-file=no experiments/run.jl phalcon-ablation "$domain"
+done
+
+for domain in strings bitvectors arc; do
+    bash exe/submit.sh phalcon-ablation "$domain" all --account=YOUR_ACCOUNT
+done
+```
+
+Setting IDs 1–4 use population 10, 5–8 use 20, 9–12 use 50, and 13–16 use 100.
+Within each group, costs run from 1 to 4. For example, setting 10 uses population
+50 and cost 2. Append `10` after the domain for a single setting locally, or
+replace `all` with `10` for Slurm. Local runs for one setting also accept
+`--batch INDEX SIZE` after the setting ID.
+
+Set `PHALCON_ABLATION_POPULATIONS=10,20,40,80` to select a different population
+grid with the same four property costs. Pass `--runs 5` immediately after the
+Slurm setting selection to schedule five independent runs per setting. Run IDs
+match across settings so that each problem and fold uses paired RNG seeds.
+
+Results are stored in `data/phalcon_ablation/<domain>/pop-<size>_cost-<cost>.runs`.
+Repeat the same command with the same batch size and source/environment to resume.
+Use a consistent batch layout per setting so a fold has one result identity.
+
 ## Timing protocol and interpreter reuse
 
 The runner uses `timing_protocol=:warmed_v1`. On every invocation, including

@@ -5,7 +5,10 @@ using .Experiments
     # Inspect real CLI configuration without launching benchmark searches.
     sandbox = Module(:ExperimentCLIProbe)
     Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/config.jl"))
-    Core.eval(sandbox, :(run_experiment(config) = config))
+    Core.eval(sandbox, quote
+        configs = ExperimentConfig[]
+        run_experiment(config) = (push!(configs, config); config)
+    end)
     Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/cli.jl"))
     Core.eval(sandbox, :(benchmark_adapter(b) = nothing))
     Core.eval(sandbox, :(benchmark_tasks(c, a) = 1:12))
@@ -16,6 +19,36 @@ using .Experiments
         config = sandbox.main([algorithm, benchmark, "3"])
         @test config.repetitions == 1
         @test config.run == "3"
+    end
+    for benchmark in ("strings", "bitvectors", "arc")
+        empty!(sandbox.configs)
+        sandbox.main(["phalcon-ablation", benchmark])
+        @test [(c.iterator_options, c.phalcon_options) for c in sandbox.configs] ==
+            [((population_size=p,), (max_property_cost=c,)) for p in (10, 20, 50, 100) for c in 1:4]
+        @test all(c -> c.algorithm == :phalcon && c.benchmark == Symbol(benchmark) &&
+            c.repetitions == 1 && c.timeout == 1800 && c.run == "1" && c.seed == 1 &&
+            c.shard === nothing && c.problem_indices == Colon(), sandbox.configs)
+        @test length(unique(c.output for c in sandbox.configs)) == 16
+        @test basename(last(sandbox.configs).output) == "pop-100_cost-4.runs"
+        empty!(sandbox.configs)
+        sandbox.main(["phalcon-ablation", benchmark, "10", "--batch", "3", "5"])
+        config = only(sandbox.configs)
+        @test config.problem_indices == 11:12
+        @test config.iterator_options == (population_size=50,)
+        @test config.phalcon_options == (max_property_cost=2,)
+        @test basename(config.output) == "pop-50_cost-2.runs"
+    end
+    for invalid in ("0", "17", "abc")
+        @test_throws ArgumentError sandbox.main(["phalcon-ablation", "arc", invalid])
+    end
+    withenv("PHALCON_ABLATION_POPULATIONS" => "10,20,40,80") do
+        empty!(sandbox.configs)
+        sandbox.main(["phalcon-ablation", "arc", "16", "--batch", "1", "1", "--run", "5"])
+        config = only(sandbox.configs)
+        @test config.iterator_options == (population_size=80,)
+        @test config.phalcon_options == (max_property_cost=4,)
+        @test config.run == "5"
+        @test config.timeout == 1800
     end
 end
 
