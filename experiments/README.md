@@ -24,6 +24,7 @@ experiments/
 ```sh
 julia --project=. experiments/run.jl phalcon strings 1
 julia --project=. experiments/run.jl phalcon_batch strings 1
+julia --project=. experiments/run.jl heuristic_naive strings 1
 julia --project=. experiments/run.jl heuristic arc 1 a
 julia --project=. experiments/presets/phalcon_arc.jl 1 a
 julia --project=. experiments/playgrounds/phalcon_strings.jl
@@ -38,13 +39,14 @@ Search algorithms remain in the repository's root `src/`; benchmark-specific
 experiment code belongs here. Slurm submission lives in `exe/submit.sh` and
 continues to call `experiments/run.jl`. Results remain under the root `data/`.
 
-Slurm arrays run one attempt per fold, in batches of five problems per run.
+Slurm arrays schedule one trial per fold, in batches of five problems per run.
 `bash exe/submit.sh heuristic strings 5 --account=YOUR_ACCOUNT` submits five
 independent runs split into batches (25 batches for strings, 31 for bitvectors,
 80 for ARC with the current suite). Defaults are partition `all`, QoS `normal`;
 verify live cluster limits with `exe/inspect_cluster.sh`. Override via sbatch
 options or `SLURM_PARTITION` / `SLURM_QOS`. `EXPERIMENT_BATCH_SIZE` changes the
-batch size; walltime scales with the maximum five folds plus overhead headroom.
+batch size. The default walltime is 18 hours for all domains and algorithms,
+including standard ARC and ARC ablation. It scales with batch size.
 This is a cooperative budget estimate, not a hard completion guarantee.
 All workers use one Julia/BLAS/OpenMP thread and disable startup files.
 Results share each run's directory and are atomically stored per fold. Keep batch
@@ -52,8 +54,8 @@ size unchanged when resuming because selection is part of the result identity.
 The CLI also accepts `ALGORITHM BENCHMARK RUN --batch INDEX SIZE`.
 Direct CLI/preset calls keep their existing full-suite or ARC-shard selection.
 
-For a temporary diagnostic pass over **every problem and fold in all six
-algorithm/domain combinations**, run:
+For a temporary diagnostic pass over **every problem and fold for Heuristic,
+Naive Heuristic and Phalcon in all three domains**, run:
 
 ```sh
 julia --project=. --threads=1 --startup-file=no experiments/preflight.jl data/preflight/my-check 0.05
@@ -130,7 +132,7 @@ All playgrounds use `store=false`; stored experiment runs retain archival metada
 
 ## Comparison settings
 
-Both algorithms default to 10 generations without improvement and a shared
+The experiment runner defaults to 10 generations without improvement and a shared
 `ExperimentConfig(timeout=1800)` budget in seconds per trial. The cooperative
 deadline covers initialization and search; Phalcon also includes property
 invention. Individual DSL/interpreter calls cannot be interrupted, so this is
@@ -138,8 +140,18 @@ not a hard execution limit. `iterator_options` can override the stagnation
 setting, and existing `phalcon_options.timeout` overrides still take precedence
 for Phalcon. Effective settings are saved with supported trials.
 
-The heuristic string baseline cannot handle non-string outputs. These tasks
-remain in the benchmark denominator and are recorded as unsolved with zero
+Select `heuristic_naive` to rank programs by the number of training examples
+they solve exactly. Every incorrect output has the same cost, regardless of
+its distance from the target. It uses the same GP settings, splits and budget
+as `heuristic`. The naive heuristic gets up to 20 attempts per fold, sharing
+the 30-minute budget. Each attempt starts a fresh population and the first
+training solution ends the trial. The informed heuristic gets one attempt per
+fold. Results record attempts started and total programs enumerated. The naive
+heuristic supports non-string outputs in the Strings suite. Use
+`heuristic_naive` with `exe/submit.sh` for Slurm.
+
+The distance-based heuristic string baseline cannot handle non-string outputs.
+These tasks remain in the benchmark denominator and are recorded as unsolved with zero
 search work; Phalcon attempts them. This intentionally measures that baseline
 limitation. Historical runs using four stagnant generations or no baseline
 deadline must be rerun to use the matched defaults.
@@ -167,13 +179,13 @@ sample. The usual folds, trial seeds and time budget apply.
 
 ## Phalcon ablation
 
-The ablation crosses population sizes 10, 20, 50 and 100 with maximum property
-costs 1, 2, 3 and 4. It uses one repetition and a 30-minute search budget per
-fold. The population size also sets the GP population size. Other search
-settings use the usual Phalcon defaults. Each problem and fold starts with the
-same RNG seed across settings, and evaluation uses the standard domain splits.
+The ablation runs population sizes 10, 20, 40 and 80. Each property search
+evaluates up to 10,000 candidates in increasing cost order, with no maximum
+property cost. Each fold gets one repetition and a 30-minute search budget.
+Each problem and fold starts with the same RNG seed across settings, and
+evaluation uses the standard domain splits.
 
-Run all 16 settings for a domain locally or submit them as one Slurm array per
+Run all four settings for a domain locally or submit them as one Slurm array per
 setting. Each command below covers strings, bitvectors and the full ARC suite.
 
 ```sh
@@ -186,18 +198,17 @@ for domain in strings bitvectors arc; do
 done
 ```
 
-Setting IDs 1–4 use population 10, 5–8 use 20, 9–12 use 50, and 13–16 use 100.
-Within each group, costs run from 1 to 4. For example, setting 10 uses population
-50 and cost 2. Append `10` after the domain for a single setting locally, or
-replace `all` with `10` for Slurm. Local runs for one setting also accept
+Setting IDs 1 through 4 correspond to populations 10, 20, 40 and 80,
+respectively. Append `3` after the domain to run population 40 locally, or
+replace `all` with `3` for Slurm. Local runs for one setting also accept
 `--batch INDEX SIZE` after the setting ID.
 
-Set `PHALCON_ABLATION_POPULATIONS=10,20,40,80` to select a different population
-grid with the same four property costs. Pass `--runs 5` immediately after the
-Slurm setting selection to schedule five independent runs per setting. Run IDs
-match across settings so that each problem and fold uses paired RNG seeds.
+Set `PHALCON_ABLATION_POPULATIONS=10,30,60` to select a different population
+grid. Pass `--runs 5` immediately after the Slurm setting selection to schedule
+five independent runs per setting. Run IDs match across settings so that each
+problem and fold uses paired RNG seeds.
 
-Results are stored in `data/phalcon_ablation/<domain>/pop-<size>_cost-<cost>.runs`.
+Results are stored in `data/phalcon_ablation/<domain>/pop-<size>.runs`.
 Repeat the same command with the same batch size and source/environment to resume.
 Use a consistent batch layout per setting so a fold has one result identity.
 
@@ -257,7 +268,7 @@ zero for the heuristic baseline and trials that do not invent properties.
 Set `phalcon_options=(max_property_evaluations=10_000,)` to limit those
 evaluations per property search. This is the default for both Phalcon variants.
 Properties are still visited in increasing cost order. Explicit
-`max_property_cost` settings keep cost-bounded experiments such as the ablation.
+`max_property_cost` settings are available for cost-bounded experiments.
 Each successful entry in `heuristic` stores `[expression, agreement, enumeration_index]`.
 The index is the number of candidates interpreted in that property search by
 the time the property was found, including the property itself. It resets on

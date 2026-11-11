@@ -5,7 +5,7 @@ algorithm=${1:?usage: submit.sh ALGORITHM BENCHMARK [RUNS or ABLATION_SETTING] [
 benchmark=${2:?benchmark required}
 selection=${3:-}
 shift "$(( $# >= 3 ? 3 : $# ))"
-[[ $algorithm == phalcon || $algorithm == phalcon_batch || $algorithm == heuristic || $algorithm == phalcon-ablation ]] || { echo 'invalid algorithm' >&2; exit 2; }
+[[ $algorithm == phalcon || $algorithm == phalcon_batch || $algorithm == heuristic || $algorithm == heuristic_naive || $algorithm == phalcon-ablation ]] || { echo 'invalid algorithm' >&2; exit 2; }
 [[ $benchmark == arc || $benchmark == strings || $benchmark == bitvectors ]] || { echo 'invalid benchmark' >&2; exit 2; }
 if [[ $algorithm == phalcon-ablation ]]; then
     selection=${selection:-all}
@@ -38,9 +38,6 @@ memory=32G
 [[ $benchmark != arc ]] || memory=64G
 folds_per_problem=5
 minutes_per_fold=30
-if [[ $algorithm == phalcon-ablation && $benchmark == arc ]]; then
-    folds_per_problem=1
-fi
 # Allow 25% search headroom, round up to whole hours, then add two hours for preparation.
 search_minutes=$((batch_size * folds_per_problem * minutes_per_fold))
 hours=$(((search_minutes * 5 + 239) / 240 + 2))

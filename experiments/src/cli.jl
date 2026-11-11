@@ -1,15 +1,12 @@
-const PHALCON_ABLATION_SETTINGS = [
-    (population_size=population_size, max_property_cost=max_property_cost)
-    for population_size in (10, 20, 50, 100) for max_property_cost in 1:4
-]
+const PHALCON_ABLATION_POPULATIONS = (10, 20, 40, 80)
 
 function ablation_settings()
     sizes = get(ENV, "PHALCON_ABLATION_POPULATIONS", "")
-    isempty(sizes) && return PHALCON_ABLATION_SETTINGS
+    isempty(sizes) && return PHALCON_ABLATION_POPULATIONS
     populations = parse.(Int, split(sizes, ','))
     all(>(0), populations) && allunique(populations) ||
         throw(ArgumentError("PHALCON_ABLATION_POPULATIONS must contain distinct positive sizes"))
-    return [(; population_size, max_property_cost) for population_size in populations for max_property_cost in 1:4]
+    return populations
 end
 
 function batch_indices(benchmark, index_arg, size_arg)
@@ -41,13 +38,13 @@ function phalcon_ablation(args)
     problem_indices = batch ? batch_indices(benchmark, args[5], args[6]) : Colon()
     output_root = get(ENV, "PHALCON_ABLATION_OUTPUT_ROOT",
         joinpath(@__DIR__, "..", "..", "data", "phalcon_ablation"))
-    for (; population_size, max_property_cost) in settings
+    for population_size in settings
         output = joinpath(output_root, string(benchmark),
-            "pop-$(population_size)_cost-$(max_property_cost).runs")
+            "pop-$(population_size).runs")
         # Each independent run uses paired seeds across settings.
         run_experiment(ExperimentConfig(; algorithm=:phalcon, benchmark, repetitions=1, run,
             output, problem_indices, iterator_options=(; population_size),
-            phalcon_options=(; max_property_cost)))
+            phalcon_options=(max_property_evaluations=Phalcon.DEFAULT_MAX_PROPERTY_EVALUATIONS,)))
     end
 end
 

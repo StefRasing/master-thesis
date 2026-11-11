@@ -51,18 +51,29 @@ function split_problem(problem, test_indices)
     return Problem(problem.name, problem.spec[train_indices]), Problem(problem.name, problem.spec[test_indices]), train_indices
 end
 
+count_unsolved(pairs) = count(pair -> pair[1] != pair[2], pairs)
+
 function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing),
         test_indices=first(evaluation_folds(config, problem)), fold=1, folds=length(evaluation_folds(config, problem)))
     train, test, train_indices = split_problem(problem, test_indices)
     uses_properties = config.algorithm in (:phalcon, :phalcon_batch)
-    # Non-string outputs are a baseline limitation: retain these tasks as unsolved.
+    # Retain non-string tasks as unsolved for the distance-based string baseline.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
     solution = nothing
+    max_attempts = config.algorithm == :heuristic_naive ? 20 : 1
+    attempts = 0
     result = OrderedDict{String,Any}("problem_name"=>problem.name, "solved_train_examples"=>false,
         "solution"=>nothing, "programs_enumerated"=>0, "properties_enumerated"=>0, "execution_time"=>0.0)
     if supported
+        cost = if uses_properties
+            _ -> 0
+        elseif config.algorithm == :heuristic_naive
+            count_unsolved
+        else
+            pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)
+        end
         options = merge((benchmark=adapter.benchmark, problem=train, interpreter=interpreter_ref[],
-            cost=uses_properties ? (_ -> 0) : (pairs -> sum(adapter.distance(y, t) for (y,t) in pairs)),
+            cost,
             population_size=20, candidate_pool_size=adapter.candidate_pool_size,
             max_generations_without_improvement=10,
             max_extension_size=1, max_initial_population_size=1, max_size=50,
@@ -82,14 +93,24 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         else
             start = time()
             deadline = Phalcon._search_time() + config.timeout
-            try
-                initialize!(iterator; deadline)
-                solution = find_solution(iterator; deadline)
-            catch err
-                err isa Phalcon.SearchTimeout || rethrow()
+            programs_enumerated = 0
+            for attempt in 1:max_attempts
+                Phalcon._search_time() < deadline || break
+                if attempt > 1
+                    iterator = GeneticIterator(grammar, :Start; options..., interpreter=iterator.interpreter, rng)
+                end
+                attempts += 1
+                try
+                    initialize!(iterator; deadline)
+                    solution = find_solution(iterator; deadline)
+                catch err
+                    err isa Phalcon.SearchTimeout || rethrow()
+                end
+                programs_enumerated += iterator.programs_evaluated
+                isnothing(solution) || break
             end
             result["execution_time"] = time() - start
-            result["programs_enumerated"] = iterator.programs_evaluated
+            result["programs_enumerated"] = programs_enumerated
             result["solved_train_examples"] = !isnothing(solution)
             result["solution"] = isnothing(solution) ? nothing : string(rulenode2expr(solution, grammar))
         end
@@ -98,6 +119,10 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
     config.store && (result["effective_configuration"] = supported ? Dict("iterator"=>effective_iterator,
         "timeout"=>uses_properties ? effective_phalcon["timeout"] : config.timeout,
         "phalcon"=>effective_phalcon) : nothing)
+    if !uses_properties
+        result["attempts"] = attempts
+        config.store && supported && (result["effective_configuration"]["max_attempts"] = max_attempts)
+    end
     result["fold"] = fold
     result["folds"] = folds
     result["train_test_split"] = (train_indices, test_indices)
@@ -113,19 +138,20 @@ end
 
 Run on every invocation, including resume. Never share its search state or RNG.
 """
-function warmup_search!(adapter, benchmark; batch=false)
+function warmup_search!(adapter, benchmark; batch=false, naive=false)
     grammar = @csgrammar begin
         Start = 1
         Start = 2
         Start = Start + Start
     end
     problem = Problem("timing-warmup", [IOExample(Dict{Symbol,Any}(), 99)])
-    for algorithm in (:heuristic, :phalcon)
+    for algorithm in (naive ? :heuristic_naive : :heuristic, :phalcon)
+        cost = algorithm == :heuristic_naive ? count_unsolved : (_ -> 1)
         iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
-            problem, rng=Random.Xoshiro(0), cost=_ -> 1, rule_costs=[1, 1, 1],
+            problem, rng=Random.Xoshiro(0), cost, rule_costs=[1, 1, 1],
             population_size=20, candidate_pool_size=4, max_extension_size=1,
             max_initial_population_size=3, max_generations_without_improvement=1)
-        if algorithm == :heuristic
+        if algorithm != :phalcon
             initialize!(iterator)
             find_solution(iterator)
         else
@@ -184,7 +210,7 @@ function prepare_interpreter(config, adapter, problem, grammar; test_indices=fir
 end
 
 function run_experiment(config::ExperimentConfig; io::IO=stdout)
-    config.algorithm in (:phalcon, :phalcon_batch, :heuristic) || throw(ArgumentError("unknown algorithm"))
+    config.algorithm in (:phalcon, :phalcon_batch, :heuristic, :heuristic_naive) || throw(ArgumentError("unknown algorithm"))
     config.timing_protocol == :warmed_v1 || throw(ArgumentError("unsupported timing protocol"))
     config.repetitions > 0 || throw(ArgumentError("repetitions must be positive"))
     adapter = benchmark_adapter(config.benchmark)
@@ -204,7 +230,8 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
         if !(k in (:output, :store, :repetitions))) : nothing
     results = Any[]
     # Repeat preparation after resume; never rely on completed trials to warm Julia.
-    isempty(tasks) || warmup_search!(adapter, config.benchmark; batch=config.algorithm == :phalcon_batch)
+    isempty(tasks) || warmup_search!(adapter, config.benchmark;
+        batch=config.algorithm == :phalcon_batch, naive=config.algorithm == :heuristic_naive)
     # Run-owned reuse of explicitly prepared, unchanged grammar interpreters.
     interpreters = IdDict{Any,Base.RefValue{Any}}()
     !config.store && println(io, "$(config.algorithm) · $(config.benchmark) · $(length(tasks)) problems · $(config.repetitions) repetitions")

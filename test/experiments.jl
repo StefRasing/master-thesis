@@ -1,10 +1,11 @@
 include("../experiments/src/Experiments.jl")
 using .Experiments
 
-@testset "CLI runs one attempt per fold" begin
+@testset "CLI schedules one trial per fold" begin
     # Inspect real CLI configuration without launching benchmark searches.
     sandbox = Module(:ExperimentCLIProbe)
     Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/config.jl"))
+    Core.eval(sandbox, :(const Phalcon = $(Experiments.Phalcon)))
     Core.eval(sandbox, quote
         configs = ExperimentConfig[]
         run_experiment(config) = (push!(configs, config); config)
@@ -15,38 +16,45 @@ using .Experiments
     @test sandbox.main(["phalcon", "strings", "2", "--batch", "3", "5"]).problem_indices == 11:12
     @test_throws ArgumentError sandbox.main(["phalcon", "strings", "2", "--batch", "4", "5"])
     @test_throws ArgumentError sandbox.main(["phalcon", "strings", "2", "--batch", "1", "0"])
-    for algorithm in ("heuristic", "phalcon"), benchmark in ("strings", "bitvectors", "arc")
+    for algorithm in ("heuristic", "heuristic_naive", "phalcon"), benchmark in ("strings", "bitvectors", "arc")
         config = sandbox.main([algorithm, benchmark, "3"])
         @test config.repetitions == 1
         @test config.run == "3"
+        @test config.algorithm == Symbol(algorithm)
     end
     for benchmark in ("strings", "bitvectors", "arc")
         empty!(sandbox.configs)
-        sandbox.main(["phalcon-ablation", benchmark])
+        withenv("PHALCON_ABLATION_POPULATIONS" => nothing) do
+            sandbox.main(["phalcon-ablation", benchmark])
+        end
         @test [(c.iterator_options, c.phalcon_options) for c in sandbox.configs] ==
-            [((population_size=p,), (max_property_cost=c,)) for p in (10, 20, 50, 100) for c in 1:4]
+            [((population_size=p,), (max_property_evaluations=10_000,)) for p in (10, 20, 40, 80)]
         @test all(c -> c.algorithm == :phalcon && c.benchmark == Symbol(benchmark) &&
             c.repetitions == 1 && c.timeout == 1800 && c.run == "1" && c.seed == 1 &&
             c.shard === nothing && c.problem_indices == Colon(), sandbox.configs)
-        @test length(unique(c.output for c in sandbox.configs)) == 16
-        @test basename(last(sandbox.configs).output) == "pop-100_cost-4.runs"
+        @test length(unique(c.output for c in sandbox.configs)) == 4
+        @test basename(last(sandbox.configs).output) == "pop-80.runs"
         empty!(sandbox.configs)
-        sandbox.main(["phalcon-ablation", benchmark, "10", "--batch", "3", "5"])
+        withenv("PHALCON_ABLATION_POPULATIONS" => nothing) do
+            sandbox.main(["phalcon-ablation", benchmark, "3", "--batch", "3", "5"])
+        end
         config = only(sandbox.configs)
         @test config.problem_indices == 11:12
-        @test config.iterator_options == (population_size=50,)
-        @test config.phalcon_options == (max_property_cost=2,)
-        @test basename(config.output) == "pop-50_cost-2.runs"
+        @test config.iterator_options == (population_size=40,)
+        @test config.phalcon_options == (max_property_evaluations=10_000,)
+        @test basename(config.output) == "pop-40.runs"
     end
-    for invalid in ("0", "17", "abc")
-        @test_throws ArgumentError sandbox.main(["phalcon-ablation", "arc", invalid])
+    withenv("PHALCON_ABLATION_POPULATIONS" => nothing) do
+        for invalid in ("0", "5", "abc")
+            @test_throws ArgumentError sandbox.main(["phalcon-ablation", "arc", invalid])
+        end
     end
-    withenv("PHALCON_ABLATION_POPULATIONS" => "10,20,40,80") do
+    withenv("PHALCON_ABLATION_POPULATIONS" => "15,30") do
         empty!(sandbox.configs)
-        sandbox.main(["phalcon-ablation", "arc", "16", "--batch", "1", "1", "--run", "5"])
+        sandbox.main(["phalcon-ablation", "arc", "2", "--batch", "1", "1", "--run", "5"])
         config = only(sandbox.configs)
-        @test config.iterator_options == (population_size=80,)
-        @test config.phalcon_options == (max_property_cost=4,)
+        @test config.iterator_options == (population_size=30,)
+        @test config.phalcon_options == (max_property_evaluations=10_000,)
         @test config.run == "5"
         @test config.timeout == 1800
     end
@@ -69,8 +77,8 @@ end
     @test any(t -> t.grammar.rules[1] != :ntString, tasks)
     @test ExperimentConfig().timeout == 1800
     @test !ExperimentConfig().verbose
-    # Array runs must write separate archives for both algorithms.
-    for algorithm in (:heuristic, :phalcon), benchmark in (:strings, :bitvectors, :arc)
+    # Array runs must write separate archives.
+    for algorithm in (:heuristic, :heuristic_naive, :phalcon), benchmark in (:strings, :bitvectors, :arc)
         c1 = ExperimentConfig(; algorithm, benchmark, run="1")
         c2 = ExperimentConfig(; algorithm, benchmark, run="2")
         @test Experiments.output_path(c1) != Experiments.output_path(c2)
@@ -109,6 +117,9 @@ end
     @test !result["solved_train_examples"] && !result["solved_test_examples"]
     @test result["execution_time"] == 0 && result["programs_enumerated"] == 0
     @test isnothing(result["effective_configuration"])
+    naive = Experiments.run_trial(ExperimentConfig(algorithm=:heuristic_naive, timeout=0),
+        strings, unsupported.problem, unsupported.grammar)
+    @test naive["effective_configuration"]["phalcon"] === nothing
     @test length(Experiments.benchmark_tasks(ExperimentConfig(benchmark=:bitvectors), bitvectors)) == 151
     @test length(Experiments.benchmark_tasks(ExperimentConfig(benchmark=:arc, shard="d"), arc)) == 100
     selected = Experiments.benchmark_tasks(ExperimentConfig(task_names=["2171308"]), strings)
@@ -143,6 +154,51 @@ end
         @test length(Experiments.load_results(path)) == 3k
         @test length(readdir(joinpath(path, "provenance"))) == 1
     end
+end
+
+@testset "Naive heuristic counts exact matches" begin
+    score = Experiments.count_unsolved
+    @test score(zip(["target", "targe", ""], fill("target", 3))) == 2
+    @test score(zip([1, 100], [1, 2])) == 1
+    @test score(zip([[1 2], [3 4]], [[1 2], [3 5]])) == 1
+
+    adapter = benchmark_adapter(:strings)
+    grammar = @csgrammar begin
+        Start = ntInt
+        ntInt = 1
+    end
+    example = IOExample(Dict{Symbol,Any}(), 1)
+    problem = Problem("naive-integer", [example, example])
+    config = ExperimentConfig(algorithm=:heuristic_naive, store=false, test_indices=[2])
+    result = Experiments.run_trial(config, adapter, problem, grammar)
+    @test result["solved_train_examples"]
+    @test result["solved_test_examples"]
+    @test result["properties_enumerated"] == 0
+    @test result["attempts"] == 1
+
+    smoke = ExperimentConfig(algorithm=:heuristic_naive, store=false, timeout=0, problem_indices=1:1)
+    trials = run_experiment(smoke; io=IOBuffer())
+    @test !isempty(trials)
+    @test all(trial -> trial["attempts"] == 0 && trial["programs_enumerated"] == 0, trials)
+end
+
+@testset "Only naive heuristic retries unsolved folds" begin
+    adapter = benchmark_adapter(:strings)
+    grammar = @csgrammar begin
+        Start = ntString
+        ntString = "a"
+    end
+    example = IOExample(Dict{Symbol,Any}(), "b")
+    problem = Problem("unsolved-string", [example, example])
+    run(algorithm) = Experiments.run_trial(ExperimentConfig(; algorithm, test_indices=[2],
+        iterator_options=(max_generations_without_improvement=0,)), adapter, problem, grammar)
+    informed = run(:heuristic)
+    naive = run(:heuristic_naive)
+    @test !informed["solved_train_examples"] && !naive["solved_train_examples"]
+    @test informed["attempts"] == informed["effective_configuration"]["max_attempts"] == 1
+    @test naive["attempts"] == naive["effective_configuration"]["max_attempts"] == 20
+    @test informed["programs_enumerated"] > 0
+    @test naive["programs_enumerated"] == 20 * informed["programs_enumerated"]
 end
 
 @testset "Atomic run records and identities" begin

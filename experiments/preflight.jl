@@ -5,7 +5,7 @@ root = length(ARGS) >= 1 ? abspath(ARGS[1]) : joinpath(@__DIR__, "../data/prefli
 budget = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : 0.05
 mkpath(root)
 summary = Any[]
-for domain in (:strings, :bitvectors, :arc), algorithm in (:heuristic, :phalcon)
+for domain in (:strings, :bitvectors, :arc), algorithm in (:heuristic, :heuristic_naive, :phalcon)
     path = joinpath(root, "$(algorithm)_$(domain).runs")
     config = ExperimentConfig(; algorithm, benchmark=domain, timeout=budget, output=path, run="preflight")
     println("Checking $algorithm / $domain → $path"); flush(stdout)
