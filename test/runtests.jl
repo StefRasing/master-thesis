@@ -6,6 +6,8 @@ include("property_interpreter_reuse.jl")
 include("genetic_diagnostics.jl")
 include("typed_output_storage.jl")
 include("resumable_cost_based_bus.jl")
+include("contains_cost_based_bus.jl")
+include("selective_contains_cost_based_bus.jl")
 include("string_property_ranking.jl")
 
 @testset "Search termination and deadlines" begin
@@ -96,7 +98,7 @@ end
         grammar_to_property_grammar=_ -> property_grammar)
     @test stats["programs_enumerated"] == 2
     @test stats["properties_enumerated"] == 2
-    @test last.(stats["heuristic"]) == [2, 2]
+    @test [(agreement, index) for (_, agreement, index) in stats["heuristic"]] == [(2, 1), (2, 1)]
 end
 
 @testset "Property evaluation budget" begin
@@ -119,6 +121,7 @@ end
     best = find_property!(; options..., max_property_evaluations=3)
     @test best.program == RuleNode(1)
     @test best.agreement == 2
+    @test best.enumeration_index == 1
     @test calls == [1, 2, 3] # A duplicate and a pruned candidate both count.
     @test counter[] == 11
 
@@ -126,6 +129,7 @@ end
     best = find_property!(; options..., max_property_evaluations=4)
     @test best.program == RuleNode(4)
     @test best.agreement == 1
+    @test best.enumeration_index == 4
     @test calls == [1, 2, 3, 4]
     @test counter[] == 15
     @test isnothing(find_property!(; options..., max_property_evaluations=0))

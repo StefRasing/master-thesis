@@ -25,7 +25,7 @@
     @test isnothing(solution)
     @test stats["property_sample_target"] == stats["property_sample_size"] == 6
     @test stats["properties_enumerated"] == 5
-    @test stats["heuristic"] == [(string(rulenode2expr(RuleNode(i), property_grammar)), 1)
+    @test stats["heuristic"] == [(string(rulenode2expr(RuleNode(i), property_grammar)), 1, i)
         for i in (2, 4)]
     @test iterator.population_size == length(iterator.population) == 3
     @test [iterator.cost([(y, 99)]) for y in (1, 5, 6)] == [2, 1, 1]
@@ -35,7 +35,7 @@
     @test stats["property_sample_target"] == 12
     @test stats["property_sample_size"] == 6
     @test stats["properties_enumerated"] == 5
-    @test stats["heuristic"] == [(string(rulenode2expr(RuleNode(i), property_grammar)), agreement)
+    @test stats["heuristic"] == [(string(rulenode2expr(RuleNode(i), property_grammar)), agreement, i)
         for (i, agreement) in ((2, 1), (4, 1), (1, 2))]
 
     iterator = make_iterator()

@@ -3,6 +3,7 @@ struct Property
     program::AbstractRuleNode
     target_values::Vector
     agreement::Int
+    enumeration_index::Int
 end
 
 const DEFAULT_MAX_PROPERTY_EVALUATIONS = 10_000
@@ -12,6 +13,7 @@ struct PropertyEvaluationLimit <: Exception end
 struct PropertyCandidates
     bus::ResumableCostBasedBus
     remaining::Base.RefValue{Int}
+    budget::Int
 end
 
 Base.IteratorSize(::Type{PropertyCandidates}) = Base.SizeUnknown()
@@ -85,8 +87,10 @@ function _property_candidates(;
         max_output_bytes = max_output_bytes,
         deadline = deadline,
     )
-    return PropertyCandidates(bus, remaining)
+    return PropertyCandidates(bus, remaining, max_property_evaluations)
 end
+
+_property_enumeration_index(candidates::PropertyCandidates) = candidates.budget - candidates.remaining[]
 
 function _property_values(property, num_examples)
     target_values = property.outputs[1:num_examples]
@@ -116,6 +120,7 @@ function find_property!(; problem, agreement_threshold::Int = 1, deadline::Real 
     best_property = nothing
     best_target_values = nothing
     best_agreement = typemax(Int)
+    best_index = 0
 
     for property in properties
         _check_deadline(deadline)
@@ -127,11 +132,12 @@ function find_property!(; problem, agreement_threshold::Int = 1, deadline::Real 
             best_property = property
             best_target_values = target_values
             best_agreement = agreement
+            best_index = _property_enumeration_index(properties)
 
             agreement <= agreement_threshold && break
         end
     end
 
     isnothing(best_property) && return nothing
-    return Property(RuleNode(best_property), best_target_values, best_agreement)
+    return Property(RuleNode(best_property), best_target_values, best_agreement, best_index)
 end

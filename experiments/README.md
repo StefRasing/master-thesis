@@ -258,6 +258,12 @@ Set `phalcon_options=(max_property_evaluations=10_000,)` to limit those
 evaluations per property search. This is the default for both Phalcon variants.
 Properties are still visited in increasing cost order. Explicit
 `max_property_cost` settings keep cost-bounded experiments such as the ablation.
+Each successful entry in `heuristic` stores `[expression, agreement, enumeration_index]`.
+The index is the number of candidates interpreted in that property search by
+the time the property was found, including the property itself. It resets on
+each search and uses the same counting rules as the evaluation cap.
+Earlier records have two fields per successful entry.
+
 Both counts are saved and displayed. They count candidates, not per-example
 interpreter calls; property-based cost evaluation and cached rescoring are excluded.
 They therefore do not measure total synthesis work or sample efficiency. Historical

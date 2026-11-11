@@ -194,7 +194,7 @@ function _phalcon_stats(iterator, solution, start, properties_enumerated, proper
         "properties_enumerated" => properties_enumerated,
         "execution_time" => time() - start,
         "heuristic" => [
-            isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.agreement)
+            isnothing(property) ? "failed" : (string(rulenode2expr(property.program, property_grammar)), property.agreement, property.enumeration_index)
             for property in selected_properties],
         "population_costs" => population_costs,
         "program_synthesis_durations" => program_synthesis_durations,

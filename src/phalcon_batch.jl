@@ -23,7 +23,8 @@ end
 function _unique_batch_properties(; problem, deadline, kwargs...)
     candidates = Property[]
     seen_agreements = Set{BitVector}()
-    for property in _property_candidates(; problem, deadline, kwargs...)
+    properties = _property_candidates(; problem, deadline, kwargs...)
+    for property in properties
         _check_deadline(deadline)
         target_values, local_values = _property_values(property, length(problem.spec))
         pattern = BitVector(values == target_values for values in local_values)
@@ -31,7 +32,8 @@ function _unique_batch_properties(; problem, deadline, kwargs...)
         agreement > 0 || continue
         pattern in seen_agreements && continue
         push!(seen_agreements, pattern)
-        push!(candidates, Property(RuleNode(property), target_values, agreement))
+        index = _property_enumeration_index(properties)
+        push!(candidates, Property(RuleNode(property), target_values, agreement, index))
     end
     return candidates
 end

@@ -89,7 +89,8 @@ function program_combinations(iter::LazyCostBasedBus, types::Vector{Symbol}, tot
     return combinations
 end
 
-function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRuleNode})
+function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRuleNode},
+                  seen_outputs_hashes = iter.seen_outputs_hashes)
     _check_deadline(iter.deadline)
     type = iter.grammar.types[rule]
     child_outputs = [c.outputs for c in children]
@@ -99,9 +100,9 @@ function assemble(iter::LazyCostBasedBus, rule::Int, children::Vector{CachedRule
     !_within_output_limit(outputs, iter.max_output_bytes) && return nothing
     any(iter.prune_by_output, outputs) && return nothing
     outputs_hash = _hash_outputs(outputs)
-    outputs_hash in iter.seen_outputs_hashes[type] && return nothing
+    outputs_hash in seen_outputs_hashes[type] && return nothing
 
-    push!(iter.seen_outputs_hashes[type], outputs_hash)
+    push!(seen_outputs_hashes[type], outputs_hash)
     return CachedRuleNode(rule, children, outputs)
 end
 
