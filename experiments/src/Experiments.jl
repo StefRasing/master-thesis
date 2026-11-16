@@ -12,6 +12,7 @@ export ExperimentConfig, benchmark_adapter, run_experiment, main
 
 include("config.jl")
 include("benchmarks.jl")
+include("domain_ranking.jl")
 include("runner.jl")
 include("cli.jl")
 

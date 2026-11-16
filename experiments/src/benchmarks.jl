@@ -18,6 +18,13 @@ function benchmark_adapter(kind::Symbol)
     throw(ArgumentError("unknown benchmark: $kind"))
 end
 
+function is_string_to_string(problem)
+    return !isempty(problem.spec) && all(problem.spec) do ex
+        length(ex.in) == 1 && get(ex.in, :_arg_1, nothing) isa AbstractString &&
+            ex.out isa AbstractString
+    end
+end
+
 function benchmark_tasks(config, adapter)
     benchmark = adapter.benchmark
     if config.benchmark == :arc
@@ -34,6 +41,9 @@ function benchmark_tasks(config, adapter)
         filter!(names_) do name
             config.benchmark == :strings ? all(f -> !occursin(f, name), ["short", "long", "repeat", "small"]) :
                 length(getfield(benchmark, Symbol("problem_", name)).spec) <= 10
+        end
+        if config.algorithm == :phalcon_domain && config.benchmark == :strings
+            filter!(n -> is_string_to_string(getfield(benchmark, Symbol("problem_", n))), names_)
         end
         if !isnothing(config.task_names)
             all(in(names_), config.task_names) || throw(ArgumentError("unknown or excluded task name"))

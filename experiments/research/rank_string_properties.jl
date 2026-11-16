@@ -35,9 +35,7 @@ function string_tasks(config)
             continue
         end
         problem = getfield(benchmark, Symbol("problem_", name))
-        if isempty(problem.spec) || !all(ex -> length(ex.in) == 1 &&
-                haskey(ex.in, :_arg_1) && ex.in[:_arg_1] isa AbstractString &&
-                ex.out isa AbstractString, problem.spec)
+        if !Experiments.is_string_to_string(problem)
             excluded[name] = "requires exactly one string input and one string output"
             continue
         end
@@ -99,16 +97,7 @@ function sample_programs(task, config)
     return (; outputs, expressions, evaluated=evaluated[], solutions_excluded)
 end
 
-"""Count whole-program acceptances: the property must match on EVERY I/O example."""
-function acceptance_count(values, examples::Int, programs::Int)
-    length(values) == examples * (programs + 1) || throw(DimensionMismatch("property output batch"))
-    target = @view values[1:examples]
-    any(isnothing, target) && return nothing
-    return count(1:programs) do index
-        candidate = @view values[index*examples+1:(index+1)*examples]
-        !any(isnothing, candidate) && candidate == target
-    end
-end
+const acceptance_count = P._domain_agreement
 
 function property_context(task, sample)
     examples = task.problem.spec
@@ -119,80 +108,13 @@ function property_context(task, sample)
         for values in outputs for (ex, value) in zip(examples, values)]
 end
 
-# Enumerate syntax, not outputs on a probe task. Semantic deduplication on one
-# task could incorrectly remove properties which differ on another task.
-function foreach_property(visit, grammar, max_cost; deadline=Inf)
-    costs = Int[r isa Expr for r in grammar.rules]
-    bank = Dict{Tuple{Symbol,Int},Vector{RuleNode}}()
-    function generate(emit, type, cost)
-        P._check_deadline(deadline)
-        for rule in eachindex(grammar.rules)
-            grammar.types[rule] == type || continue
-            remaining = cost - costs[rule]
-            remaining < 0 && continue
-            # The shared compositions helper permits an empty composition for
-            # positive budgets; a terminal must consume exactly its own cost.
-            isempty(grammar.childtypes[rule]) && remaining != 0 && continue
-            for allocation in P.compositions(remaining, length(grammar.childtypes[rule]); deadline)
-                pools = [cached(t, c) for (t, c) in zip(grammar.childtypes[rule], allocation)]
-                for children in Iterators.product(pools...)
-                    P._check_deadline(deadline)
-                    emit(RuleNode(rule, RuleNode[children...]))
-                end
-            end
-        end
-    end
-    function cached(type, cost)
-        get!(bank, (type, cost)) do
-            nodes = RuleNode[]
-            generate(p -> push!(nodes, p), type, cost)
-            nodes
-        end
-    end
-    out_rule = findfirst(==(:_arg_out), grammar.rules)
-    contains_out(node) = get_rule(node) == out_rule || any(contains_out, get_children(node))
-    for cost in 0:max_cost, type in (:ntString, :ntInt, :ntBool)
-        generate(type, cost) do program
-            contains_out(program) && visit(program, type, cost)
-        end
-    end
-end
+foreach_property(visit, grammar, max_cost; deadline=Inf) =
+    P._foreach_domain_property(visit, grammar, [:ntString, :ntInt, :ntBool],
+        Int[r isa Expr for r in grammar.rules], max_cost; deadline)
 
-# Cache only reusable children, not every root property. RuleNode keys compare
-# structurally; tasks have independent contexts and are part of the key.
-mutable struct PropertyOutputCache
-    values::Dict{Tuple{Int,RuleNode},Vector}
-    bytes::Int
-    limit::Int
-end
-PropertyOutputCache(limit) = PropertyOutputCache(Dict{Tuple{Int,RuleNode},Vector}(), 0, limit)
-
-function output_bytes_bound(values)
-    remaining, _ = P._output_size_budget(values, typemax(Int), typemax(Int), 8)
-    return remaining >= 0 ? typemax(Int) - remaining : Base.summarysize(values)
-end
-
-function evaluate_property(interpreter, program, context, cache=nothing, task_index=0; retain=false)
-    key = (task_index, program)
-    if !isnothing(cache) && haskey(cache.values, key)
-        return cache.values[key]
-    end
-    children = [evaluate_property(interpreter, child, context, cache, task_index; retain=true)
-        for child in get_children(program)]
-    values = interpreter(get_rule(program), children, context)
-    if retain && !isnothing(cache) && cache.limit > 0
-        bytes = output_bytes_bound(values)
-        if bytes <= cache.limit
-            if bytes > cache.limit - cache.bytes
-                empty!(cache.values)
-                cache.bytes = 0
-            end
-            cache.values[key] = values
-            cache.bytes += bytes
-        end
-    end
-    return values
-end
+const PropertyOutputCache = P.DomainPropertyOutputCache
+const output_bytes_bound = P._domain_output_bytes_bound
+const evaluate_property = P._evaluate_domain_property
 
 function rank_properties(tasks, samples, grammar, config; io=stdout)
     contexts = [property_context(t, s) for (t, s) in zip(tasks, samples)]

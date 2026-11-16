@@ -459,6 +459,32 @@ end
     end
 end
 
+@testset "Domain Phalcon task eligibility and training examples" begin
+    for (benchmark, task_count) in ((:strings, 67), (:bitvectors, 151))
+        adapter = benchmark_adapter(benchmark)
+        config = ExperimentConfig(; algorithm=:phalcon_domain, benchmark)
+        tasks = Experiments.benchmark_tasks(config, adapter)
+        @test length(tasks) == task_count
+        for task in tasks
+            @test benchmark != :strings || Experiments.is_string_to_string(task.problem)
+            @test Experiments.evaluation_folds(config, task.problem) == [Int[]]
+            train, test, indices = Experiments.trial_split(config, task.problem, Int[])
+            @test train === task.problem
+            @test isnothing(test)
+            @test indices == eachindex(train.spec)
+        end
+        task = first(tasks)
+        small_config = ExperimentConfig(; algorithm=:phalcon_domain, benchmark, store=false,
+            timeout=0, phalcon_options=(max_property_evaluations=0,))
+        grammar = Experiments.domain_property_grammar(tasks, adapter)
+        ranking = Experiments.prepare_domain_ranking(small_config, adapter, tasks, grammar, 1)
+        result = Experiments.run_trial(small_config, adapter, task.problem, task.grammar;
+            domain_ranking=ranking)
+        @test result["test_examples"] == 0
+        @test isnothing(result["solved_test_examples"])
+    end
+end
+
 @testset "Official ARC train/test splits" begin
     arc = benchmark_adapter(:arc).benchmark
     config = ExperimentConfig(benchmark=:arc)

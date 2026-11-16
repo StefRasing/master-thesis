@@ -3,7 +3,7 @@ function display_result(io::IO, result; repetition=1, repetitions=1)
     label = repetitions > 1 ? " (repetition $repetition/$repetitions)" : ""
     println(io, "\n", result["problem_name"], label, " (fold $(result["fold"])/$(result["folds"]))")
     println(io, "  Training: ", result["solved_train_examples"] ? "solved" : "unsolved",
-        "  |  Test: ", result["solved_test_examples"] ? "solved" : "unsolved")
+        "  |  Test: ", isnothing(result["solved_test_examples"]) ? "no holdout" : result["solved_test_examples"] ? "solved" : "unsolved")
     println(io, "  Time: ", round(result["execution_time"]; digits=3),
         " s  |  Program candidates: ", result["programs_enumerated"],
         "  |  Property candidates: ", result["properties_enumerated"])
@@ -21,6 +21,11 @@ end
 
 """Deterministic folds, shared across algorithms, runs and repetitions."""
 function evaluation_folds(config, problem)
+    if config.algorithm == :phalcon_domain && config.benchmark in (:strings, :bitvectors)
+        isnothing(config.test_indices) ||
+            throw(ArgumentError("Domain Phalcon uses all supplied examples for $(config.benchmark)"))
+        return [Int[]]
+    end
     n = length(problem.spec)
     n >= 2 || throw(ArgumentError("$(problem.name) needs at least two examples"))
     if !isnothing(config.test_indices)
@@ -51,12 +56,21 @@ function split_problem(problem, test_indices)
     return Problem(problem.name, problem.spec[train_indices]), Problem(problem.name, problem.spec[test_indices]), train_indices
 end
 
+function trial_split(config, problem, test_indices)
+    if config.algorithm == :phalcon_domain && config.benchmark in (:strings, :bitvectors)
+        isempty(test_indices) || throw(ArgumentError("expected no holdout examples"))
+        return problem, nothing, collect(eachindex(problem.spec))
+    end
+    return split_problem(problem, test_indices)
+end
+
 count_unsolved(pairs) = count(pair -> pair[1] != pair[2], pairs)
 
 function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.seed), interpreter_ref=Ref{Any}(nothing),
-        test_indices=first(evaluation_folds(config, problem)), fold=1, folds=length(evaluation_folds(config, problem)))
-    train, test, train_indices = split_problem(problem, test_indices)
-    uses_properties = config.algorithm in (:phalcon, :phalcon_batch)
+        test_indices=first(evaluation_folds(config, problem)), fold=1, folds=length(evaluation_folds(config, problem)),
+        domain_ranking=nothing)
+    train, test, train_indices = trial_split(config, problem, test_indices)
+    uses_properties = config.algorithm in (:phalcon, :phalcon_batch, :phalcon_domain)
     # Retain non-string tasks as unsolved for the distance-based string baseline.
     supported = config.algorithm != :heuristic || config.benchmark != :strings || grammar.rules[1] == :ntString
     solution = nothing
@@ -81,7 +95,15 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
         iterator = GeneticIterator(grammar, :Start; options..., rng)
         effective_iterator = config.store ? Dict(string(k)=>json_value(v) for (k,v) in pairs(options) if !(k in (:problem, :interpreter))) : nothing
         effective_phalcon = nothing
-        if uses_properties
+        if config.algorithm == :phalcon_domain
+            isnothing(domain_ranking) && throw(ArgumentError("phalcon_domain requires a domain ranking"))
+            options = (max_number_of_properties=get(config.phalcon_options, :max_number_of_properties, 20),
+                timeout=get(config.phalcon_options, :timeout, config.timeout))
+            solution, result = phalcon_domain(; iterator, ranking=domain_ranking, options...)
+            result["domain_properties_enumerated"] = domain_ranking.enumerated
+            result["domain_ranking_duration"] = domain_ranking.duration
+            effective_phalcon = config.store ? json_value(options) : nothing
+        elseif uses_properties
             options = merge((max_number_of_properties=20, rule_cost_func=adapter.rule_cost,
                 verbose=config.verbose, timeout=config.timeout), adapter.property_options, config.phalcon_options)
             if isnothing(get(options, :max_property_cost, nothing)) && !haskey(options, :max_property_evaluations)
@@ -126,11 +148,15 @@ function run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(config.
     result["fold"] = fold
     result["folds"] = folds
     result["train_test_split"] = (train_indices, test_indices)
-    outputs = isnothing(solution) ? nothing :
-        HerbInterpret.make_interpreter(grammar; target_module=adapter.benchmark, cache_module=adapter.benchmark)(solution, test.spec)
-    result["test_examples"] = length(test.spec)
-    result["correct_test_examples"] = isnothing(outputs) ? 0 : count(i -> outputs[i] == test.spec[i].out, eachindex(test.spec))
-    result["solved_test_examples"] = result["correct_test_examples"] == length(test.spec)
+    result["test_examples"] = isnothing(test) ? 0 : length(test.spec)
+    result["correct_test_examples"] = 0
+    result["solved_test_examples"] = nothing
+    if !isnothing(test)
+        outputs = isnothing(solution) ? nothing :
+            HerbInterpret.make_interpreter(grammar; target_module=adapter.benchmark, cache_module=adapter.benchmark)(solution, test.spec)
+        result["correct_test_examples"] = isnothing(outputs) ? 0 : count(i -> outputs[i] == test.spec[i].out, eachindex(test.spec))
+        result["solved_test_examples"] = result["correct_test_examples"] == length(test.spec)
+    end
     return result
 end
 
@@ -198,7 +224,7 @@ by initialization. Only the generated interpreter survives; populations, outputs
 counters and the private RNG do not pass to the measured trial.
 """
 function prepare_interpreter(config, adapter, problem, grammar; test_indices=first(evaluation_folds(config, problem)))
-    train, _, _ = split_problem(problem, test_indices)
+    train, _, _ = trial_split(config, problem, test_indices)
     interpreter = HerbInterpret.make_output_interpreter(grammar;
         target_module=adapter.benchmark, cache_module=adapter.benchmark)
     iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
@@ -210,7 +236,7 @@ function prepare_interpreter(config, adapter, problem, grammar; test_indices=fir
 end
 
 function run_experiment(config::ExperimentConfig; io::IO=stdout)
-    config.algorithm in (:phalcon, :phalcon_batch, :heuristic, :heuristic_naive) || throw(ArgumentError("unknown algorithm"))
+    config.algorithm in (:phalcon, :phalcon_batch, :phalcon_domain, :heuristic, :heuristic_naive) || throw(ArgumentError("unknown algorithm"))
     config.timing_protocol == :warmed_v1 || throw(ArgumentError("unsupported timing protocol"))
     config.repetitions > 0 || throw(ArgumentError("repetitions must be positive"))
     adapter = benchmark_adapter(config.benchmark)
@@ -229,6 +255,25 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
     configuration = config.store ? Dict(string(k) => json_value(getfield(config, k)) for k in fieldnames(ExperimentConfig)
         if !(k in (:output, :store, :repetitions))) : nothing
     results = Any[]
+    domain_rankings = Dict{Int,Any}()
+    sampling_interpreters = Dict()
+    domain_tasks = config.algorithm == :phalcon_domain && !isempty(tasks) ?
+        benchmark_tasks(ExperimentConfig(; algorithm=:phalcon_domain, benchmark=config.benchmark), adapter) : []
+    domain_grammar = isempty(domain_tasks) ? nothing : domain_property_grammar(domain_tasks, adapter)
+    function ranking_for(fold)
+        isnothing(domain_grammar) && return nothing
+        return get!(domain_rankings, fold) do
+            println(io, "Ranking properties for $(config.benchmark), fold $fold ($(length(domain_tasks)) problems)")
+            ranking = prepare_domain_ranking(config, adapter, domain_tasks, domain_grammar, fold;
+                program_interpreters=sampling_interpreters)
+            println(io, "  Ranked $(length(ranking.ranked)) of $(ranking.enumerated) enumerated properties")
+            if config.store
+                report = domain_ranking_report(ranking, domain_tasks, fold)
+                publish_json(joinpath(path, "rankings", "$(fingerprint(report)).json"), report)
+            end
+            ranking
+        end
+    end
     # Repeat preparation after resume; never rely on completed trials to warm Julia.
     isempty(tasks) || warmup_search!(adapter, config.benchmark;
         batch=config.algorithm == :phalcon_batch, naive=config.algorithm == :heuristic_naive)
@@ -248,7 +293,7 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
                     ref[] = prepare_interpreter(config, adapter, problem, grammar; test_indices)
                 end
                 result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=ref, test_indices, fold, folds=length(folds))
+                    interpreter_ref=ref, test_indices, fold, folds=length(folds), domain_ranking=ranking_for(fold))
                 display_result(io, result; repetition, repetitions=config.repetitions)
                 push!(results, result)
                 continue
@@ -263,7 +308,7 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
             end
             started = string(now(UTC))
             result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=ref, test_indices, fold, folds=length(folds))
+                    interpreter_ref=ref, test_indices, fold, folds=length(folds), domain_ranking=ranking_for(fold))
             record = Dict("schema_version"=>3, "run_id"=>fingerprint(identity),
                 "identity"=>identity, "rng"=>"Random.Xoshiro", "provenance_sha256"=>provenance_hash,
                 "started_at_utc"=>started, "completed_at_utc"=>string(now(UTC)), "result"=>result)
@@ -273,8 +318,10 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
     end
     if !config.store && !isempty(results)
         train_solved = count(r -> r["solved_train_examples"], results)
-        test_solved = count(r -> r["solved_test_examples"], results)
-        println(io, "\nCompleted $(length(results)) trials · Training solved: $train_solved/$(length(results)) · Test solved: $test_solved/$(length(results))")
+        test_solved = count(r -> r["solved_test_examples"] === true, results)
+        test_trials = count(r -> !isnothing(r["solved_test_examples"]), results)
+        test_summary = test_trials == 0 ? "" : " · Test solved: $test_solved/$test_trials"
+        println(io, "\nCompleted $(length(results)) trials · Training solved: $train_solved/$(length(results))", test_summary)
     end
     return results
 end

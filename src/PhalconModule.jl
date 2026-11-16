@@ -19,7 +19,7 @@ import HerbInterpret
 export GeneticIterator, LazyCostBasedBus, ResumableCostBasedBus, Property,
        ContainsCostBasedBus, SelectiveContainsCostBasedBus,
        initialize!, find_solution, local_optimum_outputs, update_cost_function,
-       find_property!, phalcon, phalcon_batch, levenshtein, hamming_distance
+       find_property!, phalcon, phalcon_batch, rank_domain_properties, phalcon_domain, levenshtein, hamming_distance
 
 include("deadline.jl")
 include("output_limits.jl")
@@ -31,6 +31,7 @@ include("genetic_iterator.jl")
 include("property_synthesizer.jl")
 include("phalcon.jl")
 include("phalcon_batch.jl")
+include("phalcon_domain.jl")
 include("heuristics.jl")
 
 end

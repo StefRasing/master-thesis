@@ -177,6 +177,46 @@ Each trial records the requested and actual sample sizes as
 lists selected properties in order with their agreement on the full
 sample. The usual folds, trial seeds and time budget apply.
 
+## Domain Phalcon
+
+Run `julia --project=. experiments/run.jl phalcon_domain strings 1` or substitute
+`bitvectors` or `arc`. The runner builds one ranking per domain. Strings
+use the 67 canonical tasks with exactly one string input and one string
+output. Strings and bitvectors use every supplied example for ranking and
+synthesis, with no holdout. ARC uses its official training examples for
+ranking and synthesis and keeps the official test examples for evaluation.
+Task filters and ARC shards limit the synthesis trials only.
+
+For strings and bitvectors, the shared grammar keeps typed productions
+present in every eligible task's grammar and adds `_arg_out`. A production
+is a grammar rule such as a literal, an input symbol, or an operator with
+typed arguments. ARC uses its benchmark-specific property grammar.
+
+For each task the ranker enumerates the first 20 valid, behaviorally distinct
+non-solution programs in increasing program cost. It uses all programs found
+if the sample is smaller within the default program cost bound of 6 and
+per-task cap of 100,000 program evaluations. The ranker evaluates up to 10,000 syntactically distinct properties containing
+`_arg_out` in increasing property cost, using the shared grammar for that
+domain. A sampled program agrees only when the property matches the target
+on every training example. A property is discarded if more than half the
+tasks have zero agreement. Zero agreements count as zero in the total.
+Keep the first property for each distinct agreement pattern across all
+sampled programs. Sort the survivors by ascending total agreement across
+tasks, with ties in enumeration order.
+
+Each synthesis trial uses the first 20 ranked properties as a fixed summed
+cost. It computes each property's target values on its own training examples
+and performs zero property enumerations. With an empty ranking it uses the
+flat Phalcon cost. The run directory stores each full ranking and per-task
+sample sizes in `rankings/`. Trial results report ranking time and the domain
+enumeration count separately from trial time and enumeration.
+
+Override `max_number_of_properties`, `max_property_evaluations`,
+`max_program_cost`, `max_program_evaluations`, or `max_property_cost` through `phalcon_options`.
+The ranker's sample size follows `iterator_options.population_size` unless
+overridden through `phalcon_options.population_size`. The ranking has its
+own timeout budget, which defaults to the same duration as each trial.
+
 ## Phalcon ablation
 
 The ablation runs population sizes 10, 20, 40 and 80. Each property search
@@ -266,7 +306,9 @@ including intermediate subprograms and candidates later pruned or deduplicated.
 It accumulates across property searches, including work before a timeout, and is
 zero for the heuristic baseline and trials that do not invent properties.
 Set `phalcon_options=(max_property_evaluations=10_000,)` to limit those
-evaluations per property search. This is the default for both Phalcon variants.
+evaluations per property search. This is the default for Phalcon and Batch Phalcon. Domain Phalcon counts
+complete syntactic properties across the shared ranking and records this count
+separately as `domain_properties_enumerated`.
 Properties are still visited in increasing cost order. Explicit
 `max_property_cost` settings are available for cost-bounded experiments.
 Each successful entry in `heuristic` stores `[expression, agreement, enumeration_index]`.
