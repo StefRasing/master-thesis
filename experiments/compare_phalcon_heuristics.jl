@@ -29,31 +29,32 @@ function comparison_metadata(root, population)
 end
 
 function comparison_plot(old, new, field, xlabel)
-    ax = panel("Strings"; xlabel, ylabel="Folds solved", legend=:topleft,
+    ax = panel("Strings"; xlabel, ylabel="Folds solved", legend=:outerbottom, legend_column=2,
         ylims=(0, 103), yticks=0:20:100, yformatter=y -> "$(round(Int, y))%")
-    labels = ("Old heuristic · population $OLD_POPULATION", "New heuristic · population $NEW_POPULATION")
+    labels = ("Old ($OLD_POPULATION)", "New ($NEW_POPULATION)")
     # A fold can solve before inventing any properties.
     zero_allowed = field == :properties
     coordinate(x) = zero_allowed ? x + 1 : x
     lower, upper = extrema(coordinate(getproperty(fold, field)) for fold in [old; new])
     limits = (zero_allowed ? 1.0 : lower / 1.3, upper * 1.12)
-    plot!(ax; xscale=:log10, xlims=limits)
+    plot!(ax; xscale=:log10, xlims=limits, xformatter=x -> "1e$(round(Int, log10(x)))")
     if zero_allowed
-        ticks = filter(x -> x + 1 <= limits[2], [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000])
+        plot!(ax; xformatter=:auto)
+        ticks = filter(x -> x + 1 <= limits[2], [0, 2, 5, 10, 20, 50, 100, 500, 1000])
         plot!(ax; xticks=(ticks .+ 1, string.(ticks)))
     end
-    for (rows, color, label) in zip((old, new), COLORS, labels)
-        for (criterion, linestyle) in ((:solved, :solid), (:training_solved, :dash))
+    for (i, (rows, color, label, marker)) in enumerate(zip((old, new), COLORS, labels, MARKERS))
+        for (criterion, linestyle) in ((:solved, :solid), (:training_solved, :dot))
             costs = sort!([coordinate(getproperty(fold, field)) for fold in rows if getproperty(fold, criterion)])
             accuracy = 100 .* (1:length(costs)) ./ length(rows)
-            plot!(ax, [limits[1]; costs; limits[2]], [0; accuracy; 100 * length(costs) / length(rows)];
-                seriestype=:steppost, linewidth=2, color, linestyle,
+            plot_steps!(ax, [limits[1]; costs; limits[2]],
+                [0; accuracy; 100 * length(costs) / length(rows)], color, marker, i, linestyle;
                 label=criterion === :solved ? label : false)
         end
     end
     plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, label="Test")
-    plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dash, label="Training")
-    return plot(ax; size=(760, 470))
+    plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dot, label="Training")
+    return plot(ax; size=(COLUMN_WIDTH, 216))
 end
 
 function compare_heuristics(old_root=OLD_ROOT, new_root=NEW_ROOT, output=COMPARISON_OUTPUT)

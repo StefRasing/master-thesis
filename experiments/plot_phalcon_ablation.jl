@@ -8,7 +8,14 @@ using Plots
 using Plots.PlotMeasures: mm
 
 const DOMAINS = (("strings", "Strings"), ("bitvectors", "Bitvectors"))
-const COLORS = ("#0072B2", "#D55E00", "#009E73", "#8E549F", "#B27900", "#4B586B")
+# The AAAI text block is 7 inches wide, with a 0.375-inch gutter.
+# GR's PDF backend treats the canvas dimensions as PDF points.
+const PAPER_WIDTH = 504
+const COLUMN_WIDTH = 238
+const COLORS = ("#111111", "#285B80", "#7A3D16", "#5F4175", "#21604A", "#575757")
+const MARKERS = (:circle, :rect, :diamond, :utriangle, :dtriangle, :star5)
+const LINE_STYLES = (:solid, :dash, :dot, :dashdot, :dashdotdot)
+const BAR_SHADES = ("#151515", "#454545", "#707070", "#999999", "#C1C1C1", "#E7E7E7")
 const DEFAULT_RESULTS = normpath(joinpath(@__DIR__, "..", "data", "phalcon_ablation",
     "daic-population-five-runs-20261111"))
 
@@ -43,12 +50,36 @@ function load_problem_runs(results_dir, domain, population)
     return groups
 end
 
-panel(title; options...) = plot(; title, titlefontsize=11, guidefontsize=9,
-    tickfontsize=8, legendfontsize=8, framestyle=:box,
-    left_margin=5mm, bottom_margin=7mm, options...)
+# At native size, GR maps these font sizes to at least 11 PDF points.
+# Its raster scaling yields about 317 pixels per inch at the same placement size.
+panel(title; options...) = plot(; title, fontfamily="Helvetica", titlefontsize=9,
+    guidefontsize=8, tickfontsize=7, legendfontsize=7, legendtitlefontsize=7,
+    framestyle=:box, foreground_color=:black, background_color=:white,
+    grid=false, left_margin=2mm, right_margin=2mm, bottom_margin=2mm,
+    dpi=440, options...)
+
+# Marks at spaced budgets identify the method in grayscale without obscuring the steps.
+function plot_steps!(ax, x, y, color, marker, series_index, linestyle; label=false)
+    plot!(ax, x, y; seriestype=:steppost, color, linestyle, linewidth=1.5, label=false)
+    lower, upper = log10(first(x)), log10(last(x))
+    budgets = 10 .^ (lower .+ (upper - lower) .* ((1:6) .+ (series_index - 3.5) / 8) ./ 7)
+    levels = y[searchsortedlast.(Ref(x), budgets)]
+    scatter!(ax, budgets, levels; color, marker, markersize=2, markerstrokewidth=0.65,
+        markerstrokecolor=color, label)
+end
 
 function save_figure(figure, output, name)
-    for extension in ("pdf", "png", "svg")
+    gs = Sys.which("gs")
+    isnothing(gs) && error("Ghostscript (gs) is required to embed the plot's PDF fonts.")
+    mktempdir() do temp
+        raw = joinpath(temp, "raw.pdf")
+        embedded = joinpath(temp, "embedded.pdf")
+        savefig(figure, raw)
+        run(`$gs -q -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -dEmbedAllFonts=true
+            -dSubsetFonts=true -sOutputFile=$embedded -c '<</NeverEmbed []>> setdistillerparams' -f $raw`)
+        cp(embedded, joinpath(output, "$name.pdf"); force=true)
+    end
+    for extension in ("png", "svg")
         savefig(figure, joinpath(output, "$(name).$(extension)"))
     end
 end
@@ -81,12 +112,15 @@ function performance(data, series, field, x_label; show_bounds=false,
         for groups in values(data) for folds in values(groups) for fold in values(folds)
         if !ismissing(getproperty(fold, field)) && getproperty(fold, field) > 0)
     limits = (lower / 1.3, upper * 1.12)
-    decades = ceil(Int, log10(limits[1])):floor(Int, log10(limits[2]))
-    ticks = (10.0 .^ decades, ["10^{$exponent}" for exponent in decades])
+    first_decade, last_decade = ceil(Int, log10(limits[1])), floor(Int, log10(limits[2]))
+    decades = first_decade:(last_decade - first_decade >= 6 ? 2 : 1):last_decade
+    ticks = (10.0 .^ decades, ["1e$exponent" for exponent in decades])
+    legend_position = length(domains) == 1 ? :outerbottom : :topleft
     panels = map(domains) do (domain, title)
         ax = panel(title; xscale=:log10, xlims=limits, xticks=ticks, ylims=(0, 103), yticks=0:20:100, xlabel=x_label,
             ylabel=domain == first(domains)[1] ? "Folds solved" : "",
-            legend=domain == last(domains)[1] ? :topleft : false,
+            legend=domain == last(domains)[1] ? legend_position : false,
+            legend_column=length(domains) == 1 ? 2 : 1,
             legend_title, yformatter=y -> "$(round(Int, y))%")
         if show_bounds
             for (key, color) in zip(series, COLORS)
@@ -97,49 +131,50 @@ function performance(data, series, field, x_label; show_bounds=false,
                 end
             end
         end
-        for (key, color) in zip(series, COLORS)
+        for (i, (key, color, marker)) in enumerate(zip(series, COLORS, MARKERS))
             groups = data[domain, key]
             fold_counts = Dict{Int,Int}()
             for ((run, _), folds) in groups
                 fold_counts[run] = get(fold_counts, run, 0) + length(folds)
             end
-            for (criterion, linestyle) in ((:solved, :solid), (:training_solved, :dash))
+            for (criterion, linestyle) in ((:solved, :solid), (:training_solved, :dot))
                 events = sort!([(getproperty(fold, field), 100 / (length(fold_counts) * fold_counts[run]))
                     for ((run, _), folds) in groups for fold in values(folds) if getproperty(fold, criterion)])
                 costs = first.(events)
                 @assert all(>(0), costs) "Solved folds must have positive costs on the log axis."
                 accuracy = cumsum(last.(events))
-                plot!(ax, [limits[1]; costs; limits[2]], [0; accuracy; sum(last, events; init=0.0)];
-                    seriestype=:steppost, color, linestyle, linewidth=2,
+                plot_steps!(ax, [limits[1]; costs; limits[2]],
+                    [0; accuracy; sum(last, events; init=0.0)], color, marker, i, linestyle;
                     label=criterion === :solved ? series_label(key) : false)
             end
         end
         if domain == last(domains)[1]
             plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, label="Test")
-            plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dash, label="Training")
+            plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dot, label="Training")
             if show_bounds
                 plot!(ax, [NaN], [NaN]; seriestype=:shape, color=:gray, fillalpha=0.3,
-                    linealpha=0, label="Best–worst range")
+                    linealpha=0, label="Run range")
             end
         end
         ax
     end
     return plot(panels...; layout=(1, length(panels)), link=:y,
-        size=(length(panels) == 1 ? 720 : 1050, 440))
+        size=(length(panels) == 1 ? COLUMN_WIDTH : PAPER_WIDTH, 240))
 end
 
-function property_enumerations(data, populations; solved::Bool)
+function property_enumerations(data, populations; solved::Union{Bool,Nothing}=nothing)
     width = 0.72 / length(populations)
-    labels = ["1–9", "10–99", "100–999", "1,000–10,000", "No 1-agreement"]
+    labels = ["1-9", "10-99", "100-999", "1k-10k", "No hit"]
     panels = map(DOMAINS) do (domain, title)
-        outcome = solved ? "Test solved" : "Test unsolved"
-        ax = panel("$title · $outcome"; xlabel="Candidates enumerated before first 1-agreement property",
-            ylabel=domain == "strings" ? "Property invention attempts" : "", legend=domain == "bitvectors" ? :topleft : false,
-            legend_title="Population size", xticks=(1:5, labels), xrotation=15, xlims=(0.5, 5.5))
-        for (i, (population, color)) in enumerate(zip(populations, COLORS))
+        heading = isnothing(solved) ? title : "$title · Test $(solved ? "solved" : "unsolved")"
+        ax = panel(heading; xlabel="Candidates to first 1-agreement",
+            ylabel=domain == "strings" ? "Property invention attempts" : "",
+            yformatter=y -> string(round(Int, y)), legend=domain == "bitvectors" ? :topleft : false,
+            legend_title="Population", bottom_margin=6mm, xticks=(1:5, labels), xrotation=25, xlims=(0.5, 5.5))
+        for (i, (population, color)) in enumerate(zip(populations, BAR_SHADES))
             counts = zeros(Int, 5)
             for folds in values(data[domain, population]), fold in values(folds)
-                fold.solved == solved || continue
+                isnothing(solved) || fold.solved == solved || continue
                 for (agreement, index) in zip(fold.agreements, fold.property_indices)
                     if agreement == 1
                         @assert 1 <= index <= 10_000
@@ -150,12 +185,12 @@ function property_enumerations(data, populations; solved::Bool)
                 end
             end
             bar!(ax, (1:5) .+ (i - (length(populations) + 1) / 2) * width, counts; bar_width=0.94width,
-                color, linealpha=0, label=string(population))
+                color, linecolor=:black, linewidth=1, label=string(population))
         end
-        vline!(ax, [4.5]; color=:gray, alpha=0.4, label=false)
+        vline!(ax, [4.5]; color=:black, linestyle=:dot, linewidth=1, label=false)
         ax
     end
-    return plot(panels...; layout=(1, 2), size=(1140, 450))
+    return plot(panels...; layout=(1, 2), size=(PAPER_WIDTH, 247))
 end
 
 function mean_phase_times(groups, phase; max_iteration=50)
@@ -175,18 +210,18 @@ function iteration_timing(data, populations)
     iteration_axis = (; xlims=(1, 50), xticks=[1, 10, 20, 30, 40, 50])
     for population in populations, (domain, title) in DOMAINS
         groups = data[domain, population]
-        ax = panel("$(title) · Population $(population) · Test solved";
-            xlabel=population == last(populations) ? "Phalcon iteration" : "",
-            ylabel=domain == "strings" ? "Mean duration (s)" : "",
+        ax = panel("$title · Pop. $population";
+            xlabel=population == last(populations) ? "Iteration (test-solved folds)" : "",
+            ylabel=domain == "strings" ? "Mean time (s)" : "",
             legend=(domain == "bitvectors" && population == first(populations)) ? :topleft : false,
-            ylims=(0, 25), yticks=0:5:25, iteration_axis...)
+            ylims=(0, 25), yticks=0:10:20, iteration_axis...)
         plot!(ax, mean_phase_times(groups, :search); label="Program search", color=COLORS[1],
             linewidth=2, marker=:none)
         plot!(ax, mean_phase_times(groups, :invention); label="Property invention", color=COLORS[2],
-            linewidth=2, marker=:none)
+            linewidth=2, linestyle=:dash)
         push!(panels, ax)
     end
-    return plot(panels...; layout=(length(populations), 2), link=:all, size=(1050, 260 * length(populations)), left_margin=9mm)
+    return plot(panels...; layout=(length(populations), 2), link=:all, size=(PAPER_WIDTH, 105 * length(populations)))
 end
 
 function properties_used(data, populations)
@@ -197,20 +232,25 @@ function properties_used(data, populations)
     panels = map(DOMAINS) do (domain, title)
         ax = panel(title; xlabel="Properties used per fold",
             ylabel=domain == "strings" ? "Solved fold-runs" : "",
-            legend=domain == "bitvectors" ? :topright : false, legend_title="Population size",
-            yscale=:log10, xlims=(first(edges), last(edges)))
-        for (population, color) in zip(populations, COLORS)
+            legend=domain == "bitvectors" ? :topright : false, legend_column=2, legend_title="Population",
+            yscale=:log10, yformatter=y -> string(round(Int, y)), xlims=(first(edges), last(edges)))
+        for (i, (population, color, linestyle)) in enumerate(zip(populations, COLORS, Iterators.cycle(LINE_STYLES)))
             counts = zeros(Int, max_used + 1)
             for folds in values(data[domain, population]), fold in values(folds)
                 fold.solved || continue
                 counts[1 + count(>(0), fold.agreements)] += 1
             end
             heights = [count == 0 ? NaN : Float64(count) for count in counts]
-            plot!(ax, x, repeat(heights; inner=2); color, label=string(population), linewidth=2)
+            plot!(ax, x, repeat(heights; inner=2); color, linestyle,
+                label=i == 6 ? false : string(population), linewidth=1.5)
+            if i == 6
+                scatter!(ax, 0:max_used, heights; color, marker=last(MARKERS), markersize=2,
+                    markerstrokewidth=0.65, markerstrokecolor=color, label=string(population))
+            end
         end
         ax
     end
-    return plot(panels...; layout=(1, 2), link=:y, size=(1050, 440))
+    return plot(panels...; layout=(1, 2), link=:y, size=(PAPER_WIDTH, 216))
 end
 
 function properties_accuracy(data, populations)
@@ -218,17 +258,17 @@ function properties_accuracy(data, populations)
         for folds in values(groups) for fold in values(folds) if fold.solved || fold.training_solved); init=20)
     tick_counts = filter(<=(max_used), [0, 1, 2, 5, 10, 20, 50, 100, 200, 500])
     panels = map(DOMAINS) do (domain, title)
-        ax = panel(title; xlabel="Properties used per fold (log scale of count + 1)",
+        ax = panel(title; xlabel="Properties used per fold",
             ylabel=domain == "strings" ? "Folds solved" : "",
             legend=domain == "bitvectors" ? :topleft : false, legend_title="Population / split",
             xscale=:log10, xlims=(1, max_used + 2), xticks=(tick_counts .+ 1, string.(tick_counts)),
             ylims=(0, 103), yticks=0:20:100, yformatter=y -> "$(round(Int, y))%")
-        for (population, color) in zip(populations, COLORS)
+        for (i, (population, color, marker)) in enumerate(zip(populations, COLORS, MARKERS))
             totals = Dict{Int,Int}()
             for ((run, _), folds) in data[domain, population]
                 totals[run] = get(totals, run, 0) + length(folds)
             end
-            for (criterion, linestyle) in ((:solved, :solid), (:training_solved, :dash))
+            for (criterion, linestyle) in ((:solved, :solid), (:training_solved, :dot))
                 counts = zeros(max_used + 1)
                 for ((run, _), folds) in data[domain, population], fold in values(folds)
                     getproperty(fold, criterion) || continue
@@ -236,18 +276,17 @@ function properties_accuracy(data, populations)
                     counts[used + 1] += 100 / (length(totals) * totals[run])
                 end
                 accuracy = cumsum(counts)
-                plot!(ax, 1:(max_used + 2), [accuracy; last(accuracy)];
-                    seriestype=:steppost, color, linestyle, linewidth=2,
+                plot_steps!(ax, 1:(max_used + 2), [accuracy; last(accuracy)], color, marker, i, linestyle;
                     label=criterion === :solved ? string(population) : false)
             end
         end
         if domain == "bitvectors"
             plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, label="Test")
-            plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dash, label="Training")
+            plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dot, label="Training")
         end
         ax
     end
-    return plot(panels...; layout=(1, 2), link=:y, size=(1050, 440))
+    return plot(panels...; layout=(1, 2), link=:y, size=(PAPER_WIDTH, 216))
 end
 
 function property_agreements(data, populations)
@@ -256,15 +295,16 @@ function property_agreements(data, populations)
     cutoffs = [n for n in [1:10; 25; 50; 100; 250] if n < max_agreement]
     push!(cutoffs, max_agreement)
     starts = [1; cutoffs[1:end-1] .+ 1]
-    labels = [lo == hi ? string(lo) : "$(lo)–$(hi)" for (lo, hi) in zip(starts, cutoffs)]
+    labels = [lo == hi ? string(lo) : "$(lo)-$(hi)" for (lo, hi) in zip(starts, cutoffs)]
     bins = eachindex(cutoffs)
     width = 0.8 / length(populations)
     panels = map(DOMAINS) do (domain, title)
         ax = panel(title; xlabel="Agreement of selected property",
             ylabel=domain == "strings" ? "Properties selected" : "",
-            legend=domain == "bitvectors" ? :topright : false, legend_title="Population size",
-            xticks=(bins, labels), xrotation=25, xlims=(0.5, length(bins) + 0.5))
-        for (i, (population, color)) in enumerate(zip(populations, COLORS))
+            legend=domain == "bitvectors" ? :topright : false,
+            legend_title="Population", bottom_margin=8mm, yformatter=y -> string(round(Int, y)),
+            xticks=(bins, labels), xrotation=55, xlims=(0.5, length(bins) + 0.5))
+        for (i, (population, color)) in enumerate(zip(populations, BAR_SHADES))
             counts = zeros(Int, length(bins))
             for folds in values(data[domain, population]), fold in values(folds), agreement in fold.agreements
                 agreement > 0 || continue  # Zero encodes a failed attempt.
@@ -272,11 +312,11 @@ function property_agreements(data, populations)
             end
             offset = (i - (length(populations) + 1) / 2) * width
             bar!(ax, bins .+ offset, counts; bar_width=0.94width,
-                color, linealpha=0, label=string(population))
+                color, linecolor=:black, linewidth=1, label=string(population))
         end
         ax
     end
-    return plot(panels...; layout=(1, 2), size=(1140, 450))
+    return plot(panels...; layout=(1, 2), size=(PAPER_WIDTH, 247))
 end
 
 function plot_ablation(results_dir=DEFAULT_RESULTS, output_dir=joinpath(results_dir, "plots");
@@ -319,6 +359,7 @@ function plot_ablation(results_dir=DEFAULT_RESULTS, output_dir=joinpath(results_
         output_dir, "01_execution_time")
     save_figure(performance(data, populations, :programs, "Programs enumerated per fold"; show_bounds),
         output_dir, "02_program_enumerations")
+    save_figure(property_enumerations(data, populations), output_dir, "03_property_enumerations")
     save_figure(property_enumerations(data, populations; solved=true),
         output_dir, "03a_property_enumerations_solved")
     save_figure(property_enumerations(data, populations; solved=false),

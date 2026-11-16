@@ -3,7 +3,7 @@ include("plot_phalcon_ablation.jl")
 
 const BASELINE_ROOT = joinpath(dirname(dirname(DEFAULT_RESULTS)), "heuristic_pop100", "daic-20261114")
 const PHALCON_ROOT = joinpath(dirname(DEFAULT_RESULTS), "daic-uncapped-20261112-pop100")
-const METHODS = (("heuristic", "Informed heuristic"), ("heuristic_naive", "Naive heuristic"),
+const METHODS = (("heuristic", "Informed"), ("heuristic_naive", "Naive"),
     ("phalcon", "Phalcon"))
 const FOLDS_PER_RUN = Dict("strings" => 449, "bitvectors" => 755)
 
@@ -46,7 +46,7 @@ function plot_baselines(baseline_root=BASELINE_ROOT, phalcon_root=PHALCON_ROOT,
     output = something(output, joinpath(baseline_root,
         first_attempt ? "comparison_first_attempt" : "comparison"))
     domains = first_attempt ? (last(DOMAINS),) : DOMAINS
-    methods = first_attempt ? (METHODS[1], ("heuristic_naive", "Naive heuristic (attempt 1)"), METHODS[3]) : METHODS
+    methods = first_attempt ? (METHODS[1], ("heuristic_naive", "Naive (1st)"), METHODS[3]) : METHODS
     data = Dict()
     for (domain, _) in domains
         reference = nothing
