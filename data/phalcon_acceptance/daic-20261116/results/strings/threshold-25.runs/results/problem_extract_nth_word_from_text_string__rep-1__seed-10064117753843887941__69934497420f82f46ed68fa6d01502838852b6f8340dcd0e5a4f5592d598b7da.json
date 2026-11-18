@@ -1,0 +1,165 @@
+{
+    "completed_at_utc": "2026-11-16T10:35:04.350",
+    "rng": "Random.Xoshiro",
+    "run_id": "69934497420f82f46ed68fa6d01502838852b6f8340dcd0e5a4f5592d598b7da",
+    "provenance_sha256": "1fb0389412f5ee59987bf3e3b58ccb19a71ec514651a4ddbb832ad768b190275",
+    "started_at_utc": "2026-11-16T10:34:57.946",
+    "identity": {
+        "test_indices": [
+            1
+        ],
+        "problem": "problem_extract_nth_word_from_text_string",
+        "provenance_sha256": "1fb0389412f5ee59987bf3e3b58ccb19a71ec514651a4ddbb832ad768b190275",
+        "fold": 1,
+        "seed": "10064117753843887941",
+        "repetition": 1,
+        "configuration": {
+            "timing_protocol": "warmed_v1",
+            "iterator_options": {
+                "population_size": 100
+            },
+            "problem_indices": [
+                55
+            ],
+            "shard": null,
+            "phalcon_options": {
+                "agreement_threshold": 25,
+                "max_number_of_properties": 9223372036854775807,
+                "max_property_evaluations": 10000
+            },
+            "benchmark": "strings",
+            "test_indices": null,
+            "algorithm": "phalcon",
+            "verbose": false,
+            "task_names": null,
+            "timeout": 1800,
+            "reuse_interpreter": true,
+            "run": "2",
+            "seed": 1
+        }
+    },
+    "schema_version": 3,
+    "result": {
+        "problem_name": "problem_extract_nth_word_from_text_string",
+        "solved_train_examples": true,
+        "solution": "substr_cvc(substr_cvc(_arg_1, ((-1 + _arg_2) + _arg_2) - 1, len_cvc(_arg_1)), _arg_2 + (_arg_2 + (-1 + -1)), ((1 + 1) - (if 1 == _arg_2\n                    _arg_2\n                else\n                    ((_arg_2 + _arg_2) - ((1 - -1) + 1)) + _arg_2\n                end - _arg_2)) + _arg_2)",
+        "programs_enumerated": 93919,
+        "properties_enumerated": 1184,
+        "execution_time": 5.322650909423828,
+        "heuristic": [
+            [
+                "indexof_cvc(_arg_out, \"\", _arg_2)",
+                12,
+                294
+            ],
+            [
+                "prefixof_cvc(_arg_out, _arg_1)",
+                4,
+                372
+            ],
+            [
+                "contains_cvc(_arg_1, _arg_out)",
+                10,
+                413
+            ],
+            [
+                "at_cvc(_arg_out, 0)",
+                1,
+                105
+            ]
+        ],
+        "population_costs": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "program_synthesis_durations": [
+            0.24157190322875977,
+            0.10013008117675781,
+            0.2331559658050537,
+            0.43820810317993164,
+            2.079200029373169
+        ],
+        "property_invention_durations": [
+            1.2247591018676758,
+            0.1995530128479004,
+            0.0835418701171875,
+            0.0019528865814208984
+        ],
+        "effective_configuration": {
+            "timeout": 1800,
+            "phalcon": {
+                "agreement_threshold": 25,
+                "timeout": 1800,
+                "rule_cost_func": {
+                    "function": "#benchmark_adapter##4"
+                },
+                "verbose": false,
+                "max_number_of_properties": 9223372036854775807,
+                "max_output_bytes": 22020096,
+                "property_types": [
+                    "ntString",
+                    "ntInt",
+                    "ntBool"
+                ],
+                "max_property_evaluations": 10000
+            },
+            "iterator": {
+                "max_extension_size": 1,
+                "max_size": 50,
+                "cost": {
+                    "function": "#30"
+                },
+                "rule_costs": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "max_generations_without_improvement": 10,
+                "max_initial_population_size": 1,
+                "benchmark": "HerbBenchmarks.PBE_SLIA_Track_2019",
+                "population_size": 100,
+                "candidate_pool_size": 2000
+            }
+        },
+        "fold": 1,
+        "folds": 4,
+        "train_test_split": [
+            [
+                2,
+                3,
+                4
+            ],
+            [
+                1
+            ]
+        ],
+        "test_examples": 1,
+        "correct_test_examples": 0,
+        "solved_test_examples": false
+    }
+}

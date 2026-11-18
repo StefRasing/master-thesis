@@ -60,6 +60,53 @@ end
     @test_throws ArgumentError find_solution(iter)
 end
 
+@testset "Property cost updates can retain the GP population" begin
+    iter = contract_iterator(; restart_on_property=false, track_ancestry=true)
+    one = RuleNodeWithRuleCounts(iter, RuleNode(1))
+    three = RuleNodeWithRuleCounts(iter, RuleNode(3, [RuleNode(1), RuleNode(2)]))
+    parent = Individual(iter, one)
+    child = Individual(iter, three, parent, :replace)
+    Phalcon.add_to_population!(iter, parent)
+    Phalcon.add_to_population!(iter, child)
+    population = iter.population
+    cost = pairs -> -first(pairs)[1]
+    update_cost_function(iter, cost)
+    @test iter.population === population
+    @test [ind.cost for ind in population] == [-3, -1]
+    @test population[1].program === three
+    @test population[1].parents === parent
+    @test population[1].mutation === :replace
+    @test iter.programs_evaluated == 2
+
+    @test_throws ErrorException update_cost_function(iter, pairs ->
+        first(pairs)[1] == 1 ? error("failed to score") : 0)
+    @test iter.cost === cost
+    @test [ind.cost for ind in population] == [-3, -1]
+
+    update_cost_function(iter, cost; restart_on_property=true)
+    @test local_optimum_outputs(iter) == [[2], [1]]
+    @test iter.programs_evaluated == 2
+end
+
+@testset "Phalcon can override the GP restart setting" begin
+    property_grammar = @csgrammar begin
+        Start = _arg_out > 2
+    end
+    for (override, expected_outputs) in ((nothing, [[1], [2]]), (false, [[3], [1], [2]]))
+        iter = contract_iterator(; max_initial_population_size=1,
+            max_generations_without_improvement=0)
+        empty!(iter.extensions)
+        evolved = RuleNodeWithRuleCounts(iter, RuleNode(3, [RuleNode(1), RuleNode(2)]))
+        Phalcon.add_to_population!(iter, Individual(iter, evolved))
+        _, stats = phalcon(; iterator=iter, restart_on_property=override,
+            property_types=[:Start], rule_cost_func=_ -> 1, max_number_of_properties=1,
+            grammar_to_property_grammar=_ -> property_grammar)
+        @test length(stats["heuristic"]) == 1
+        @test stats["heuristic"][1][2] == 1
+        @test local_optimum_outputs(iter) == expected_outputs
+    end
+end
+
 # Recompute counts and outputs from the tree rather than trusting its caches.
 function check_contract_tree(iter, tree)
     grammar = iter.solver.grammar

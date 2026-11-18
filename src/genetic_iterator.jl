@@ -44,6 +44,8 @@ include("genetic/individuals.jl")
     max_generations_without_improvement::Int = 5,
     max_extension_size::Int = 1,
     max_initial_population_size::Int = 2,
+    # Rebuild from cached extensions when the property cost changes.
+    restart_on_property::Bool = true,
     rule_costs::Vector{Int} = [],
     prune_node_by_output::Union{Nothing,Function} = nothing,
     # Maximum retained bytes for one node's complete output vector (1 MiB).

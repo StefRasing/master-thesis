@@ -11,12 +11,29 @@ Individual(iter::GeneticIterator, program::RuleNodeWithRuleCounts, parent::Indiv
 
 
 """
-    function update_cost_function(iter::GeneticIterator, cost::Function; deadline::Real = Inf)::Nothing
+    update_cost_function(iter::GeneticIterator, cost::Function; restart_on_property=iter.restart_on_property, deadline=Inf)
 
-Function needed by the Phalcon interface. Changes the cost function and reset population.
+Install a new cost function. By default, follow the iterator's
+`restart_on_property` setting. Restarting seeds the population from the
+starting-symbol extensions. Otherwise, rescore and sort the current population
+using cached outputs and preserve ancestry and program enumeration counts.
 """
-function update_cost_function(iter::GeneticIterator, cost::Function; deadline::Real = Inf)::Nothing
-    # Update cost
+function update_cost_function(iter::GeneticIterator, cost::Function;
+        restart_on_property::Bool=iter.restart_on_property, deadline::Real=Inf)::Nothing
+    if !restart_on_property
+        rescored = map(iter.population) do individual
+            _check_deadline(deadline)
+            new_cost = outputs_to_cost(iter, individual.program.outputs, cost)
+            Individual(individual.program, new_cost, individual.parents,
+                individual.crossover, individual.crossover_parts, individual.mutation)
+        end
+        sort!(rescored)
+        _check_deadline(deadline)
+        copyto!(iter.population, rescored)
+        iter.cost = cost
+        return nothing
+    end
+
     iter.cost = cost
 
     empty!(iter.population)

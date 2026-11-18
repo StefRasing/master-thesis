@@ -1,0 +1,160 @@
+{
+    "completed_at_utc": "2026-11-17T12:29:08.258",
+    "rng": "Random.Xoshiro",
+    "run_id": "93ad83b1bc1dfeddae4d1330d0298439c4ba3462419720c217a92e1197e45b2a",
+    "provenance_sha256": "e91fb1e6b3f1f6de467eeae42808adfd7c937593c389d9a4c6b8791dd4b09fde",
+    "started_at_utc": "2026-11-17T12:29:06.032",
+    "identity": {
+        "test_indices": [
+            1
+        ],
+        "problem": "problem_create_email_address_from_name",
+        "provenance_sha256": "e91fb1e6b3f1f6de467eeae42808adfd7c937593c389d9a4c6b8791dd4b09fde",
+        "fold": 3,
+        "seed": "17433060585099785603",
+        "repetition": 1,
+        "configuration": {
+            "timing_protocol": "warmed_v1",
+            "iterator_options": {
+                "population_size": 100
+            },
+            "problem_indices": [
+                48
+            ],
+            "shard": null,
+            "phalcon_options": {
+                "max_number_of_properties": 5
+            },
+            "benchmark": "strings",
+            "test_indices": null,
+            "algorithm": "phalcon_batch",
+            "verbose": false,
+            "task_names": null,
+            "timeout": 1800,
+            "reuse_interpreter": true,
+            "run": "1",
+            "seed": 1
+        }
+    },
+    "schema_version": 3,
+    "result": {
+        "problem_name": "problem_create_email_address_from_name",
+        "solved_train_examples": true,
+        "solution": "concat_cvc(concat_cvc(at_cvc(_arg_2, 0), _arg_1), \"_acme.com\")",
+        "programs_enumerated": 18481,
+        "properties_enumerated": 10000,
+        "execution_time": 2.11574387550354,
+        "heuristic": [
+            [
+                "replace_cvc(_arg_out, \"_acme.com\", _arg_2)",
+                1,
+                118
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_1, \"\")",
+                1,
+                130
+            ],
+            [
+                "replace_cvc(_arg_out, \"_acme.com\", \"\")",
+                1,
+                154
+            ],
+            [
+                "replace_cvc(_arg_out, _arg_2, concat_cvc(_arg_1, \"_acme.com\"))",
+                1,
+                2199
+            ],
+            [
+                "replace_cvc(_arg_out, \" \", concat_cvc(_arg_1, \"_acme.com\"))",
+                1,
+                2211
+            ]
+        ],
+        "population_costs": [
+            0
+        ],
+        "program_synthesis_durations": [
+            0.04361581802368164,
+            0.6002991199493408
+        ],
+        "property_invention_durations": [
+            1.4649031162261963
+        ],
+        "property_sample_target": 500,
+        "property_sample_size": 500,
+        "effective_configuration": {
+            "timeout": 1800,
+            "phalcon": {
+                "timeout": 1800,
+                "rule_cost_func": {
+                    "function": "#benchmark_adapter##4"
+                },
+                "verbose": false,
+                "max_number_of_properties": 5,
+                "max_output_bytes": 22020096,
+                "property_types": [
+                    "ntString",
+                    "ntInt",
+                    "ntBool"
+                ],
+                "max_property_evaluations": 10000
+            },
+            "iterator": {
+                "max_extension_size": 1,
+                "max_size": 50,
+                "cost": {
+                    "function": "#44"
+                },
+                "rule_costs": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "max_generations_without_improvement": 10,
+                "max_initial_population_size": 1,
+                "benchmark": "HerbBenchmarks.PBE_SLIA_Track_2019",
+                "population_size": 100,
+                "candidate_pool_size": 2000
+            }
+        },
+        "fold": 3,
+        "folds": 3,
+        "train_test_split": [
+            [
+                2,
+                3
+            ],
+            [
+                1
+            ]
+        ],
+        "test_examples": 1,
+        "correct_test_examples": 1,
+        "solved_test_examples": true
+    }
+}

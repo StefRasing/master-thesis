@@ -179,43 +179,52 @@ sample. The usual folds, trial seeds and time budget apply.
 
 ## Domain Phalcon
 
-Run `julia --project=. experiments/run.jl phalcon_domain strings 1` or substitute
-`bitvectors` or `arc`. The runner builds one ranking per domain. Strings
-use the 67 canonical tasks with exactly one string input and one string
-output. Strings and bitvectors use every supplied example for ranking and
-synthesis, with no holdout. ARC uses its official training examples for
-ranking and synthesis and keeps the official test examples for evaluation.
-Task filters and ARC shards limit the synthesis trials only.
+Rank once, then load the saved ranking in each search job.
 
-For strings and bitvectors, the shared grammar keeps typed productions
-present in every eligible task's grammar and adds `_arg_out`. A production
-is a grammar rule such as a literal, an input symbol, or an operator with
-typed arguments. ARC uses its benchmark-specific property grammar.
+```sh
+julia --project=. experiments/run.jl phalcon-domain-rank strings data/domain_rankings
+julia --project=. experiments/run.jl phalcon-domain-search strings data/domain_rankings 20 1
+```
 
-For each task the ranker enumerates the first 20 valid, behaviorally distinct
-non-solution programs in increasing program cost. It uses all programs found
-if the sample is smaller within the default program cost bound of 6 and
-per-task cap of 100,000 program evaluations. The ranker evaluates up to 10,000 syntactically distinct properties containing
-`_arg_out` in increasing property cost, using the shared grammar for that
-domain. A sampled program agrees only when the property matches the target
-on every training example. A property is discarded if more than half the
-tasks have zero agreement. Zero agreements count as zero in the total.
-Keep the first property for each distinct agreement pattern across all
-sampled programs. Sort the survivors by ascending total agreement across
-tasks, with ties in enumeration order.
+Both commands accept `strings`, `bitvectors`, or `arc`. Append a fold
+number to the ranking command to run one fold as an independent job. Launch
+search jobs after the required ranking jobs succeed. The search command takes
+the number of properties to load, followed by an optional run ID and
+`--batch INDEX SIZE`. For example, append `1 --batch 2 5` for the second
+batch of five tasks in run 1. Every batch reads the shared ranking directory.
 
-Each synthesis trial uses the first 20 ranked properties as a fixed summed
-cost. It computes each property's target values on its own training examples
-and performs zero property enumerations. With an empty ranking it uses the
-flat Phalcon cost. The run directory stores each full ranking and per-task
-sample sizes in `rankings/`. Trial results report ranking time and the domain
-enumeration count separately from trial time and enumeration.
+The ranking stage defaults to 100 sampled programs per task, 10,000 property
+candidates, and Friedman mean ranks with zero agreements scored as 20.
+It retains the first property for each distinct per-program agreement pattern.
+Programs are behaviorally distinct non-solutions in increasing program cost.
+The ranker records actual sample sizes if the default program cost bound of 6
+and 100,000 program evaluations per task yield fewer than 100. Undefined
+target evaluations yield zero agreement for that task. The CLI ranking budget
+is 30 minutes per fold for strings and bitvectors and four hours for ARC.
+The search stage has a separate 30-minute budget per trial and defaults to a
+genetic population of 20.
 
-Override `max_number_of_properties`, `max_property_evaluations`,
-`max_program_cost`, `max_program_evaluations`, or `max_property_cost` through `phalcon_options`.
-The ranker's sample size follows `iterator_options.population_size` unless
-overridden through `phalcon_options.population_size`. The ranking has its
-own timeout budget, which defaults to the same duration as each trial.
+Strings use the 67 canonical single-input, string-output tasks with up to
+five folds. A task with three folds contributes splits 1, 2, 3, 1, 2 to the
+five rankings and runs synthesis only in rounds 1 through 3. Bitvectors use five balanced folds, with eight training examples and two
+held-out examples per task in each round. ARC uses its official training examples for ranking
+and synthesis and its official test examples for evaluation.
+
+The ranking stage writes a JSON artifact per benchmark and fold with the
+ordered rule trees, scores, held-out indices, and a fingerprint of the
+ranking context. It reuses matching artifacts and requires a separate
+directory for different ranking settings. The search stage checks the
+benchmark data, grammar, and splits before loading the requested prefix.
+Each trial evaluates those properties on its training targets and records the
+ranking file's SHA-256 in its identity. It uses fewer than the requested
+number of properties if the ranking has fewer distinct patterns.
+
+From Julia, call `run_domain_ranking(ExperimentConfig(; algorithm=:phalcon_domain,
+benchmark, ranking_path))` to build the artifacts, then pass the same
+`ranking_path` to `run_experiment`. Ranking settings can be overridden via
+`phalcon_options`, including `population_size`, `max_property_evaluations`,
+and `method=:agreement_sum` for the prior ranking method. Set
+`phalcon_options=(max_number_of_properties=N,)` for programmatic search.
 
 ## Phalcon ablation
 

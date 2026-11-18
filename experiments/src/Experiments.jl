@@ -8,7 +8,7 @@ using .Phalcon
 include("io.jl")
 include("arc_property_grammar.jl")
 
-export ExperimentConfig, benchmark_adapter, run_experiment, main
+export ExperimentConfig, benchmark_adapter, run_experiment, run_domain_ranking, main
 
 include("config.jl")
 include("benchmarks.jl")

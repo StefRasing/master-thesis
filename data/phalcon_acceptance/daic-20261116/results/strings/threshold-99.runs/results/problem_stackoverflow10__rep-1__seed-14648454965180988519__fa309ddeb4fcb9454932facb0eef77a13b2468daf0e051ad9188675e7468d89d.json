@@ -1,0 +1,214 @@
+{
+    "completed_at_utc": "2026-11-17T13:15:32.761",
+    "rng": "Random.Xoshiro",
+    "run_id": "fa309ddeb4fcb9454932facb0eef77a13b2468daf0e051ad9188675e7468d89d",
+    "provenance_sha256": "1fb0389412f5ee59987bf3e3b58ccb19a71ec514651a4ddbb832ad768b190275",
+    "started_at_utc": "2026-11-17T13:15:28.326",
+    "identity": {
+        "test_indices": [
+            6,
+            10,
+            14
+        ],
+        "problem": "problem_stackoverflow10",
+        "provenance_sha256": "1fb0389412f5ee59987bf3e3b58ccb19a71ec514651a4ddbb832ad768b190275",
+        "fold": 3,
+        "seed": "14648454965180988519",
+        "repetition": 1,
+        "configuration": {
+            "timing_protocol": "warmed_v1",
+            "iterator_options": {
+                "population_size": 100
+            },
+            "problem_indices": [
+                106
+            ],
+            "shard": null,
+            "phalcon_options": {
+                "agreement_threshold": 99,
+                "max_number_of_properties": 9223372036854775807,
+                "max_property_evaluations": 10000
+            },
+            "benchmark": "strings",
+            "test_indices": null,
+            "algorithm": "phalcon",
+            "verbose": false,
+            "task_names": null,
+            "timeout": 1800,
+            "reuse_interpreter": true,
+            "run": "2",
+            "seed": 1
+        }
+    },
+    "schema_version": 3,
+    "result": {
+        "problem_name": "problem_stackoverflow10",
+        "solved_train_examples": true,
+        "solution": "replace_cvc(if true\n        substr_cvc(_arg_1, indexof_cvc(_arg_1, \" \", indexof_cvc(_arg_1, \" \", 1) + 1), 5)\n    else\n        _arg_1\n    end, \" \", \"\")",
+        "programs_enumerated": 56367,
+        "properties_enumerated": 9591,
+        "execution_time": 4.322597026824951,
+        "heuristic": [
+            [
+                "replace_cvc(\"\", _arg_out, _arg_1)",
+                96,
+                46
+            ],
+            [
+                "replace_cvc(\" \", _arg_out, _arg_1)",
+                97,
+                47
+            ],
+            [
+                "at_cvc(_arg_out, 0)",
+                3,
+                104
+            ],
+            [
+                "at_cvc(_arg_out, 4)",
+                44,
+                120
+            ],
+            [
+                "len_cvc(_arg_out)",
+                26,
+                469
+            ],
+            [
+                "indexof_cvc(_arg_out, \" \", 1)",
+                33,
+                583
+            ],
+            [
+                "substr_cvc(_arg_1, 1, str_to_int_cvc(_arg_out))",
+                17,
+                5857
+            ],
+            [
+                "replace_cvc(_arg_out, substr_cvc(_arg_out, 1, 3), _arg_1)",
+                99,
+                2365
+            ]
+        ],
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ],
+        "program_synthesis_durations": [
+            0.005522966384887695,
+            0.00980997085571289,
+            0.013456106185913086,
+            0.19379186630249023,
+            0.25006604194641113,
+            0.5856070518493652,
+            0.644097089767456,
+            0.6921510696411133,
+            0.2677600383758545
+        ],
+        "property_invention_durations": [
+            0.31688404083251953,
+            0.003000020980834961,
+            0.07415390014648438,
+            0.007899999618530273,
+            0.18121910095214844,
+            0.18677496910095215,
+            0.474884033203125,
+            0.12494111061096191
+        ],
+        "effective_configuration": {
+            "timeout": 1800,
+            "phalcon": {
+                "agreement_threshold": 99,
+                "timeout": 1800,
+                "rule_cost_func": {
+                    "function": "#benchmark_adapter##4"
+                },
+                "verbose": false,
+                "max_number_of_properties": 9223372036854775807,
+                "max_output_bytes": 22020096,
+                "property_types": [
+                    "ntString",
+                    "ntInt",
+                    "ntBool"
+                ],
+                "max_property_evaluations": 10000
+            },
+            "iterator": {
+                "max_extension_size": 1,
+                "max_size": 50,
+                "cost": {
+                    "function": "#30"
+                },
+                "rule_costs": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "max_generations_without_improvement": 10,
+                "max_initial_population_size": 1,
+                "benchmark": "HerbBenchmarks.PBE_SLIA_Track_2019",
+                "population_size": 100,
+                "candidate_pool_size": 2000
+            }
+        },
+        "fold": 3,
+        "folds": 5,
+        "train_test_split": [
+            [
+                1,
+                2,
+                3,
+                4,
+                5,
+                7,
+                8,
+                9,
+                11,
+                12,
+                13,
+                15,
+                16
+            ],
+            [
+                6,
+                10,
+                14
+            ]
+        ],
+        "test_examples": 3,
+        "correct_test_examples": 3,
+        "solved_test_examples": true
+    }
+}

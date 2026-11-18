@@ -43,6 +43,11 @@
     @test [(get_rule(program), score, index) for (program, score, index) in unique_ranking.ranked] ==
         [(3, 2, 3), (7, 2, 7), (2, 3, 2), (4, 6, 4)]
 
+    friedman = rank_domain_properties(tasks; options..., method=:friedman, max_property_evaluations=7)
+    @test [(get_rule(program), score, index) for (program, score, index) in friedman.ranked] ==
+        [(3, 2, 3), (7, 2, 7), (2, 3, 2), (4, 6, 4), (1, 0, 1)]
+    @test friedman.mean_ranks == [1.75, 1.75, 2.5, 4.0, 5.0]
+
     for task in tasks
         iterator = GeneticIterator(task.grammar, :Start; benchmark=Main, task.problem,
             cost=_ -> 0, rule_costs=ones(Int, 4), population_size=3)

@@ -1,0 +1,281 @@
+{
+    "problem_name": "problem_11440431",
+    "solved_train_examples": true,
+    "solution": "replace_cvc(if true\n        replace_cvc(_arg_1, \"CAN\", \"US\")\n    else\n        _arg_1\n    end, if contains_cvc(_arg_1, \" \")\n        concat_cvc(\" \", \"US\")\n    else\n        replace_cvc(at_cvc(_arg_1, indexof_cvc(_arg_1, \" \", 1)), \"CAN\", \"\")\n    end, \"\")",
+    "programs_enumerated": 8773,
+    "properties_enumerated": 0,
+    "execution_time": 4.945461988449097,
+    "heuristic": [
+        [
+            "indexof_cvc(concat_cvc(_arg_out, _arg_1), _arg_1, 1)",
+            138,
+            2559
+        ],
+        [
+            "replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, \" \"), _arg_out)",
+            652,
+            995
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_out, _arg_1), _arg_1, 0)",
+            133,
+            2675
+        ],
+        [
+            "replace_cvc(_arg_1, replace_cvc(_arg_1, _arg_out, _arg_1), _arg_out)",
+            775,
+            968
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_out, \" \"), \" \", 0)",
+            410,
+            2706
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_out, \" \"), \" \", 1)",
+            450,
+            2590
+        ],
+        [
+            "len_cvc(replace_cvc(_arg_out, _arg_1, _arg_out))",
+            126,
+            2076
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_out, _arg_out), _arg_out, 1)",
+            123,
+            2627
+        ],
+        [
+            "concat_cvc(_arg_out, replace_cvc(_arg_1, _arg_out, at_cvc(\" \", 1)))",
+            69,
+            5194
+        ],
+        [
+            "len_cvc(_arg_out)",
+            126,
+            32
+        ],
+        [
+            "at_cvc(replace_cvc(_arg_out, _arg_1, \" \"), 0)",
+            505,
+            1587
+        ],
+        [
+            "len_cvc(replace_cvc(_arg_out, \" \", _arg_1))",
+            49,
+            2065
+        ],
+        [
+            "len_cvc(replace_cvc(_arg_out, \" \", _arg_out))",
+            133,
+            2079
+        ],
+        [
+            "len_cvc(replace_cvc(_arg_out, _arg_1, \" \"))",
+            224,
+            2069
+        ],
+        [
+            "concat_cvc(_arg_out, replace_cvc(_arg_1, concat_cvc(_arg_out, \" \"), \" \"))",
+            7,
+            6022
+        ],
+        [
+            "substr_cvc(_arg_1, 0, len_cvc(_arg_out))",
+            407,
+            1642
+        ],
+        [
+            "at_cvc(_arg_1, len_cvc(_arg_out))",
+            434,
+            1501
+        ],
+        [
+            "at_cvc(replace_cvc(_arg_out, _arg_1, \" \"), 1)",
+            495,
+            1557
+        ],
+        [
+            "substr_cvc(_arg_1, 1, len_cvc(_arg_out))",
+            583,
+            1639
+        ],
+        [
+            "replace_cvc(_arg_out, _arg_1, at_cvc(\" \", 1))",
+            5,
+            572
+        ],
+        [
+            "concat_cvc(_arg_out, replace_cvc(_arg_1, concat_cvc(_arg_out, \" \"), _arg_1))",
+            3,
+            5622
+        ],
+        [
+            "replace_cvc(_arg_out, \" \", at_cvc(\" \", 1))",
+            5,
+            573
+        ],
+        [
+            "replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, \" \"))",
+            1306,
+            326
+        ],
+        [
+            "replace_cvc(_arg_out, at_cvc(_arg_out, 0), _arg_1)",
+            2,
+            784
+        ],
+        [
+            "replace_cvc(replace_cvc(_arg_1, _arg_out, \" \"), _arg_1, _arg_out)",
+            2,
+            1347
+        ],
+        [
+            "concat_cvc(_arg_out, replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, _arg_1)))",
+            1,
+            4345
+        ],
+        [
+            "concat_cvc(_arg_out, replace_cvc(_arg_1, _arg_out, _arg_1))",
+            1,
+            90
+        ],
+        [
+            "replace_cvc(_arg_out, _arg_1, at_cvc(_arg_1, 0))",
+            1,
+            586
+        ],
+        [
+            "replace_cvc(_arg_out, \" \", at_cvc(_arg_1, 0))",
+            1,
+            587
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_out, _arg_1), _arg_out, 1)",
+            1301,
+            2621
+        ],
+        [
+            "replace_cvc(_arg_1, _arg_out, concat_cvc(_arg_out, _arg_1))",
+            1323,
+            307
+        ],
+        [
+            "replace_cvc(_arg_1, at_cvc(_arg_out, 1), _arg_out)",
+            15,
+            1037
+        ],
+        [
+            "_arg_out",
+            0,
+            1
+        ],
+        [
+            "replace_cvc(_arg_1, at_cvc(_arg_out, 0), _arg_out)",
+            103,
+            1046
+        ],
+        [
+            "indexof_cvc(replace_cvc(_arg_out, _arg_1, \" \"), \" \", 0)",
+            1027,
+            2715
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_1, \" \"), _arg_out, 0)",
+            1343,
+            2738
+        ],
+        [
+            "replace_cvc(_arg_1, _arg_out, concat_cvc(\" \", _arg_out))",
+            1360,
+            344
+        ],
+        [
+            "indexof_cvc(concat_cvc(\" \", _arg_1), _arg_out, 0)",
+            1304,
+            2736
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_1, _arg_1), _arg_out, 0)",
+            1359,
+            2735
+        ],
+        [
+            "indexof_cvc(concat_cvc(_arg_1, _arg_out), _arg_out, 0)",
+            1365,
+            2741
+        ]
+    ],
+    "population_costs": [
+    ],
+    "program_synthesis_durations": [
+        4.911765098571777
+    ],
+    "property_invention_durations": [
+    ],
+    "domain_properties_enumerated": 10000,
+    "domain_ranking_duration": 52.07087302207947,
+    "fold": 1,
+    "folds": 1,
+    "train_test_split": [
+        [
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        [
+        ]
+    ],
+    "test_examples": 0,
+    "correct_test_examples": 0,
+    "solved_test_examples": null,
+    "requested_properties": 40,
+    "properties_prepared": 40,
+    "property_ids": [
+        "P02559",
+        "P00995",
+        "P02675",
+        "P00968",
+        "P02706",
+        "P02590",
+        "P02076",
+        "P02627",
+        "P05194",
+        "P00032",
+        "P01587",
+        "P02065",
+        "P02079",
+        "P02069",
+        "P06022",
+        "P01642",
+        "P01501",
+        "P01557",
+        "P01639",
+        "P00572",
+        "P05622",
+        "P00573",
+        "P00326",
+        "P00784",
+        "P01347",
+        "P04345",
+        "P00090",
+        "P00586",
+        "P00587",
+        "P02621",
+        "P00307",
+        "P01037",
+        "P00001",
+        "P01046",
+        "P02715",
+        "P02738",
+        "P00344",
+        "P02736",
+        "P02735",
+        "P02741"
+    ],
+    "seed": "3025486406058214201",
+    "timeout_seconds": 120
+}

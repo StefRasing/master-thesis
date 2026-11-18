@@ -1,11 +1,11 @@
 """
-    function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
+    outputs_to_cost(iter::GeneticIterator, outputs::Vector, cost=iter.cost)
 
 Given an GeneticIterator, maps a Vector of outputs to their cost. Basically is wrapper for the cost function that
 ensures that programs that produce exceptions (return nothing) have Inf cost and programs that produce the target
 outputs have a cost of -Inf.
 """
-function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
+function outputs_to_cost(iter::GeneticIterator, outputs::Vector, cost=iter.cost)
     # If any output is nothing, return +Inf
     any(isnothing, outputs) && return Inf
 
@@ -16,7 +16,7 @@ function outputs_to_cost(iter::GeneticIterator, outputs::Vector)
     outputs == targets && return -Inf
 
     # Otherwise, call the provided cost function
-    return iter.cost(zip(outputs, targets))
+    return cost(zip(outputs, targets))
 end
 
 function interp(iter::GeneticIterator, rule_id::Int, children_outputs::AbstractVector)

@@ -9,6 +9,7 @@ using .Experiments
     Core.eval(sandbox, quote
         configs = ExperimentConfig[]
         run_experiment(config) = (push!(configs, config); config)
+        run_domain_ranking(config; fold) = (;config, fold)
     end)
     Base.include(sandbox, joinpath(@__DIR__, "../experiments/src/cli.jl"))
     Core.eval(sandbox, :(benchmark_adapter(b) = nothing))
@@ -16,6 +17,14 @@ using .Experiments
     @test sandbox.main(["phalcon", "strings", "2", "--batch", "3", "5"]).problem_indices == 11:12
     @test_throws ArgumentError sandbox.main(["phalcon", "strings", "2", "--batch", "4", "5"])
     @test_throws ArgumentError sandbox.main(["phalcon", "strings", "2", "--batch", "1", "0"])
+    rank = sandbox.main(["phalcon-domain-rank", "strings", "/tmp/rankings", "3"])
+    @test rank.fold == 3
+    @test rank.config.ranking_path == "/tmp/rankings"
+    search = sandbox.main(["phalcon-domain-search", "strings", "/tmp/rankings", "10", "2", "--batch", "3", "5"])
+    @test search.algorithm == :phalcon_domain
+    @test search.problem_indices == 11:12
+    @test search.phalcon_options.max_number_of_properties == 10
+    @test_throws ArgumentError sandbox.main(["phalcon_domain", "strings", "1"])
     for algorithm in ("heuristic", "heuristic_naive", "phalcon"), benchmark in ("strings", "bitvectors", "arc")
         config = sandbox.main([algorithm, benchmark, "3"])
         @test config.repetitions == 1
@@ -467,11 +476,17 @@ end
         @test length(tasks) == task_count
         for task in tasks
             @test benchmark != :strings || Experiments.is_string_to_string(task.problem)
-            @test Experiments.evaluation_folds(config, task.problem) == [Int[]]
-            train, test, indices = Experiments.trial_split(config, task.problem, Int[])
-            @test train === task.problem
-            @test isnothing(test)
-            @test indices == eachindex(train.spec)
+            folds = Experiments.evaluation_folds(config, task.problem)
+            @test length(folds) == min(5, length(task.problem.spec))
+            @test sort(vcat(folds...)) == collect(eachindex(task.problem.spec))
+            @test folds == Experiments.evaluation_folds(ExperimentConfig(; benchmark), task.problem)
+            for round in 1:5
+                holdout = Experiments.domain_ranking_holdout(config, task.problem, round)
+                @test holdout == folds[mod1(round, length(folds))]
+                train, test, indices = Experiments.trial_split(config, task.problem, holdout)
+                @test isempty(intersect(indices, holdout))
+                @test length(train.spec) + length(test.spec) == length(task.problem.spec)
+            end
         end
         task = first(tasks)
         small_config = ExperimentConfig(; algorithm=:phalcon_domain, benchmark, store=false,
@@ -480,8 +495,24 @@ end
         ranking = Experiments.prepare_domain_ranking(small_config, adapter, tasks, grammar, 1)
         result = Experiments.run_trial(small_config, adapter, task.problem, task.grammar;
             domain_ranking=ranking)
-        @test result["test_examples"] == 0
-        @test isnothing(result["solved_test_examples"])
+        @test result["test_examples"] == length(first(Experiments.evaluation_folds(small_config, task.problem)))
+        @test result["solved_test_examples"] === false
+    end
+
+    # A short task contributes to later rankings without adding synthesis trials.
+    mktempdir() do ranking_path
+        config = ExperimentConfig(; algorithm=:phalcon_domain, benchmark=:strings, store=false,
+            timeout=0, task_names=["17212077"], ranking_path,
+            phalcon_options=(max_property_evaluations=0,))
+        task = only(Experiments.benchmark_tasks(config, benchmark_adapter(:strings)))
+        folds = Experiments.evaluation_folds(config, task.problem)
+        @test length(folds) < 5
+        @test_throws ArgumentError run_experiment(config; io=IOBuffer())
+        files = run_domain_ranking(config; io=IOBuffer())
+        @test length(files) == 5
+        results = run_experiment(config; io=IOBuffer())
+        @test [result["train_test_split"][2] for result in results] == folds
+        @test all(result -> result["properties_enumerated"] == 0, results)
     end
 end
 

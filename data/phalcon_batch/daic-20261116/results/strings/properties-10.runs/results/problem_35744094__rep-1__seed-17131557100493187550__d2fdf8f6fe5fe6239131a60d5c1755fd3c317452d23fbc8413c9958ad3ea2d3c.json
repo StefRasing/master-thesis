@@ -1,0 +1,188 @@
+{
+    "completed_at_utc": "2026-11-16T23:34:29.271",
+    "rng": "Random.Xoshiro",
+    "run_id": "d2fdf8f6fe5fe6239131a60d5c1755fd3c317452d23fbc8413c9958ad3ea2d3c",
+    "provenance_sha256": "e91fb1e6b3f1f6de467eeae42808adfd7c937593c389d9a4c6b8791dd4b09fde",
+    "started_at_utc": "2026-11-16T23:34:22.903",
+    "identity": {
+        "test_indices": [
+            1
+        ],
+        "problem": "problem_35744094",
+        "provenance_sha256": "e91fb1e6b3f1f6de467eeae42808adfd7c937593c389d9a4c6b8791dd4b09fde",
+        "fold": 1,
+        "seed": "17131557100493187550",
+        "repetition": 1,
+        "configuration": {
+            "timing_protocol": "warmed_v1",
+            "iterator_options": {
+                "population_size": 100
+            },
+            "problem_indices": [
+                16
+            ],
+            "shard": null,
+            "phalcon_options": {
+                "max_number_of_properties": 10
+            },
+            "benchmark": "strings",
+            "test_indices": null,
+            "algorithm": "phalcon_batch",
+            "verbose": false,
+            "task_names": null,
+            "timeout": 1800,
+            "reuse_interpreter": true,
+            "run": "1",
+            "seed": 1
+        }
+    },
+    "schema_version": 3,
+    "result": {
+        "problem_name": "problem_35744094",
+        "solved_train_examples": true,
+        "solution": "if suffixof_cvc(\"windows\", _arg_1)\n    \"windows\"\nelse\n    \"microsoft\"\nend",
+        "programs_enumerated": 8793,
+        "properties_enumerated": 10000,
+        "execution_time": 5.155227899551392,
+        "heuristic": [
+            [
+                "replace_cvc(\"windows\", _arg_out, _arg_1)",
+                1,
+                181
+            ],
+            [
+                "replace_cvc(_arg_out, \"/\", \"\")",
+                1,
+                220
+            ],
+            [
+                "replace_cvc(_arg_out, \"microsoft\", \"\")",
+                1,
+                229
+            ],
+            [
+                "replace_cvc(_arg_out, \"apple\", \"\")",
+                1,
+                247
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, \"microsoft\")",
+                1,
+                500
+            ],
+            [
+                "at_cvc(_arg_out, 0)",
+                1,
+                850
+            ],
+            [
+                "replace_cvc(_arg_out, \"windows\", concat_cvc(\"microsoft\", \"/\"))",
+                1,
+                7185
+            ],
+            [
+                "replace_cvc(\"windows\", _arg_out, \"\")",
+                2,
+                262
+            ],
+            [
+                "replace_cvc(_arg_out, \"windows\", \"microsoft\")",
+                2,
+                481
+            ],
+            [
+                "replace_cvc(_arg_1, _arg_out, \"windows\")",
+                2,
+                581
+            ]
+        ],
+        "population_costs": [
+            0
+        ],
+        "program_synthesis_durations": [
+            0.3251979351043701,
+            0.9523680210113525
+        ],
+        "property_invention_durations": [
+            3.785701036453247
+        ],
+        "property_sample_target": 1000,
+        "property_sample_size": 1000,
+        "effective_configuration": {
+            "timeout": 1800,
+            "phalcon": {
+                "timeout": 1800,
+                "rule_cost_func": {
+                    "function": "#benchmark_adapter##4"
+                },
+                "verbose": false,
+                "max_number_of_properties": 10,
+                "max_output_bytes": 22020096,
+                "property_types": [
+                    "ntString",
+                    "ntInt",
+                    "ntBool"
+                ],
+                "max_property_evaluations": 10000
+            },
+            "iterator": {
+                "max_extension_size": 1,
+                "max_size": 50,
+                "cost": {
+                    "function": "#44"
+                },
+                "rule_costs": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "max_generations_without_improvement": 10,
+                "max_initial_population_size": 1,
+                "benchmark": "HerbBenchmarks.PBE_SLIA_Track_2019",
+                "population_size": 100,
+                "candidate_pool_size": 2000
+            }
+        },
+        "fold": 1,
+        "folds": 3,
+        "train_test_split": [
+            [
+                2,
+                3
+            ],
+            [
+                1
+            ]
+        ],
+        "test_examples": 1,
+        "correct_test_examples": 0,
+        "solved_test_examples": false
+    }
+}

@@ -21,11 +21,6 @@ end
 
 """Deterministic folds, shared across algorithms, runs and repetitions."""
 function evaluation_folds(config, problem)
-    if config.algorithm == :phalcon_domain && config.benchmark in (:strings, :bitvectors)
-        isnothing(config.test_indices) ||
-            throw(ArgumentError("Domain Phalcon uses all supplied examples for $(config.benchmark)"))
-        return [Int[]]
-    end
     n = length(problem.spec)
     n >= 2 || throw(ArgumentError("$(problem.name) needs at least two examples"))
     if !isnothing(config.test_indices)
@@ -57,10 +52,6 @@ function split_problem(problem, test_indices)
 end
 
 function trial_split(config, problem, test_indices)
-    if config.algorithm == :phalcon_domain && config.benchmark in (:strings, :bitvectors)
-        isempty(test_indices) || throw(ArgumentError("expected no holdout examples"))
-        return problem, nothing, collect(eachindex(problem.spec))
-    end
     return split_problem(problem, test_indices)
 end
 
@@ -164,14 +155,15 @@ end
 
 Run on every invocation, including resume. Never share its search state or RNG.
 """
-function warmup_search!(adapter, benchmark; batch=false, naive=false)
+function warmup_search!(adapter, benchmark; batch=false, naive=false, domain=false)
     grammar = @csgrammar begin
         Start = 1
         Start = 2
         Start = Start + Start
     end
     problem = Problem("timing-warmup", [IOExample(Dict{Symbol,Any}(), 99)])
-    for algorithm in (naive ? :heuristic_naive : :heuristic, :phalcon)
+    algorithms = domain ? (:heuristic,) : (naive ? :heuristic_naive : :heuristic, :phalcon)
+    for algorithm in algorithms
         cost = algorithm == :heuristic_naive ? count_unsolved : (_ -> 1)
         iterator = GeneticIterator(grammar, :Start; benchmark=adapter.benchmark,
             problem, rng=Random.Xoshiro(0), cost, rule_costs=[1, 1, 1],
@@ -185,6 +177,7 @@ function warmup_search!(adapter, benchmark; batch=false, naive=false)
                 property_types=[:Start], max_property_evaluations=4, rule_cost_func=_ -> 1)
         end
     end
+    domain && return nothing
     if batch
         property_grammar = @csgrammar begin
             Start = _arg_out > 4
@@ -253,30 +246,23 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
     provenance = config.store ? run_provenance() : nothing
     provenance_hash = config.store ? save_provenance(path, provenance) : nothing
     configuration = config.store ? Dict(string(k) => json_value(getfield(config, k)) for k in fieldnames(ExperimentConfig)
-        if !(k in (:output, :store, :repetitions))) : nothing
+        if !(k in (:output, :store, :repetitions, :ranking_path))) : nothing
     results = Any[]
-    domain_rankings = Dict{Int,Any}()
-    sampling_interpreters = Dict()
-    domain_tasks = config.algorithm == :phalcon_domain && !isempty(tasks) ?
-        benchmark_tasks(ExperimentConfig(; algorithm=:phalcon_domain, benchmark=config.benchmark), adapter) : []
+    domain = config.algorithm == :phalcon_domain
+    domain && isnothing(config.ranking_path) &&
+        throw(ArgumentError("set ranking_path to a completed ranking directory or use phalcon-domain-search"))
+    domain_tasks = domain && !isempty(tasks) ? full_domain_tasks(config, adapter) : []
     domain_grammar = isempty(domain_tasks) ? nothing : domain_property_grammar(domain_tasks, adapter)
-    function ranking_for(fold)
-        isnothing(domain_grammar) && return nothing
-        return get!(domain_rankings, fold) do
-            println(io, "Ranking properties for $(config.benchmark), fold $fold ($(length(domain_tasks)) problems)")
-            ranking = prepare_domain_ranking(config, adapter, domain_tasks, domain_grammar, fold;
-                program_interpreters=sampling_interpreters)
-            println(io, "  Ranked $(length(ranking.ranked)) of $(ranking.enumerated) enumerated properties")
-            if config.store
-                report = domain_ranking_report(ranking, domain_tasks, fold)
-                publish_json(joinpath(path, "rankings", "$(fingerprint(report)).json"), report)
-            end
-            ranking
+    domain_rankings = Dict{Int,Any}()
+    if domain
+        trial_rounds = maximum((length(evaluation_folds(config, task.problem)) for task in tasks); init=0)
+        for fold in 1:trial_rounds
+            domain_rankings[fold] = load_domain_ranking(config, adapter, domain_tasks, domain_grammar, fold)
         end
     end
     # Repeat preparation after resume; never rely on completed trials to warm Julia.
     isempty(tasks) || warmup_search!(adapter, config.benchmark;
-        batch=config.algorithm == :phalcon_batch, naive=config.algorithm == :heuristic_naive)
+        batch=config.algorithm == :phalcon_batch, naive=config.algorithm == :heuristic_naive, domain)
     # Run-owned reuse of explicitly prepared, unchanged grammar interpreters.
     interpreters = IdDict{Any,Base.RefValue{Any}}()
     !config.store && println(io, "$(config.algorithm) · $(config.benchmark) · $(length(tasks)) problems · $(config.repetitions) repetitions")
@@ -287,13 +273,14 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
             # Independent streams: resume/order/sharding do not consume other runs' RNG state.
             seed_key = Dict("seed"=>config.seed, "run"=>config.run, "problem"=>problem.name, "repetition"=>repetition, "fold"=>fold, "test_indices"=>test_indices)
             seed = parse(UInt64, fingerprint(seed_key)[1:16]; base=16)
+            ranking = get(domain_rankings, fold, nothing)
             if !config.store
                 ref = isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref
                 if isnothing(ref[]) && !(config.algorithm == :heuristic && config.benchmark == :strings && grammar.rules[1] != :ntString)
                     ref[] = prepare_interpreter(config, adapter, problem, grammar; test_indices)
                 end
                 result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=ref, test_indices, fold, folds=length(folds), domain_ranking=ranking_for(fold))
+                    interpreter_ref=ref, test_indices, fold, folds=length(folds), domain_ranking=ranking)
                 display_result(io, result; repetition, repetitions=config.repetitions)
                 push!(results, result)
                 continue
@@ -301,6 +288,7 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
             identity = Dict("problem"=>problem.name, "configuration"=>configuration,
                 "seed"=>string(seed), "repetition"=>repetition, "fold"=>fold, "test_indices"=>test_indices,
                 "provenance_sha256"=>provenance_hash)
+            domain && (identity["ranking_sha256"] = ranking.sha256)
             config.store && completed_run(path, identity) && continue
             ref = isnothing(interpreter_ref) ? Ref{Any}(nothing) : interpreter_ref
             if isnothing(ref[]) && !(config.algorithm == :heuristic && config.benchmark == :strings && grammar.rules[1] != :ntString)
@@ -308,7 +296,7 @@ function run_experiment(config::ExperimentConfig; io::IO=stdout)
             end
             started = string(now(UTC))
             result = run_trial(config, adapter, problem, grammar; rng=Random.Xoshiro(seed),
-                    interpreter_ref=ref, test_indices, fold, folds=length(folds), domain_ranking=ranking_for(fold))
+                    interpreter_ref=ref, test_indices, fold, folds=length(folds), domain_ranking=ranking)
             record = Dict("schema_version"=>3, "run_id"=>fingerprint(identity),
                 "identity"=>identity, "rng"=>"Random.Xoshiro", "provenance_sha256"=>provenance_hash,
                 "started_at_utc"=>started, "completed_at_utc"=>string(now(UTC)), "result"=>result)

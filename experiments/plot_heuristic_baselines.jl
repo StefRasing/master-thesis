@@ -5,6 +5,26 @@ const BASELINE_ROOT = joinpath(dirname(dirname(DEFAULT_RESULTS)), "heuristic_pop
 const PHALCON_ROOT = joinpath(dirname(DEFAULT_RESULTS), "daic-uncapped-20261112-pop100")
 const METHODS = (("heuristic", "Informed"), ("heuristic_naive", "Naive"),
     ("phalcon", "Phalcon"))
+const CROSSBEAM_STRINGS = joinpath(BASELINE_ROOT, "crossbeam_strings.json")
+const BUSTLE_ENUMERATIONS = [1, 700, 4100, 11_000, 31_000, 250_000, 9_000_000]
+const BUSTLE_SOLVED = [0, 10, 20, 30, 40, 70, 80]
+# Match the normalization in the earlier thesis figure (Fig. 6.1).
+const BUSTLE_TASKS = 90
+
+function string_training_overlays(crossbeam, field)
+    costs = [getproperty(row, field) for row in crossbeam]
+    @assert !isempty(costs) && all(cost -> isfinite(cost) && cost > 0, costs)
+    hits = sort!(costs[map(row -> row.solved, crossbeam)])
+    budgets = sort!(unique([hits; maximum(costs)]))
+    curves = [(; label="CrossBeam", budgets, estimated=false,
+        percentages=100 .* searchsortedlast.(Ref(hits), budgets) ./ length(costs))]
+    if field === :programs
+        push!(curves, (; label="BUSTLE (est.)", budgets=BUSTLE_ENUMERATIONS, estimated=true,
+            percentages=100 .* BUSTLE_SOLVED ./ BUSTLE_TASKS))
+    end
+    return curves
+end
+
 const FOLDS_PER_RUN = Dict("strings" => 449, "bitvectors" => 755)
 
 function load_baseline_comparison(root, domain, algorithm; first_attempt=false)
@@ -68,6 +88,10 @@ function plot_baselines(baseline_root=BASELINE_ROOT, phalcon_root=PHALCON_ROOT,
                 "$(count(row -> !row.supported, values(rows))) unsupported")
         end
     end
+    crossbeam = first_attempt ? [] : [
+        (; seconds=Float64(row.execution_time), programs=Int(row.programs_enumerated), solved=Bool(row.solved))
+        for row in JSON3.read(read(CROSSBEAM_STRINGS, String))
+    ]
     mkpath(output)
     labels = Dict(methods)
     series = first.(methods)
@@ -75,8 +99,11 @@ function plot_baselines(baseline_root=BASELINE_ROOT, phalcon_root=PHALCON_ROOT,
         (:seconds, "Execution time per fold (s)", "01_execution_time"),
         (:programs, "Programs enumerated per fold", "02_program_enumerations"),
     )
-        figure = performance(data, series, field, xlabel; show_bounds=true, domains,
-            series_label=method -> labels[method], legend_title="Method / split")
+        training_overlays = first_attempt ? () : string_training_overlays(crossbeam, field)
+        label = first_attempt ? xlabel : replace(xlabel, " per fold" => "")
+        figure = performance(data, series, field, label; show_bounds=true, domains, training_overlays,
+            series_label=method -> labels[method], legend_title="Method / split",
+            arc_placeholder=!first_attempt)
         save_figure(figure, output, filename)
     end
 end

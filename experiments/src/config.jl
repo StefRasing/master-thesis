@@ -10,6 +10,7 @@ Base.@kwdef struct ExperimentConfig
     reuse_interpreter::Bool = true
     timing_protocol::Symbol = :warmed_v1
     output::Union{Nothing,String} = nothing
+    ranking_path::Union{Nothing,String} = nothing
     store::Bool = true
     task_names::Union{Nothing,Vector{String}} = nothing
     problem_indices = Colon()

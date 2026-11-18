@@ -1,0 +1,231 @@
+{
+    "completed_at_utc": "2026-11-16T10:19:06.574",
+    "rng": "Random.Xoshiro",
+    "run_id": "15ae7524f81d41ed7cd02ac987a6b586457639c40b5877c7a76427e9984e564f",
+    "provenance_sha256": "1fb0389412f5ee59987bf3e3b58ccb19a71ec514651a4ddbb832ad768b190275",
+    "started_at_utc": "2026-11-16T10:18:51.995",
+    "identity": {
+        "test_indices": [
+            3,
+            5
+        ],
+        "problem": "problem_univ_4",
+        "provenance_sha256": "1fb0389412f5ee59987bf3e3b58ccb19a71ec514651a4ddbb832ad768b190275",
+        "fold": 3,
+        "seed": "5507264680936391219",
+        "repetition": 1,
+        "configuration": {
+            "timing_protocol": "warmed_v1",
+            "iterator_options": {
+                "population_size": 100
+            },
+            "problem_indices": [
+                122
+            ],
+            "shard": null,
+            "phalcon_options": {
+                "agreement_threshold": 10,
+                "max_number_of_properties": 9223372036854775807,
+                "max_property_evaluations": 10000
+            },
+            "benchmark": "strings",
+            "test_indices": null,
+            "algorithm": "phalcon",
+            "verbose": false,
+            "task_names": null,
+            "timeout": 1800,
+            "reuse_interpreter": true,
+            "run": "4",
+            "seed": 1
+        }
+    },
+    "schema_version": 3,
+    "result": {
+        "problem_name": "problem_univ_4",
+        "solved_train_examples": true,
+        "solution": "replace_cvc(replace_cvc(_arg_2, \"CA\", concat_cvc(\"CA\", concat_cvc(substr_cvc(concat_cvc(concat_cvc(\"MD\", substr_cvc(\"New York\", 1, 2)), _arg_2), len_cvc(_arg_2), 2), \"USA\"))), concat_cvc(\" \", \"New York\"), concat_cvc(\" \", \"NY\"))",
+        "programs_enumerated": 267116,
+        "properties_enumerated": 24308,
+        "execution_time": 14.472078800201416,
+        "heuristic": [
+            [
+                "replace_cvc(_arg_1, \" \", _arg_out)",
+                1,
+                1781
+            ],
+            [
+                "indexof_cvc(_arg_out, \"CA\", 0)",
+                5,
+                2489
+            ],
+            [
+                "replace_cvc(_arg_2, _arg_out, _arg_1)",
+                1,
+                306
+            ],
+            [
+                "suffixof_cvc(\"USA\", _arg_out)",
+                1,
+                3097
+            ],
+            [
+                "contains_cvc(_arg_out, \"NY\")",
+                9,
+                3235
+            ],
+            [
+                "indexof_cvc(_arg_out, \"NY\", 0)",
+                2,
+                2513
+            ],
+            [
+                "at_cvc(_arg_out, 2)",
+                2,
+                1936
+            ],
+            [
+                "indexof_cvc(_arg_out, _arg_1, 0)",
+                1,
+                2393
+            ],
+            [
+                "len_cvc(_arg_out)",
+                5,
+                2369
+            ],
+            [
+                "replace_cvc(_arg_2, \"CA\", _arg_out)",
+                1,
+                1854
+            ],
+            [
+                "substr_cvc(_arg_out, 2, 2)",
+                5,
+                2335
+            ]
+        ],
+        "population_costs": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            100
+        ],
+        "program_synthesis_durations": [
+            0.00011301040649414062,
+            0.10077810287475586,
+            0.15192508697509766,
+            0.38094615936279297,
+            0.5835049152374268,
+            0.5395281314849854,
+            1.08833909034729,
+            1.1156041622161865,
+            0.9893550872802734,
+            1.7130911350250244,
+            3.7049150466918945,
+            2.3156700134277344
+        ],
+        "property_invention_durations": [
+            0.42748403549194336,
+            0.44267797470092773,
+            0.008149862289428711,
+            0.13584494590759277,
+            0.10027790069580078,
+            0.05539703369140625,
+            0.04798483848571777,
+            0.05180191993713379,
+            0.05433797836303711,
+            0.04368090629577637,
+            0.07167601585388184
+        ],
+        "effective_configuration": {
+            "timeout": 1800,
+            "phalcon": {
+                "agreement_threshold": 10,
+                "timeout": 1800,
+                "rule_cost_func": {
+                    "function": "#benchmark_adapter##4"
+                },
+                "verbose": false,
+                "max_number_of_properties": 9223372036854775807,
+                "max_output_bytes": 22020096,
+                "property_types": [
+                    "ntString",
+                    "ntInt",
+                    "ntBool"
+                ],
+                "max_property_evaluations": 10000
+            },
+            "iterator": {
+                "max_extension_size": 1,
+                "max_size": 50,
+                "cost": {
+                    "function": "#30"
+                },
+                "rule_costs": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1
+                ],
+                "max_generations_without_improvement": 10,
+                "max_initial_population_size": 1,
+                "benchmark": "HerbBenchmarks.PBE_SLIA_Track_2019",
+                "population_size": 100,
+                "candidate_pool_size": 2000
+            }
+        },
+        "fold": 3,
+        "folds": 5,
+        "train_test_split": [
+            [
+                1,
+                2,
+                4,
+                6,
+                7,
+                8
+            ],
+            [
+                3,
+                5
+            ]
+        ],
+        "test_examples": 2,
+        "correct_test_examples": 1,
+        "solved_test_examples": false
+    }
+}

@@ -1,0 +1,35 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+4: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+5: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+0: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+7: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+3: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+6: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+1: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+2: bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+4: ERROR: LoadError: SystemError: close: Disk quota exceeded
+4: Stacktrace:
+4:   [1] systemerror(p::String, errno::Int32; extrainfo::Nothing)
+4:     @ Base ./error.jl:186
+4:   [2] systemerror
+4:     @ ./error.jl:185 [inlined]
+4:   [3] close(s::IOStream)
+4:     @ Base ./iostream.jl:82
+4:   [4] publish_json(destination::String, value::Dict{String, Any})
+4:     @ Main.Experiments ~/phalcon-ablation-uncapped-20261112/master-thesis/experiments/src/io.jl:83
+4:   [5] append_result(path::String, record::Dict{String, Any})
+4:     @ Main.Experiments ~/phalcon-ablation-uncapped-20261112/master-thesis/experiments/src/io.jl:110
+4:   [6] run_experiment(config::ExperimentConfig; io::Base.PipeEndpoint)
+4:     @ Main.Experiments ~/phalcon-ablation-uncapped-20261112/master-thesis/experiments/src/runner.jl:270
+4:   [7] run_experiment(config::ExperimentConfig)
+4:     @ Main.Experiments ~/phalcon-ablation-uncapped-20261112/master-thesis/experiments/src/runner.jl:212
+4:   [8] top-level scope
+4:     @ ~/phalcon-acceptance-20261116/run.jl:38
+4:   [9] include(mod::Module, _path::String)
+4:     @ Base ./Base.jl:306
+4:  [10] exec_options(opts::Base.JLOptions)
+4:     @ Base ./client.jl:317
+4:  [11] _start()
+4:     @ Base ./client.jl:550
+4: in expression starting at /home/nfs/smrasing/phalcon-acceptance-20261116/run.jl:38
+srun: error: gpu09: task 4: Exited with exit code 1

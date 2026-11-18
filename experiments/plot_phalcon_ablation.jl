@@ -107,21 +107,37 @@ function plot_bounds!(ax, budgets, worst, best; color, alpha)
 end
 
 function performance(data, series, field, x_label; show_bounds=false,
-    series_label=string, legend_title="Population / split", domains=DOMAINS)
+    series_label=string, legend_title="Population / split", domains=DOMAINS, training_overlays=(), arc_placeholder=false)
     lower, upper = extrema(getproperty(fold, field)
         for groups in values(data) for folds in values(groups) for fold in values(folds)
         if !ismissing(getproperty(fold, field)) && getproperty(fold, field) > 0)
+    # Reserve space for data plotted only in the strings panel.
+    for overlay in training_overlays
+        lower = min(lower, first(overlay.budgets))
+        upper = max(upper, last(overlay.budgets))
+    end
     limits = (lower / 1.3, upper * 1.12)
     first_decade, last_decade = ceil(Int, log10(limits[1])), floor(Int, log10(limits[2]))
-    decades = first_decade:(last_decade - first_decade >= 6 ? 2 : 1):last_decade
+    decades = first_decade:(arc_placeholder ? 3 : last_decade - first_decade >= 6 ? 2 : 1):last_decade
     ticks = (10.0 .^ decades, ["1e$exponent" for exponent in decades])
+    solve_formatter = arc_placeholder ? y -> string(round(Int, y)) : y -> "$(round(Int, y))%"
     legend_position = length(domains) == 1 ? :outerbottom : :topleft
+    legend_domain = arc_placeholder ? nothing : last(domains)[1]
+    curve_end = arc_placeholder ? nextfloat(limits[2] * 1.01) : limits[2]
+    solve_limits = arc_placeholder ? (-3, 103) : (0, 103)
+    compact = arc_placeholder ? (; titlefontsize=7, tickfontsize=5, guidefontsize=6,
+        left_margin=-1mm, right_margin=0mm, top_margin=-1mm, bottom_margin=-1mm) : (;)
+    endpoints = Dict(domain => Tuple{Float64,String,Symbol}[] for (domain, _) in domains)
     panels = map(domains) do (domain, title)
-        ax = panel(title; xscale=:log10, xlims=limits, xticks=ticks, ylims=(0, 103), yticks=0:20:100, xlabel=x_label,
-            ylabel=domain == first(domains)[1] ? "Folds solved" : "",
-            legend=domain == last(domains)[1] ? legend_position : false,
+        heading = arc_placeholder && domain == "bitvectors" ? "Bit-vectors" : title
+        ax = panel(heading; xscale=:log10, xlims=limits, xticks=ticks,
+            ylims=solve_limits, yticks=arc_placeholder ? [0, 50, 100] : 0:20:100,
+            xlabel=arc_placeholder ? "" : x_label,
+            ylabel=!arc_placeholder && domain == first(domains)[1] ?
+                (isempty(training_overlays) ? "Folds solved" : "Solved") : "",
+            legend=domain == legend_domain ? legend_position : false,
             legend_column=length(domains) == 1 ? 2 : 1,
-            legend_title, yformatter=y -> "$(round(Int, y))%")
+            legend_title, yformatter=solve_formatter, compact...)
         if show_bounds
             for (key, color) in zip(series, COLORS)
                 groups = data[domain, key]
@@ -143,12 +159,42 @@ function performance(data, series, field, x_label; show_bounds=false,
                 costs = first.(events)
                 @assert all(>(0), costs) "Solved folds must have positive costs on the log axis."
                 accuracy = cumsum(last.(events))
-                plot_steps!(ax, [limits[1]; costs; limits[2]],
-                    [0; accuracy; sum(last, events; init=0.0)], color, marker, i, linestyle;
+                final_accuracy = sum(last, events; init=0.0)
+                if arc_placeholder
+                    push!(endpoints[domain], (final_accuracy, color, marker))
+                end
+                plot_steps!(ax, [limits[1]; costs; curve_end],
+                    [0; accuracy; final_accuracy], color, marker, i, linestyle;
                     label=criterion === :solved ? series_label(key) : false)
             end
         end
-        if domain == last(domains)[1]
+        if domain == "strings"
+            for (i, overlay) in enumerate(training_overlays)
+                index = length(series) + i
+                color, marker = COLORS[index], MARKERS[index]
+                if arc_placeholder
+                    push!(endpoints[domain], (last(overlay.percentages), color, marker))
+                end
+                label = domain == legend_domain ? overlay.label : false
+                if overlay.estimated
+                    plot!(ax, overlay.budgets, overlay.percentages; color, marker, linestyle=:dash,
+                        linewidth=1.8, markersize=2.3, markerstrokewidth=0.7,
+                        markerstrokecolor=:white, label)
+                else
+                    plot_steps!(ax, [limits[1]; overlay.budgets; curve_end],
+                        [0; overlay.percentages; last(overlay.percentages)],
+                        color, marker, index, :dot; label)
+                end
+            end
+        end
+        if domain == legend_domain
+            if domain != "strings"
+                for (i, overlay) in enumerate(training_overlays)
+                    index = length(series) + i
+                    scatter!(ax, [NaN], [NaN]; color=COLORS[index], marker=MARKERS[index],
+                        markersize=2, markerstrokewidth=0.65, label=overlay.label)
+                end
+            end
             plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, label="Test")
             plot!(ax, [NaN], [NaN]; color=:black, linewidth=2, linestyle=:dot, label="Training")
             if show_bounds
@@ -157,6 +203,51 @@ function performance(data, series, field, x_label; show_bounds=false,
             end
         end
         ax
+    end
+    if arc_placeholder
+        arc = panel("ARC-AGI-1"; xscale=:log10, xlims=limits, xticks=ticks, ylims=solve_limits,
+            yticks=[0, 50, 100], yformatter=solve_formatter, legend=false, compact...)
+        annotate!(arc, sqrt(prod(limits)), 50, Plots.text("Pending", 5, :gray))
+        key = plot(; framestyle=:none, legend=false, grid=false, xlims=(0, 1),
+            ylims=(0.5, 8.5), margins=0mm, fontfamily="Helvetica")
+        methods = [(series_label(method), color, marker) for (method, color, marker) in zip(series, COLORS, MARKERS)]
+        for (i, overlay) in enumerate(training_overlays)
+            index = length(series) + i
+            push!(methods, (overlay.label, COLORS[index], MARKERS[index]))
+        end
+        order = ("Phalcon", "Informed", "Naive", "CrossBeam", "BUSTLE (est.)")
+        sort!(methods; by=method -> something(findfirst(==(first(method)), order), length(order) + 1))
+        for (i, (label, color, marker)) in enumerate(methods)
+            y = 9 - i
+            scatter!(key, [0.24], [y]; color, marker, markersize=1.8, markerstrokewidth=0.5)
+            annotate!(key, 0.39, y, Plots.text(label, 5, :black, :left))
+        end
+        y = 8 - length(methods)
+        for (label, linestyle) in (("Test", :solid), ("Training", :dot))
+            plot!(key, [0.15, 0.33], [y, y]; color=:black, linestyle, linewidth=1.2)
+            annotate!(key, 0.39, y, Plots.text(label, 5, :black, :left))
+            y -= 1
+        end
+        function endpoint_labels(domain)
+            labels = sort(endpoints[domain]; by=first, rev=true)
+            gutter = plot(; framestyle=:none, legend=false, grid=false,
+                xlims=(0, 1), ylims=(solve_limits[1], solve_limits[2]), margins=0mm,
+                ticks=nothing, showaxis=false, left_margin=-2mm, right_margin=-1mm)
+            for ((value, color, marker), y) in zip(labels, range(95, 8; length=length(labels)))
+                scatter!(gutter, [0.08], [y]; color, marker, markersize=1.6, markerstrokewidth=0.4)
+                label = string(round(value; digits=1), "%")
+                annotate!(gutter, 0.19, y, Plots.text(label, 4, color, :left))
+            end
+            return gutter
+        end
+        heading = field === :seconds ? "Solved (%) vs. execution time (s)" : "Solved (%) vs. programs enumerated"
+        layout = grid(2, 1; heights=[0.53, 0.47])
+        layout[1, 1] = grid(1, 4; widths=[0.39, 0.11, 0.39, 0.11])
+        layout[2, 1] = grid(1, 3; widths=[0.39, 0.11, 0.50])
+        blank = plot(; framestyle=:none, legend=false, grid=false, margins=0mm)
+        return plot(panels[1], endpoint_labels("strings"), panels[2], endpoint_labels("bitvectors"),
+            arc, blank, key; layout, size=(COLUMN_WIDTH, 285), dpi=440,
+            plot_title=heading, plot_titlevspan=0.08, plot_titlefontsize=8, plot_titlefontfamily="Helvetica")
     end
     return plot(panels...; layout=(1, length(panels)), link=:y,
         size=(length(panels) == 1 ? COLUMN_WIDTH : PAPER_WIDTH, 240))

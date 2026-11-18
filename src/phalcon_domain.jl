@@ -183,6 +183,53 @@ function _sample_domain_programs(task, benchmark, rule_cost_func, population_siz
     return outputs
 end
 
+function _friedman_domain_order(tasks, contexts, sample_sizes, programs, interpret, cache_bytes, deadline)
+    patterns = [falses(sum(sample_sizes)) for _ in programs]
+    scores = Matrix{Int}(undef, length(programs), length(tasks))
+    offset = 0
+    for (i, task) in enumerate(tasks)
+        cache = DomainPropertyOutputCache(cache_bytes)
+        for (j, program) in enumerate(programs)
+            _check_deadline(deadline)
+            values = _evaluate_domain_property(interpret, program, contexts[i], cache, i)
+            scores[j, i] = something(_domain_agreement(values, length(task.problem.spec),
+                sample_sizes[i]; pattern=patterns[j], offset), 0)
+        end
+        offset += sample_sizes[i]
+    end
+
+    seen = Set{BitVector}()
+    representatives = filter(eachindex(programs)) do j
+        patterns[j] in seen && return false
+        push!(seen, patterns[j])
+        return true
+    end
+
+    # Accumulate twice the midrank to preserve ties exactly.
+    rank_sums = zeros(Int, length(programs))
+    for column in eachcol(scores)
+        _check_deadline(deadline)
+        counts = zeros(Int, maximum(sample_sizes) + 21)
+        for j in representatives
+            score = iszero(column[j]) ? 20 : column[j]
+            counts[score + 1] += 1
+        end
+        preceding = 0
+        doubled_midrank = map(counts) do count
+            rank = 2 * preceding + count + 1
+            preceding += count
+            return rank
+        end
+        for j in representatives
+            score = iszero(column[j]) ? 20 : column[j]
+            rank_sums[j] += doubled_midrank[score + 1]
+        end
+    end
+    sort!(representatives; by=j -> (rank_sums[j], j))
+    ranked = [(programs[j], sum(view(scores, j, :)), j) for j in representatives]
+    return ranked, rank_sums[representatives] ./ (2 * length(tasks))
+end
+
 """
     rank_domain_properties(tasks; benchmark, grammar, property_types, rule_cost_func, ...)
 
@@ -192,7 +239,9 @@ Rank the first 10,000 syntactic properties containing `_arg_out` by ascending
 total agreement. A program agrees only if every example matches. Discard a
 property if more than half of the tasks have zero agreement. Keep the first
 property for each agreement pattern across all sampled programs. Ties retain
-enumeration order.
+enumeration order. With `method=:friedman`, retain distinct patterns without
+zero-agreement pruning and order by mean within-task rank, scoring zero as 20.
+The agreement field still records the raw sum of agreement counts.
 """
 function rank_domain_properties(tasks;
     benchmark::Module, grammar::AbstractGrammar, property_types::Vector{Symbol},
@@ -200,7 +249,9 @@ function rank_domain_properties(tasks;
     max_program_cost::Int=6, max_program_evaluations::Int=100_000, max_property_cost::Union{Nothing,Int}=nothing,
     prune_node_by_output::Function=_ -> false, max_output_bytes::Int=21 * 1024^2,
     cache_bytes::Int=128 * 1024^2, timeout::Real=Inf, program_interpreters=Dict(),
+    method::Symbol=:agreement_sum,
 )
+    method in (:agreement_sum, :friedman) || throw(ArgumentError("unknown domain ranking method: $method"))
     isempty(tasks) && throw(ArgumentError("domain ranking requires at least one task"))
     all(t -> !isempty(t.problem.spec), tasks) || throw(ArgumentError("domain tasks need examples"))
     population_size > 0 || throw(ArgumentError("population_size must be positive"))
@@ -210,6 +261,7 @@ function rank_domain_properties(tasks;
     deadline = _search_time() + timeout
     start = time()
     ranked = Tuple{RuleNode,Int,Int}[]
+    mean_ranks = Float64[]
     sample_sizes = Int[]
     enumerated = 0
     interpret = nothing
@@ -232,25 +284,36 @@ function rank_domain_properties(tasks;
         cache = DomainPropertyOutputCache(cache_bytes)
         costs = Int[rule_cost_func(r) for r in grammar.rules]
         all(>=(0), costs) || throw(ArgumentError("property rule costs must be nonnegative"))
+        candidates = RuleNode[]
         pattern = falses(sum(sample_sizes))
         seen_agreements = Set{BitVector}()
         try
             _foreach_domain_property(grammar, property_types, costs, something(max_property_cost, typemax(Int)); deadline) do program, _, _
                 enumerated += 1
-                score = _domain_score!(pattern, program, tasks, contexts, sample_sizes,
-                    interpret, cache, max_output_bytes, prune_node_by_output, deadline)
-                if score > 0 && !(pattern in seen_agreements)
-                    push!(seen_agreements, copy(pattern))
-                    push!(ranked, (program, score, enumerated))
+                if method == :friedman
+                    push!(candidates, program)
+                else
+                    score = _domain_score!(pattern, program, tasks, contexts, sample_sizes,
+                        interpret, cache, max_output_bytes, prune_node_by_output, deadline)
+                    if score > 0 && !(pattern in seen_agreements)
+                        push!(seen_agreements, copy(pattern))
+                        push!(ranked, (program, score, enumerated))
+                    end
                 end
                 enumerated == max_property_evaluations && throw(DomainPropertyLimit())
             end
         catch err
             err isa DomainPropertyLimit || rethrow()
         end
-        sort!(ranked; by=entry -> (entry[2], entry[3]))
+        if method == :friedman
+            ranked, mean_ranks = _friedman_domain_order(tasks, contexts, sample_sizes,
+                candidates, interpret, cache_bytes, deadline)
+        else
+            sort!(ranked; by=entry -> (entry[2], entry[3]))
+        end
     end
-    return (; grammar, benchmark, interpret, ranked, enumerated, sample_sizes, duration=time() - start)
+    return (; grammar, benchmark, interpret, ranked, enumerated, sample_sizes, duration=time() - start,
+        method, mean_ranks)
 end
 
 """

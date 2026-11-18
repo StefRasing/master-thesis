@@ -35,7 +35,11 @@ end
 =#
 
 """
-    phalcon(; iterator, agreement_threshold=1, timeout=typemax(Int), ...)
+    phalcon(; iterator, agreement_threshold=1, restart_on_property=nothing, timeout=typemax(Int), ...)
+
+Set `restart_on_property=false` to rescore the current GP population after
+adding a property and continue searching from it. By default, Phalcon uses
+the iterator's setting, which defaults to restarting.
 
 Each property search stops at the first property with agreement from 1 through
 `agreement_threshold`, inclusive. If the search exhausts its evaluation budget
@@ -55,6 +59,7 @@ function phalcon(;
     max_property_cost::Union{Nothing,Int} = nothing,
     max_property_evaluations::Int = isnothing(max_property_cost) ? DEFAULT_MAX_PROPERTY_EVALUATIONS : typemax(Int),
     agreement_threshold::Int = 1,
+    restart_on_property::Union{Nothing,Bool} = nothing,
     grammar_to_property_grammar::Function = _grammar_to_property_grammar,
     rule_cost_func::Function,
     prune_node_by_output::Function = _ -> false,
@@ -164,7 +169,12 @@ function phalcon(;
             push!(selected_properties, property)
 
             # Define new cost
-            update_cost_function(iterator, _property_cost(iterator.problem, selected_properties, property_interp); deadline)
+            cost = _property_cost(iterator.problem, selected_properties, property_interp)
+            if isnothing(restart_on_property)
+                update_cost_function(iterator, cost; deadline)
+            else
+                update_cost_function(iterator, cost; restart_on_property, deadline)
+            end
         end
 
     catch err
